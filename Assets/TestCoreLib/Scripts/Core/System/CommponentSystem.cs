@@ -28,10 +28,8 @@ public interface IDestroy
 }
 public interface IComponent : IAwake, IStart, IUpdtae, ILateUpdta, IFixedUpdtae, IDestroy
 {
-    public Entity ComEntity { get; set; }
-    public Entity Dependency { get; set; }
-    public bool IsDestroy { get; set; }
-    public bool IsActive { get; set; }
+    Entity ComEntity { get; set; }
+    Entity Dependency { get; set; }
 }
 
 public static class ComponentSystemExtension
@@ -63,17 +61,55 @@ public static class ComponentSystemExtension
         CommponentSystem.CommponentPool[entity.Guid] = obj;
     }
 
-    ///// <summary>
-    ///// 移除组件
-    ///// </summary>
-    ///// <param name="entity"></param>
-    ///// <param name="componets"></param>
-    //public static bool RemoveComponents<T>(this Entity entity,out IEnumerable<T> components) where T : struct, IComponent
-    //{
-    //    components = GetComponents(entity);
-    //    if (components == null) return true;
-    //    return true;
-    //}
+    /// <summary>
+    /// 移除组件
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="componets"></param>
+    public static void RemoveComponents<T>(this Entity entity, out IEnumerable<T> components) where T : struct, IComponent
+    {
+        components = GetComponents<T>(entity);
+        if (components == null) return;
+        foreach (T component in components)
+        {
+            CommponentSystem.CommponentPool[entity.Guid].ComDicts.Remove(component.ComEntity.Guid);
+        }
+    }
+    /// <summary>
+    /// 移除组件
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="componets"></param>
+    public static int RemoveComponents<T>(this Entity entity) where T : struct, IComponent
+    {
+        var guids = GetComponents<T>(entity).Select(com=>com.ComEntity.Guid).ToArray();
+        foreach (Guid id in guids)
+        {
+            CommponentSystem.CommponentPool[entity.Guid].ComDicts.Remove(id);
+        }
+        return guids.Length;
+    }
+    /// <summary>
+    /// 移除组件
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="componets"></param>
+    public static bool RemoveComponent(this Entity entity, Guid comid)
+    {
+        if (entity.Guid == Guid.Empty) return false;
+        if (!CommponentSystem.CommponentPool.ContainsKey(entity.Guid) || !CommponentSystem.CommponentPool[entity.Guid].ComDicts.ContainsKey(comid)) return false;
+        CommponentSystem.CommponentPool[entity.Guid].ComDicts.Remove(comid);
+        return true;
+    }
+    /// <summary>
+    /// 移除组件
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="componets"></param>
+    public static bool RemoveComponent<T>(this Entity entity, T component) where T : struct, IComponent
+    {
+        return entity.RemoveComponent(component.ComEntity.Guid);
+    }
     /// <summary>
     /// 根据组件ID获取组件
     /// </summary>
@@ -95,11 +131,11 @@ public static class ComponentSystemExtension
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="componets"></param>
-    public static IEnumerable<T> GetComponents<T>(this Entity entity) where T : struct, IComponent
+    public static T[] GetComponents<T>(this Entity entity) where T : struct, IComponent
     {
         if (entity.Guid == Guid.Empty) return null;
         if (!CommponentSystem.CommponentPool.ContainsKey(entity.Guid)) return null;
-        return CommponentSystem.CommponentPool[entity.Guid].ComDicts.Values.OfType<T>();
+        return CommponentSystem.CommponentPool[entity.Guid].ComDicts.Values.OfType<T>().ToArray();
     }
     /// <summary>
     /// 提交修改

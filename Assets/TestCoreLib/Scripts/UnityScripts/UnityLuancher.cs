@@ -43,7 +43,7 @@ public class UnityLuancher : MonoBehaviour
         MoveComponent move = CommponentSystem.Create<MoveComponent>();
         ; Log.Info(nameof(move) + ":" + move.ComEntity.Guid.ToString());
         move.Name = "Move";//只改了本地
-        MoveComponent move2 = obj.AddComponent<MoveComponent>(); 
+        MoveComponent move2 = obj.AddComponent<MoveComponent>();
         Log.Info(nameof(move2) + ":" + move2.ComEntity.Guid.ToString());
         move2.Name = "Down";//只改了本地
 
@@ -60,6 +60,17 @@ public class UnityLuancher : MonoBehaviour
         Log.Info($"{obj.GetComponents<MoveComponent>().Count()}");
         Log.Info($"{obj.GetComponents<Component>().Count()}");
 
+        obj.RemoveComponent(moveChanageName);
+        Log.Info($"{obj.GetComponents<MoveComponent>().Count()}");
+        int count = obj.RemoveComponents<Component>();
+        Log.Info($"{obj.GetComponents<Component>().Count()}:Remove Count{count}");
+
+
+        for (int i = 0; i < 1000000; i++)
+        {
+            Component test = obj.AddComponent<Component>();//依赖组件
+        }
+        Log.Info($"{obj.GetComponents<Component>().Count()}:Remove Count{count}");
     }
 
     void Start()
