@@ -9,6 +9,7 @@ public interface IComponent
 
 public struct Component : IComponent
 {
+    public string Name;
     public Entity ComEntity { get; set; }
     public Entity Dependency { get; set; }
 }

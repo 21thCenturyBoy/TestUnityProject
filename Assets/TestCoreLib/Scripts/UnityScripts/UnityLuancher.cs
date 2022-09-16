@@ -40,37 +40,37 @@ public class UnityLuancher : MonoBehaviour
         Component com2 = obj.AddComponent<Component>();//依赖组件
         Log.Info(nameof(com2) + ":" + com2.ComEntity.Guid.ToString());
 
-        BehaviorComponent move = ComponentExtension.Create<BehaviorComponent>();
+        Component move = ComponentExtension.Create<Component>();
         ; Log.Info(nameof(move) + ":" + move.ComEntity.Guid.ToString());
         move.Name = "Move";//只改了本地
-        BehaviorComponent move2 = obj.AddComponent<BehaviorComponent>();
+        Component move2 = obj.AddComponent<Component>();
         Log.Info(nameof(move2) + ":" + move2.ComEntity.Guid.ToString());
         move2.Name = "Down";//只改了本地
 
         move.LinkEntity(obj);//接入组件系统再修改
 
         move.Name = "MoveChanageName";//只改了本地
-        BehaviorComponent moveChanageName;
-        obj.GetComponent<BehaviorComponent>(move.ComEntity.Guid, out moveChanageName);
+        Component moveChanageName;
+        obj.GetComponent<Component>(move.ComEntity.Guid, out moveChanageName);
         Log.Info($"没有修改CommponentSystem的名称:{moveChanageName.Name}");
         move.Update();
-        obj.GetComponent<BehaviorComponent>(move.ComEntity.Guid, out moveChanageName);
+        obj.GetComponent<Component>(move.ComEntity.Guid, out moveChanageName);
         Log.Info($"修改了CommponentSystem的名称:{moveChanageName.Name}");
 
-        Log.Info($"{obj.GetComponents<BehaviorComponent>().Count()}");
+        Log.Info($"{obj.GetComponents<Component>().Count()}");
         Log.Info($"{obj.GetComponents<Component>().Count()}");
 
         obj.RemoveComponent(moveChanageName);
-        Log.Info($"{obj.GetComponents<BehaviorComponent>().Count()}");
+        Log.Info($"{obj.GetComponents<Component>().Count()}");
         int count = obj.RemoveComponents<Component>();
         Log.Info($"{obj.GetComponents<Component>().Count()}:Remove Count{count}");
 
 
-        for (int i = 0; i < 1000000; i++)
+        for (int i = 0; i < 1000; i++)
         {
             Component test = obj.AddComponent<Component>();//依赖组件
         }
-        Log.Info($"{obj.GetComponents<Component>().Count()}:Remove Count{count}");
+        Log.Info($"{obj.GetComponents<Component>().Count()}");
     }
 
     void Start()
@@ -83,7 +83,7 @@ public class UnityLuancher : MonoBehaviour
     }
     void LateUpdate()
     {
-        CoreSystem.Instance.UpdtaeSystem(Time.deltaTime);
+        CoreSystem.Instance.LateUpdtaeSystem(Time.deltaTime);
     }
     void FixedUpdate()
     {
