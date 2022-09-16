@@ -31,7 +31,7 @@ public class UnityLuancher : MonoBehaviour
         Log.Info(obj.Id);
 
         //第一种创建
-        Component com = CommponentSystem.Create<Component>();//游离状态不建议，没有生命周期，混沌状态
+        Component com = ComponentExtension.Create<Component>();//游离状态不建议，没有生命周期，混沌状态
         //可以在此初始化...
         Log.Info(nameof(com) + ":" + com.ComEntity.Guid.ToString());
         com.LinkEntity(obj);//游离的组件链接到了实体，开始拥有了生命周期
@@ -40,28 +40,28 @@ public class UnityLuancher : MonoBehaviour
         Component com2 = obj.AddComponent<Component>();//依赖组件
         Log.Info(nameof(com2) + ":" + com2.ComEntity.Guid.ToString());
 
-        MoveComponent move = CommponentSystem.Create<MoveComponent>();
+        BehaviorComponent move = ComponentExtension.Create<BehaviorComponent>();
         ; Log.Info(nameof(move) + ":" + move.ComEntity.Guid.ToString());
         move.Name = "Move";//只改了本地
-        MoveComponent move2 = obj.AddComponent<MoveComponent>();
+        BehaviorComponent move2 = obj.AddComponent<BehaviorComponent>();
         Log.Info(nameof(move2) + ":" + move2.ComEntity.Guid.ToString());
         move2.Name = "Down";//只改了本地
 
         move.LinkEntity(obj);//接入组件系统再修改
 
         move.Name = "MoveChanageName";//只改了本地
-        MoveComponent moveChanageName;
-        obj.GetComponent<MoveComponent>(move.ComEntity.Guid, out moveChanageName);
+        BehaviorComponent moveChanageName;
+        obj.GetComponent<BehaviorComponent>(move.ComEntity.Guid, out moveChanageName);
         Log.Info($"没有修改CommponentSystem的名称:{moveChanageName.Name}");
         move.Update();
-        obj.GetComponent<MoveComponent>(move.ComEntity.Guid, out moveChanageName);
+        obj.GetComponent<BehaviorComponent>(move.ComEntity.Guid, out moveChanageName);
         Log.Info($"修改了CommponentSystem的名称:{moveChanageName.Name}");
 
-        Log.Info($"{obj.GetComponents<MoveComponent>().Count()}");
+        Log.Info($"{obj.GetComponents<BehaviorComponent>().Count()}");
         Log.Info($"{obj.GetComponents<Component>().Count()}");
 
         obj.RemoveComponent(moveChanageName);
-        Log.Info($"{obj.GetComponents<MoveComponent>().Count()}");
+        Log.Info($"{obj.GetComponents<BehaviorComponent>().Count()}");
         int count = obj.RemoveComponents<Component>();
         Log.Info($"{obj.GetComponents<Component>().Count()}:Remove Count{count}");
 
