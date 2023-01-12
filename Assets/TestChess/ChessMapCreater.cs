@@ -75,14 +75,14 @@ public class ChessMapItem
 [Serializable]
 public class ChessMapData
 {
-    
+
 }
 [Serializable]
 public enum GenerateMode
 {
-    /// <summary>
-    /// 扩散
-    /// </summary>
+    /// <summary> 一般 </summary>
+    Normal,
+    /// <summary> 扩散 </summary>
     Spread,
 }
 
@@ -104,20 +104,26 @@ public class ChessMapCreater : MonoBehaviour
     private GameObject m_PrefabChessObject;
 
     public GenerateMode Mode;
+
+    private List<ChessItemComponent> m_cachelist = new List<ChessItemComponent>();
+
+    public static ChessItemComponent StartChess;
+    public static ChessItemComponent EndChess;
     // Start is called before the first frame update
     void Start()
     {
         switch (Mode)
         {
+            case GenerateMode.Normal:
             case GenerateMode.Spread:
-                SpreadGenerate();
+                NormalGenerate();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private void SpreadGenerate()
+    private void NormalGenerate()
     {
         StartCoroutine(GenerateItem());
 
@@ -135,13 +141,12 @@ public class ChessMapCreater : MonoBehaviour
             {
                 yield return new WaitForSeconds(GenerateInterval);
                 var chess = starts.First();
-                CreateChessItem(chess);
-                var list = chess.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col&& !ends.Contains(v2));
+                m_cachelist.Add(CreateChessItem(chess)); 
+                var list = chess.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
                 starts.UnionWith(list);
                 starts.Remove(chess);
                 ends.Add(chess);
             }
-
         }
     }
 
@@ -149,7 +154,7 @@ public class ChessMapCreater : MonoBehaviour
     {
         Vector3 pos = new Vector3(point.X * ChessSpacing.x + m_InitPosition.x, m_InitPosition.y, point.Y * ChessSpacing.z + m_InitPosition.z);
 
-        var com = GameObject.Instantiate(m_PrefabChessObject, pos, Quaternion.identity).AddComponent<ChessItemComponent>();
+        var com = GameObject.Instantiate(m_PrefabChessObject, pos, Quaternion.identity, transform).AddComponent<ChessItemComponent>();
         com.Point = point;
 
         return com;
@@ -158,6 +163,47 @@ public class ChessMapCreater : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
+            {
+                var chess = hit.transform.GetComponent<ChessItemComponent>();
+                if (chess != null)
+                {
+                    if (StartChess!=null)
+                    {
+                        StartChess.SetColor(ChessItemComponent.DefaultColor);
+                    }
 
+                    if (EndChess == chess) EndChess = null;
+
+                    StartChess = chess;
+                    StartChess.SetColor(ChessItemComponent.StartColor);
+                }
+            }
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
+            {
+                var chess = hit.transform.GetComponent<ChessItemComponent>();
+                if (chess != null)
+                {
+                    if (EndChess != null)
+                    {
+                        EndChess.SetColor(ChessItemComponent.DefaultColor);
+                    }
+
+                    if (StartChess == chess) StartChess = null;
+
+                    EndChess = chess;
+                    EndChess.SetColor(ChessItemComponent.EndColor);
+                }
+            }
+        }
     }
 }

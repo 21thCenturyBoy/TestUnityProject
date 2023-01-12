@@ -1,21 +1,27 @@
-public static class Log
+namespace TestCoreLib
 {
-    private static ILog _log;
 
-    public static void Initialize(ILog log)
+
+    public static class Log
     {
-        _log = log;
+        private static ILog _log;
+
+        public static void Initialize(ILog log)
+        {
+            _log = log;
+        }
+        public static void Info(string str)
+        {
+            _log?.Info(str);
+        }
+        public static void Warning(string str)
+        {
+            _log?.Warning(str);
+        }
+        public static void Error(string str)
+        {
+            _log?.Error(str);
+        }
     }
-    public static void Info(string str)
-    {
-        _log?.Info(str);
-    }
-    public static void Warning(string str)
-    {
-        _log?.Warning(str);
-    }
-    public static void Error(string str)
-    {
-        _log?.Error(str);
-    }
+
 }

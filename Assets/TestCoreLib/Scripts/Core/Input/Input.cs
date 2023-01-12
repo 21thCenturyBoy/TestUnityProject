@@ -1,4 +1,10 @@
-public static class Input 
+namespace TestCoreLib
 {
-    //public delegate void GetUserInputEvent(BaseEventData)
+
+
+    public static class Input
+    {
+        //public delegate void GetUserInputEvent(BaseEventData)
+    }
+
 }

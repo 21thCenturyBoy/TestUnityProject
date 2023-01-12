@@ -1,89 +1,93 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-public class CoreSystem : Singleton_Class<CoreSystem>, ISystem
+namespace TestCoreLib
 {
-    private Dictionary<Type, ISubSystem> m_subSystems;
-    public Dictionary<Type, ISubSystem> LoadSubSystem()
-    {
-        Assembly assembly = Assembly.GetAssembly(typeof(CoreSystem));
-        Type subtype = typeof(ISubSystem);
-        Type subabtype = typeof(CoreSubSystem<>);
 
-        var types = assembly.GetExportedTypes().Where(t => subtype.IsAssignableFrom(t) && t != subtype && t != subabtype);
-        Dictionary<Type, ISubSystem> dic = new Dictionary<Type, ISubSystem>();
-        foreach (Type type in types)
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
+    public class CoreSystem : Singleton_Class<CoreSystem>, ISystem
+    {
+        private Dictionary<Type, ISubSystem> m_subSystems;
+        public Dictionary<Type, ISubSystem> LoadSubSystem()
         {
-            var subSys = (ISubSystem)assembly.CreateInstance(type.FullName);
-            dic.Add(type, subSys);
-            if (subSys != null) subSys.Parent = this;
+            Assembly assembly = Assembly.GetAssembly(typeof(CoreSystem));
+            Type subtype = typeof(ISubSystem);
+            Type subabtype = typeof(CoreSubSystem<>);
+
+            var types = assembly.GetExportedTypes().Where(t => subtype.IsAssignableFrom(t) && t != subtype && t != subabtype);
+            Dictionary<Type, ISubSystem> dic = new Dictionary<Type, ISubSystem>();
+            foreach (Type type in types)
+            {
+                var subSys = (ISubSystem)assembly.CreateInstance(type.FullName);
+                dic.Add(type, subSys);
+                if (subSys != null) subSys.Parent = this;
+            }
+            return dic;
         }
-        return dic;
-    }
-    public CoreSystem()
-    {
-
-        Log.Info($"{nameof(CoreSystem)} is Generated!");
-        m_subSystems = LoadSubSystem();
-
-        foreach (Type key in m_subSystems.Keys)
+        public CoreSystem()
         {
-            Log.Info($"CoreSubSystem create:{key.Name}");
+
+            Log.Info($"{nameof(CoreSystem)} is Generated!");
+            m_subSystems = LoadSubSystem();
+
+            foreach (Type key in m_subSystems.Keys)
+            {
+                Log.Info($"CoreSubSystem create:{key.Name}");
+            }
         }
-    }
-    public void AwakeSystem()
-    {
-        if (m_subSystems == null) return;
-        foreach (ISubSystem subSystem in m_subSystems.Values)
+        public void AwakeSystem()
         {
-            subSystem.AwakeSystem();
+            if (m_subSystems == null) return;
+            foreach (ISubSystem subSystem in m_subSystems.Values)
+            {
+                subSystem.AwakeSystem();
+            }
         }
-    }
 
-    public void StartSystem()
-    {
-        if (m_subSystems == null) return;
-        foreach (ISubSystem subSystem in m_subSystems.Values)
+        public void StartSystem()
         {
-            subSystem.StartSystem();
+            if (m_subSystems == null) return;
+            foreach (ISubSystem subSystem in m_subSystems.Values)
+            {
+                subSystem.StartSystem();
+            }
         }
-    }
 
-    public void UpdtaeSystem(float delta)
-    {
-        if (m_subSystems == null) return;
-        foreach (ISubSystem subSystem in m_subSystems.Values)
+        public void UpdtaeSystem(float delta)
         {
-            subSystem.UpdtaeSystem(delta);
+            if (m_subSystems == null) return;
+            foreach (ISubSystem subSystem in m_subSystems.Values)
+            {
+                subSystem.UpdtaeSystem(delta);
+            }
         }
-    }
 
-    public void LateUpdtaeSystem(float delta)
-    {
-        if (m_subSystems == null) return;
-        foreach (ISubSystem subSystem in m_subSystems.Values)
+        public void LateUpdtaeSystem(float delta)
         {
-            subSystem.LateUpdtaeSystem(delta);
+            if (m_subSystems == null) return;
+            foreach (ISubSystem subSystem in m_subSystems.Values)
+            {
+                subSystem.LateUpdtaeSystem(delta);
+            }
         }
-    }
 
-    public void FixedUpdtaeSystem(float delta)
-    {
-        if (m_subSystems == null) return;
-        foreach (ISubSystem subSystem in m_subSystems.Values)
+        public void FixedUpdtaeSystem(float delta)
         {
-            subSystem.FixedUpdtaeSystem(delta);
+            if (m_subSystems == null) return;
+            foreach (ISubSystem subSystem in m_subSystems.Values)
+            {
+                subSystem.FixedUpdtaeSystem(delta);
+            }
         }
-    }
 
-    public void DestroySystem()
-    {
-        if (m_subSystems == null) return;
-        foreach (ISubSystem subSystem in m_subSystems.Values)
+        public void DestroySystem()
         {
-            subSystem.DestroySystem();
+            if (m_subSystems == null) return;
+            foreach (ISubSystem subSystem in m_subSystems.Values)
+            {
+                subSystem.DestroySystem();
+            }
         }
     }
 }
