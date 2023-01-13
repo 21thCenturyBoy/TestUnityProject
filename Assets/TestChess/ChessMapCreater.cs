@@ -215,10 +215,12 @@ public class ChessMapCreater : MonoBehaviour
 
     public GenerateMode Mode;
 
-    private Dictionary<HoneycombVector2, ChessItemComponent> m_cacheDict = new Dictionary<HoneycombVector2, ChessItemComponent>();
+    private Dictionary<HoneycombVector2, ChessItemComponent> m_CacheDict = new Dictionary<HoneycombVector2, ChessItemComponent>();
 
     public static ChessItemComponent StartChess;
     public static ChessItemComponent EndChess;
+
+    public static Dictionary<HoneycombVector2, ChessItemComponent> m_ObstacleDict = new Dictionary<HoneycombVector2, ChessItemComponent>();
     // Start is called before the first frame update
     void Start()
     {
@@ -251,7 +253,7 @@ public class ChessMapCreater : MonoBehaviour
             {
                 yield return new WaitForSeconds(GenerateInterval);
                 var chess = starts.First();
-                m_cacheDict.Add(chess, CreateChessItem(chess));
+                m_CacheDict.Add(chess, CreateChessItem(chess));
                 var list = chess.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
                 starts.UnionWith(list);
                 starts.Remove(chess);
@@ -316,35 +318,64 @@ public class ChessMapCreater : MonoBehaviour
                 }
             }
         }
+        else if (Input.GetMouseButtonDown(2))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
+            {
+                var chess = hit.transform.GetComponent<ChessItemComponent>();
+                if (chess != null)
+                {
+
+                    if (m_ObstacleDict.ContainsKey(chess.Point))
+                    {
+                        m_ObstacleDict.Remove(chess.Point);
+                        chess.SetColor(ChessItemComponent.DefaultColor);
+                    }
+                    else
+                    {
+                        m_ObstacleDict[chess.Point] = chess;
+                        chess.SetColor(ChessItemComponent.ObstacleColor);
+                    }
+                }
+            }
+        }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Clear();
+            EndChess?.SetColor(ChessItemComponent.EndColor);
+            StartChess?.SetColor(ChessItemComponent.StartColor);
             HoneycombNode[] paths;
             var target = StartPathing(StartChess.Point, EndChess.Point, out paths);
             while (target.Parent != target)
             {
                 target = target.Parent;
-                if (target.Parent != target)//不是开始点
+                if (target.Parent != target&&target.Parent!=null)//不是开始点,非空
                 {
-                    m_cacheDict[target.Vector].SetColor(ChessItemComponent.PathColor);
+                    m_CacheDict[target.Vector].SetColor(ChessItemComponent.PathColor);
                 }
             }
         }
         if (Input.GetKeyDown(KeyCode.Delete))
         {
             Clear();
+
+            m_ObstacleDict.Clear();
+            EndChess = null;
+            StartChess = null;
         }
     }
 
     private void Clear()
     {
-        foreach (var honeyKey in m_cacheDict.Keys)
+        foreach (var honeyKey in m_CacheDict.Keys)
         {
-            m_cacheDict[honeyKey].SetColor(ChessItemComponent.DefaultColor);
+            if (m_ObstacleDict.ContainsKey(honeyKey))continue;
+
+            m_CacheDict[honeyKey].SetColor(ChessItemComponent.DefaultColor);
         }
-        EndChess?.SetColor(ChessItemComponent.EndColor);
-        StartChess?.SetColor(ChessItemComponent.StartColor);
     }
 
     public HoneycombNode StartPathing(HoneycombVector2 start, HoneycombVector2 end, out HoneycombNode[] paths)
@@ -353,9 +384,10 @@ public class ChessMapCreater : MonoBehaviour
         Dictionary<HoneycombVector2, HoneycombNode> cache = new Dictionary<HoneycombVector2, HoneycombNode>();//TODO 缓存&&走障碍
         HoneycombNode target = new HoneycombNode(end, 1);
         cache.Add(end, target);
-        foreach (var vector in m_cacheDict.Keys)
+        foreach (var vector in m_CacheDict.Keys)
         {
             if (vector == end) continue;
+            if (m_ObstacleDict.ContainsKey(vector)) continue;
 
             var node = new HoneycombNode(vector, 1);
             node.Target = target;
@@ -393,6 +425,8 @@ public class ChessMapCreater : MonoBehaviour
             //没到头，查他邻居
             foreach (HoneycombVector2 vector2 in tempnode.GetNeighbors())
             {
+                if (m_ObstacleDict.ContainsKey(vector2)) continue;
+
                 //二次过滤提升性能,TODO 不该用结构体
                 var Node = cache[vector2];
                 if (!Node.IsCloseed)
