@@ -10,6 +10,7 @@ public class ChessItemComponent : MonoBehaviour
     public static Color StartColor = Color.green;
     public static Color EndColor = Color.red;
 
+    public static Color PathColor = Color.yellow;
     // Start is called before the first frame update
     void Start()
     {
