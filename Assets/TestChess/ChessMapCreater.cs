@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 [Serializable]
 public struct Coordinate
@@ -56,9 +58,10 @@ public class BinaryHeap<T> where T : IComparable<T>
         {
             if ((items[i].CompareTo(items[(i - 1) / 2]) > 0) ^ flag)
             {
-                T temp = items[i];
-                items[i] = items[(i - 1) / 2];
-                items[(i - 1) / 2] = temp;
+                //T temp = items[i];
+                //items[i] = items[(i - 1) / 2];
+                //items[(i - 1) / 2] = temp;
+                (items[i], items[(i - 1) / 2]) = (items[(i - 1) / 2], items[i]);
                 i = (i - 1) / 2;
             }
             else
@@ -97,9 +100,10 @@ public class BinaryHeap<T> where T : IComparable<T>
 
             if (largest != i)
             {
-                T temp = items[largest];
-                items[largest] = items[i];
-                items[i] = temp;
+                //T temp = items[largest];
+                //items[largest] = items[i];
+                //items[i] = temp;
+                (items[largest], items[i]) = (items[i], items[largest]);
                 i = largest;
             }
             else
@@ -119,13 +123,28 @@ public class BinaryHeap<T> where T : IComparable<T>
 [Serializable]
 public struct HoneycombVector2
 {
-    public int X;
-    public int Y;
+    public int X => m_x;
+    public int Y => m_y;
+    private int m_x;
+    private int m_y;
 
     public HoneycombVector2(int x, int y)
     {
-        X = x;
-        Y = y;
+        m_x = x;
+        m_y = y;
+    }
+
+    public int GetCartesian_X()
+    {
+        if (m_x % 2 == 1)//x为奇数
+        {
+            return (m_x + 1) / 2;
+        }
+        else return m_x / 2;
+    }
+    public int GetCartesian_Y()
+    {
+        return m_y;
     }
 
     public bool Equals(HoneycombVector2 other)
@@ -165,27 +184,52 @@ public struct HoneycombVector2
 
         return vector2s;
     }
+    public HoneycombVector2[] GetNeighbors_ByX()
+    {
+        HoneycombVector2[] vector2s = new HoneycombVector2[6];
+        vector2s[0] = new HoneycombVector2(X + 2, Y);
+        vector2s[1] = new HoneycombVector2(X + 1, Y + 1);
+        vector2s[2] = new HoneycombVector2(X - 1, Y + 1);
+        vector2s[3] = new HoneycombVector2(X - 2, Y);
+        vector2s[4] = new HoneycombVector2(X - 1, Y - 1);
+        vector2s[5] = new HoneycombVector2(X + 1, Y - 1);
+
+        return vector2s;
+    }
     public static int GetDistanceEstimation(HoneycombVector2 left, HoneycombVector2 right)
     {
-        int num1 = left.X - right.X;
-        int num2 = left.Y - right.Y;
-        return (int)Math.Sqrt(num1 * num1 + num2 * num2);
+        //int x1 = left.GetCartesian_X();
+        //int x2 = right.GetCartesian_X();
+        //int y1 = left.GetCartesian_Y();
+        //int y2 = right.GetCartesian_Y();
+
+        //return Math.Abs(y1 / 2 - y2 / 2 + x1 - x2) + Math.Abs(y1 - y2) + Math.Abs(y1 - y2 + y2 / 2 - y1 / 2 + x2 - x1);
+
+        //int num1 = left.GetCartesian_X() - right.GetCartesian_X();
+        //int num2 = left.GetCartesian_Y() - right.GetCartesian_Y();
+        //return num1 * num1 + num2 * num2;
+
+        int num1 = left.GetCartesian_X() - right.GetCartesian_X();
+        int num2 = left.GetCartesian_Y() - right.GetCartesian_Y();
+        return Math.Abs(num1) + Math.Abs(num2);
+
+
+        //int num1 = left.m_x - right.m_x;
+        //int num2 = left.m_y - right.m_y;
+        //return num1 * num1 + num2 * num2;
     }
     public override string ToString()
     {
         return $"({X},{Y})";
     }
 }
-
 [Serializable]
-public class ChessMapItem
+public enum TileMode
 {
-
-}
-[Serializable]
-public class ChessMapData
-{
-
+    /// <summary>Y轴为主 </summary>
+    HexTile_Y,
+    /// <summary>X轴为主 </summary>
+    HexTile_X,
 }
 [Serializable]
 public enum GenerateMode
@@ -205,15 +249,21 @@ public class ChessMapCreater : MonoBehaviour
     public Coordinate MaxSize = new Coordinate(10, 10);
     public Coordinate MinSize = new Coordinate(-10, -10);
 
-    public Vector3 ChessSpacing = new Vector3(5, 0, 3);
-    public float GenerateInterval = 0.5f;
+    public float GenerateInterval = 0.003f;
 
     [SerializeField]
     private Vector3 m_InitPosition = new Vector3(0, 0, 0);
     [SerializeField]
-    private GameObject m_PrefabChessObject;
+    private GameObject m_PrefabChessObject_X;
+    [SerializeField]
+    private GameObject m_PrefabChessObject_Y;
+    [SerializeField]
+    private Vector3 m_ChessSpacing_Y = new Vector3(5, 0, 3);
+    [SerializeField]
+    private Vector3 m_ChessSpacing_X = new Vector3(3, 0, 5);
 
-    public GenerateMode Mode;
+    public GenerateMode Generate;
+    public TileMode Tile;
 
     private Dictionary<HoneycombVector2, ChessItemComponent> m_CacheDict = new Dictionary<HoneycombVector2, ChessItemComponent>();
 
@@ -224,7 +274,7 @@ public class ChessMapCreater : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        switch (Mode)
+        switch (Generate)
         {
             case GenerateMode.Normal:
             case GenerateMode.Spread:
@@ -254,7 +304,18 @@ public class ChessMapCreater : MonoBehaviour
                 yield return new WaitForSeconds(GenerateInterval);
                 var chess = starts.First();
                 m_CacheDict.Add(chess, CreateChessItem(chess));
-                var list = chess.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
+                IEnumerable<HoneycombVector2> list =null;
+                switch (Tile)
+                {
+                    case TileMode.HexTile_Y:
+                        list= chess.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
+                        break;
+                    case TileMode.HexTile_X:
+                        list = chess.GetNeighbors_ByX().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
                 starts.UnionWith(list);
                 starts.Remove(chess);
                 ends.Add(chess);
@@ -264,12 +325,35 @@ public class ChessMapCreater : MonoBehaviour
 
     private ChessItemComponent CreateChessItem(HoneycombVector2 point)
     {
-        Vector3 pos = new Vector3(point.X * ChessSpacing.x + m_InitPosition.x, m_InitPosition.y, point.Y * ChessSpacing.z + m_InitPosition.z);
-
-        var com = GameObject.Instantiate(m_PrefabChessObject, pos, Quaternion.identity, transform).AddComponent<ChessItemComponent>();
+        
+        Vector2 spacing = Vector2.zero;
+        switch (Tile)
+        {
+            case TileMode.HexTile_Y:
+                spacing = new Vector2(m_ChessSpacing_Y.x, m_ChessSpacing_Y.z);
+                break;
+            case TileMode.HexTile_X:
+                spacing = new Vector2(m_ChessSpacing_X.x, m_ChessSpacing_X.z);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        Vector3 pos = new Vector3(point.X * spacing.x + m_InitPosition.x, m_InitPosition.y, point.Y * spacing.y + m_InitPosition.z);
+        ChessItemComponent com = null;
+        switch (Tile)
+        {
+            case TileMode.HexTile_Y:
+                com = GameObject.Instantiate(m_PrefabChessObject_Y, pos, Quaternion.identity, transform).AddComponent<ChessItemComponent>();
+                break;
+            case TileMode.HexTile_X:
+                com = GameObject.Instantiate(m_PrefabChessObject_X, pos, Quaternion.identity, transform).AddComponent<ChessItemComponent>();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
         com.Point = point;
 
-        com.GetComponentInChildren<TextMesh>().text = point.ToString();
+        com.GetComponentInChildren<TextMesh>().text = point.ToString() + $"\n[{point.GetCartesian_X()},{point.GetCartesian_Y()}]";
         return com;
     }
 
@@ -349,10 +433,15 @@ public class ChessMapCreater : MonoBehaviour
             StartChess?.SetColor(ChessItemComponent.StartColor);
             HoneycombNode[] paths;
             var target = StartPathing(StartChess.Point, EndChess.Point, out paths);
-            while (target.Parent != target)
+
+            if (target.Parent == null)//没找到路
+            {
+                return;
+            }
+            while (target != target.Parent)
             {
                 target = target.Parent;
-                if (target.Parent != target&&target.Parent!=null)//不是开始点,非空
+                if (target != null && target.Parent != target)//target!=null有路径
                 {
                     m_CacheDict[target.Vector].SetColor(ChessItemComponent.PathColor);
                 }
@@ -372,7 +461,7 @@ public class ChessMapCreater : MonoBehaviour
     {
         foreach (var honeyKey in m_CacheDict.Keys)
         {
-            if (m_ObstacleDict.ContainsKey(honeyKey))continue;
+            if (m_ObstacleDict.ContainsKey(honeyKey)) continue;
 
             m_CacheDict[honeyKey].SetColor(ChessItemComponent.DefaultColor);
         }
@@ -382,14 +471,14 @@ public class ChessMapCreater : MonoBehaviour
     {
         //生成导航节点数据,内存换时间
         Dictionary<HoneycombVector2, HoneycombNode> cache = new Dictionary<HoneycombVector2, HoneycombNode>();//TODO 缓存&&走障碍
-        HoneycombNode target = new HoneycombNode(end, 1);
+        HoneycombNode target = new HoneycombNode(this, end, 1);
         cache.Add(end, target);
         foreach (var vector in m_CacheDict.Keys)
         {
             if (vector == end) continue;
             if (m_ObstacleDict.ContainsKey(vector)) continue;
 
-            var node = new HoneycombNode(vector, 1);
+            var node = new HoneycombNode(this, vector, 1);
             node.Target = target;
             cache.Add(vector, node);
         }
@@ -409,7 +498,9 @@ public class ChessMapCreater : MonoBehaviour
         //开表有值
         while (openset.items.Count != 0)
         {
+
             var tempnode = openset.PopRoot();
+
             closedSet.Add(tempnode);
 
             tempnode.IsOpen = false;
@@ -427,7 +518,6 @@ public class ChessMapCreater : MonoBehaviour
             {
                 if (m_ObstacleDict.ContainsKey(vector2)) continue;
 
-                //二次过滤提升性能,TODO 不该用结构体
                 var Node = cache[vector2];
                 if (!Node.IsCloseed)
                 {
@@ -454,32 +544,55 @@ public class ChessMapCreater : MonoBehaviour
         return target;
     }
 
+    public HoneycombVector2[] ComputeNeighbors(HoneycombVector2 vector2)
+    {
+        HoneycombVector2[] array = null;
+        switch (Tile)
+        {
+            case TileMode.HexTile_Y:
+                array = vector2.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col)
+                    .Where(vector => !m_ObstacleDict.ContainsKey(vector))
+                    .ToArray();
+                break;
+            case TileMode.HexTile_X:
+                array = vector2.GetNeighbors_ByX().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col)
+                    .Where(vector => !m_ObstacleDict.ContainsKey(vector))
+                    .ToArray();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        } 
+
+        StringBuilder sb = new StringBuilder();
+        foreach (HoneycombVector2 honeycombVector2 in array)
+        {
+            sb.Append(honeycombVector2.ToString());
+        }
+
+        return array;//筛选边界
+    }
+
     [Serializable]
     public class HoneycombNode : IComparable<HoneycombNode>
     {
         public HoneycombVector2 Vector;
         public int G { get; set; } //从起始节点到当前节点的代价
-        public int H
-        {
-            get => GetDistance();
-        } //从当前节点到目标节点的估计代价
+        public int H => GetDistanceEstimation(); //从当前节点到目标节点的估计代价
         public int F
         {
             get;
             set;
         }//对经过当前节点的这条路径的代价的一个最好的估计值
 
-        public HoneycombNode Parent;
+        private ChessMapCreater m_HoneycombMap;
+        public HoneycombNode Parent { get; set; }
         public HoneycombNode Target { get; set; }//目标
 
         public HoneycombVector2[] GetNeighbors()
         {
-            //TODO 筛选障碍
-            //TODO 应该缓存邻居，提升性能
-            return Vector.GetNeighbors().Where(vector => vector.X is < 10 and > -10 && vector.Y < 10 && vector.Y > -10)
-                  .ToArray();//筛选边界
+            return m_HoneycombMap.ComputeNeighbors(Vector);
         }
-        public int GetDistance()
+        public int GetDistanceEstimation()
         {
             if (Target == null) return 0;
             else return HoneycombVector2.GetDistanceEstimation(Vector, Target.Vector);
@@ -511,8 +624,9 @@ public class ChessMapCreater : MonoBehaviour
             return !Equals(left, right);
         }
 
-        public HoneycombNode(HoneycombVector2 vector, int g)
+        public HoneycombNode(ChessMapCreater map, HoneycombVector2 vector, int g)
         {
+            m_HoneycombMap = map;
             Vector = vector;
             G = g;
         }
@@ -524,6 +638,7 @@ public class ChessMapCreater : MonoBehaviour
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
+
             return F.CompareTo(other.F);
         }
     }
