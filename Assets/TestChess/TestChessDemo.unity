@@ -246,20 +246,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a3add300d7b7884ba68ce0bd3d1f5e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StartZeroPoint: {x: 0, y: 0}
   MaxSize:
     Row: 10
     Col: 10
   MinSize:
     Row: -10
     Col: -10
-  GenerateInterval: 0.003
+  GenerateInterval: 0.04
   m_InitPosition: {x: 0, y: 0, z: 0}
   m_PrefabChessObject_X: {fileID: 231333287073455197, guid: c981d5d2f521ed3478c08401944962e0, type: 3}
   m_PrefabChessObject_Y: {fileID: 407848768178131956, guid: a8f79cc18cce0d84d922e7cd29cb2c9a, type: 3}
   m_ChessSpacing_Y: {x: 5, y: 0, z: 3}
   m_ChessSpacing_X: {x: 3, y: 0, z: 5}
-  Generate: 0
-  Tile: 1
+  Generate: 1
+  Tile: 0
 --- !u!4 &468859687
 Transform:
   m_ObjectHideFlags: 0

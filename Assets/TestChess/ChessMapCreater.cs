@@ -172,7 +172,7 @@ public struct HoneycombVector2
         return !left.Equals(right);
     }
 
-    public HoneycombVector2[] GetNeighbors()
+    public HoneycombVector2[] GetNeighbors_ByY()
     {
         HoneycombVector2[] vector2s = new HoneycombVector2[6];
         vector2s[0] = new HoneycombVector2(X + 1, Y + 1);
@@ -245,7 +245,7 @@ public enum GenerateMode
 /// </summary>
 public class ChessMapCreater : MonoBehaviour
 {
-    public HoneycombVector2 CoordinatePoint = new HoneycombVector2(0, 0);
+    public Vector2 StartZeroPoint = new Vector2(0, 0);
     public Coordinate MaxSize = new Coordinate(10, 10);
     public Coordinate MinSize = new Coordinate(-10, -10);
 
@@ -277,14 +277,54 @@ public class ChessMapCreater : MonoBehaviour
         switch (Generate)
         {
             case GenerateMode.Normal:
-            case GenerateMode.Spread:
                 NormalGenerate();
+                break;
+            case GenerateMode.Spread:
+                SpreadGenerate();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
+    private void SpreadGenerate()
+    {
+        StartCoroutine(GenerateItem());
 
+
+        List<ChessItemComponent> items = new List<ChessItemComponent>();
+
+        IEnumerator GenerateItem()
+        {
+            HashSet<HoneycombVector2> starts = new HashSet<HoneycombVector2>();
+            var startPoint = new HoneycombVector2((int)StartZeroPoint.x, (int)StartZeroPoint.y);
+            starts.Add(startPoint);
+            int length = 0;
+            while (length != starts.Count)
+            {
+                HashSet<HoneycombVector2> list = new HashSet<HoneycombVector2>();
+                length = starts.Count;
+                foreach (HoneycombVector2 vector2 in starts)
+                {
+                    if (m_CacheDict.ContainsKey(vector2)) continue;
+                    yield return new WaitForSeconds(GenerateInterval);
+                    m_CacheDict.Add(vector2, CreateChessItem(vector2));
+                    switch (Tile)
+                    {
+                        case TileMode.HexTile_Y:
+                            list.UnionWith(vector2.GetNeighbors_ByY().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !starts.Contains(v2)));
+                            break;
+                        case TileMode.HexTile_X:
+                            list.UnionWith(vector2.GetNeighbors_ByX().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !starts.Contains(v2)));
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                starts.UnionWith(list);
+
+            }
+        }
+    }
     private void NormalGenerate()
     {
         StartCoroutine(GenerateItem());
@@ -295,7 +335,8 @@ public class ChessMapCreater : MonoBehaviour
         IEnumerator GenerateItem()
         {
             HashSet<HoneycombVector2> starts = new HashSet<HoneycombVector2>();
-            starts.Add(CoordinatePoint);
+            var startPoint = new HoneycombVector2((int)StartZeroPoint.x, (int)StartZeroPoint.y);
+            starts.Add(startPoint);
 
             HashSet<HoneycombVector2> ends = new HashSet<HoneycombVector2>();
 
@@ -304,11 +345,11 @@ public class ChessMapCreater : MonoBehaviour
                 yield return new WaitForSeconds(GenerateInterval);
                 var chess = starts.First();
                 m_CacheDict.Add(chess, CreateChessItem(chess));
-                IEnumerable<HoneycombVector2> list =null;
+                IEnumerable<HoneycombVector2> list = null;
                 switch (Tile)
                 {
                     case TileMode.HexTile_Y:
-                        list= chess.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
+                        list = chess.GetNeighbors_ByY().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
                         break;
                     case TileMode.HexTile_X:
                         list = chess.GetNeighbors_ByX().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col && !ends.Contains(v2));
@@ -325,7 +366,7 @@ public class ChessMapCreater : MonoBehaviour
 
     private ChessItemComponent CreateChessItem(HoneycombVector2 point)
     {
-        
+
         Vector2 spacing = Vector2.zero;
         switch (Tile)
         {
@@ -550,7 +591,7 @@ public class ChessMapCreater : MonoBehaviour
         switch (Tile)
         {
             case TileMode.HexTile_Y:
-                array = vector2.GetNeighbors().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col)
+                array = vector2.GetNeighbors_ByY().Where(v2 => v2.X > MinSize.Row && v2.X < MaxSize.Row && v2.Y > MinSize.Col && v2.Y < MaxSize.Col)
                     .Where(vector => !m_ObstacleDict.ContainsKey(vector))
                     .ToArray();
                 break;
@@ -561,7 +602,7 @@ public class ChessMapCreater : MonoBehaviour
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
-        } 
+        }
 
         StringBuilder sb = new StringBuilder();
         foreach (HoneycombVector2 honeycombVector2 in array)
