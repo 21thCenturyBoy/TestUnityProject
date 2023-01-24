@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +9,15 @@ namespace TestReadPic
 {
     public class TestReadPic : MonoBehaviour
     {
+        [SerializeField]
         public Texture2D ReadTexture;
+
+        [SerializeField]
+        private int m_CombineCol_Max = 4;
+        [SerializeField]
+        private int m_CombineRow_Max = 4;
+        [SerializeField]
+        private int m_CombineLimit = 4;
         // Start is called before the first frame update
         void Start()
         {
@@ -47,77 +56,48 @@ namespace TestReadPic
 
             File.WriteAllText(Application.streamingAssetsPath + "/test.pbm", sb.ToString(), new UTF8Encoding(false));
             StringBuilder sb2 = new StringBuilder();
-            sb2.AppendLine("local array = [");
-            for (int i = 1; i < ReadTexture.height - 2; i = i + 4)
+
+            int rowLength = readBytes.GetLength(0);
+            int colLength = readBytes.GetLength(1);
+            void TraversePoint(int row, int col, int rowLen, int colLen, Action<int, int> traverseAct)
             {
-                for (int j = 1; j < ReadTexture.width - 2; j = j + 4)
+                for (int rowi = row; rowi < rowLen; rowi++)
                 {
-
-                    int num = 0;
-                    if (readBytes[i - 1, j - 1] == 1) num++;
-                    if (readBytes[i - 1, j] == 1) num++;
-                    if (readBytes[i - 1, j + 1] == 1) num++;
-                    if (readBytes[i - 1, j + 2] == 1) num++;
-
-                    if (readBytes[i, j - 1] == 1) num++;
-                    if (readBytes[i, j] == 1) num++;
-                    if (readBytes[i, j + 1] == 1) num++;
-                    if (readBytes[i, j + 2] == 1) num++;
-
-                    if (readBytes[i + 1, j - 1] == 1) num++;
-                    if (readBytes[i + 1, j] == 1) num++;
-                    if (readBytes[i + 1, j + 1] == 1) num++;
-                    if (readBytes[i + 1, j + 2] == 1) num++;
-
-                    if (readBytes[i + 2, j - 1] == 1) num++;
-                    if (readBytes[i + 2, j] == 1) num++;
-                    if (readBytes[i + 2, j + 1] == 1) num++;
-                    if (readBytes[i + 2, j + 2] == 1) num++;
-
-
-                    if (num >= 4)
+                    if (rowi >= rowLength) break;
+                    for (int colj = col; colj < colLen; colj++)
                     {
-                        readBytes[i - 1, j - 1] = 0;
-                        readBytes[i - 1, j] = 0;
-                        readBytes[i - 1, j + 1] = 0;
-                        readBytes[i - 1, j + 2] = 0;
+                        if (colj >= colLength) break;
+                        traverseAct?.Invoke(rowi, colj);
+                    }
+                }
+            }
 
-                        readBytes[i, j - 1] = 0;
-                        readBytes[i, j] = 0;
-                        readBytes[i, j + 1] = 0;
-                        readBytes[i, j + 2] = 0;
+            sb2.AppendLine("local array = [");
 
-                        readBytes[i + 1, j - 1] = 0;
-                        readBytes[i + 1, j] = 0;
-                        readBytes[i + 1, j + 1] = 0;
-                        readBytes[i + 1, j + 2] = 0;
+            for (int i = 0; i < ReadTexture.height; i = i + m_CombineRow_Max)
+            {
+                for (int j = 0; j < ReadTexture.width; j = j + m_CombineCol_Max)
+                {
+                    int num = 0;
+                    TraversePoint(i, j, i + m_CombineRow_Max, j + m_CombineCol_Max, (x, y) =>
+                    {
+                        if (readBytes[x, y] == 1) num++;
+                    });
 
-                        readBytes[i + 2, j - 1] = 0;
-                        readBytes[i + 2, j] = 0;
-                        readBytes[i + 2, j + 1] = 0;
-                        readBytes[i + 2, j + 2] = 1;
+                    if (num >= m_CombineLimit)
+                    {
+                        TraversePoint(i, j, i + m_CombineRow_Max, j + m_CombineCol_Max, (x, y) =>
+                        {
+                            if (x == i && y == j) readBytes[x, y] = 1;
+                            else readBytes[x, y] = 0;
+                        });
                     }
                     else
                     {
-                        readBytes[i - 1, j - 1] = 0;
-                        readBytes[i - 1, j] = 0;
-                        readBytes[i - 1, j + 1] = 0;
-                        readBytes[i - 1, j + 2] = 0;
-
-                        readBytes[i, j - 1] = 0;
-                        readBytes[i, j] = 0;
-                        readBytes[i, j + 1] = 0;
-                        readBytes[i, j + 2] = 0;
-
-                        readBytes[i + 1, j - 1] = 0;
-                        readBytes[i + 1, j] = 0;
-                        readBytes[i + 1, j + 1] = 0;
-                        readBytes[i + 1, j + 2] = 0;
-
-                        readBytes[i + 2, j - 1] = 0;
-                        readBytes[i + 2, j] = 0;
-                        readBytes[i + 2, j + 1] = 0;
-                        readBytes[i + 2, j + 2] = 0;
+                        TraversePoint(i, j, i + m_CombineRow_Max, j + m_CombineCol_Max, (x, y) =>
+                       {
+                           readBytes[x, y] = 0;
+                       });
                     }
                 }
             }
@@ -132,12 +112,6 @@ namespace TestReadPic
 
             sb2.AppendLine("]");
             File.WriteAllText(Application.streamingAssetsPath + "/test2.txt", sb2.ToString(), new UTF8Encoding(false));
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 
