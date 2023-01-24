@@ -1,9 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TestReadPic
 {
@@ -19,8 +19,10 @@ namespace TestReadPic
         [SerializeField]
         private int m_CombineLimit = 4;
         // Start is called before the first frame update
-        void Start()
+        public void ReadPicToPbm()
         {
+
+
             Color[] colors = ReadTexture.GetPixels();
             int[,] readBytes = new int[ReadTexture.height, ReadTexture.width];
             int row = -1;
@@ -54,7 +56,9 @@ namespace TestReadPic
                 sb.AppendLine();
             }
 
-            File.WriteAllText(Application.streamingAssetsPath + "/test.pbm", sb.ToString(), new UTF8Encoding(false));
+            GameObject.FindObjectOfType<TMP_Text>().text = sb.ToString().Replace("0", "  ");
+
+            File.WriteAllText(Application.streamingAssetsPath + "\\TestReadPic\\test.pbm", sb.ToString(), new UTF8Encoding(false));
             StringBuilder sb2 = new StringBuilder();
 
             int rowLength = readBytes.GetLength(0);
@@ -111,7 +115,13 @@ namespace TestReadPic
             }
 
             sb2.AppendLine("]");
-            File.WriteAllText(Application.streamingAssetsPath + "/test2.txt", sb2.ToString(), new UTF8Encoding(false));
+
+            File.WriteAllText(Application.streamingAssetsPath + "\\TestReadPic\\test2.txt", sb2.ToString(), new UTF8Encoding(false));
+        }
+
+        void Start()
+        {
+            GetComponent<UnityffmpegTools>().scan("badapple",GetComponentInChildren<RawImage>());
         }
     }
 
