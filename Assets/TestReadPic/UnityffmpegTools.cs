@@ -16,7 +16,7 @@ namespace TestReadPic
         private string m_DirectoryPath = "";
         private string m_params = "";
 
-        [MenuItem("ffmpegTools/OpenWindows")]
+        [MenuItem("Tools/ffmpeg/OpenWindows")]
         static void CreateWindow()
         {
             FfmpegToolsWindow ffmpegWindow = EditorWindow.GetWindow(typeof(FfmpegToolsWindow), false, "FfmpegTools", false) as FfmpegToolsWindow;
