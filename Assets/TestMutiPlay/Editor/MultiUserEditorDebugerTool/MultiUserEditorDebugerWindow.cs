@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,11 +8,12 @@ namespace TestMutiPlay
 
     public class MultiUserEditorDebugerWindow : EditorWindow
     {
+        private static MultiUserEditorDebugerWindow m_window;
         [MenuItem("Tools/MultiUserTools/Show Debuger Window")]
         static void OpenWindow()
         {
-            var creater = GetWindow<MultiUserEditorDebugerWindow>();
-            creater.Show();
+            if (m_window == null) m_window = GetWindow<MultiUserEditorDebugerWindow>();
+            m_window.Show();
         }
 
         public MultiUserEditorDebugerWindow()
@@ -19,108 +21,40 @@ namespace TestMutiPlay
             titleContent.text = "MultiUserDebuger";
         }
 
-        private string[] m_CommandLineArgs;
-
         //GUI
-        private bool showFoldout;
+        private bool m_CommandLineFoldoutIsShow;
+        private bool m_ConfigFoldoutIsShow;
 
         void OnGUI()
         {
-            showFoldout = EditorGUILayout.Foldout(showFoldout, "CommandLine：");
-            if (showFoldout)
+            m_CommandLineFoldoutIsShow = EditorGUILayout.Foldout(m_CommandLineFoldoutIsShow, "CommandLine：");
+            if (m_CommandLineFoldoutIsShow)
             {
-                EditorGUI.indentLevel++; //缩进级别
-                for (int i = 0; i < m_CommandLineArgs.Length; i++)
+                EditorGUI.indentLevel++;
+                for (int i = 0; i < MultiUserEditorStartup.m_CommandLineArgs.Length; i++)
                 {
-                    GUILayout.Label(m_CommandLineArgs[i]); //提示语句
+                    GUILayout.Label($"[{i}]:{MultiUserEditorStartup.m_CommandLineArgs[i]}");
                 }
 
                 EditorGUI.indentLevel--;
             }
-            //#endregion
-            //#region GUILayout.Button( 按钮
-            //GUILayout.Label("按钮");
-            //if (GUILayout.Button("按钮", GUILayout.Width(40), GUILayout.Height(40)))
-            //{
+            m_ConfigFoldoutIsShow = EditorGUILayout.Foldout(m_ConfigFoldoutIsShow, "Config：");
+            if (m_ConfigFoldoutIsShow)
+            {
+                EditorGUI.indentLevel++;
+                GUILayout.Label(JsonUtility.ToJson(MultiUserEditorStartup.Config, true));
+                EditorGUI.indentLevel--;
+            }
 
-
-            //}
         }
 
         void OnEnable()
         {
-            m_CommandLineArgs = Environment.GetCommandLineArgs();
-
-            if (!MultiUserEditorData.EditorStartup.IsTemporaryProject)
-            {
-                if (MultiUserEditorCommunication.PipelinePool.GetInstance != null)
-                {
-                    MultiUserEditorCommunication.PipelinePool.GetInstance.Dispose();
-                }
-
-                MultiUserEditorCommunication.PipelinePool.Instance.CreatePipeLineAsync();
-
-            }
-
-            //CompilationPipeline.compilationStarted += CompilationPipeline_compilationStarted;
-            //CompilationPipeline.assemblyCompilationStarted += CompilationPipeline_compilationStarted;
-
-            AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
-            AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
-        }
-
-        private void CompilationPipeline_compilationStarted(object obj)
-        {
-            Close();
         }
 
         void OnDisable()
         {
-            AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
-
-            AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
-
-            if (!MultiUserEditorData.EditorStartup.IsTemporaryProject)
-            {
-                if (MultiUserEditorCommunication.PipelinePool.GetInstance != null)
-                {
-                    MultiUserEditorCommunication.PipelinePool.GetInstance.Dispose();
-                }
-
-            }
-
-            //CompilationPipeline.compilationStarted -= CompilationPipeline_compilationStarted;
-
         }
 
-        public void OnBeforeAssemblyReload()
-        {
-            Debug.Log("Before Assembly Reload");
-
-            Close();
-
-            //if (!MultiUserEditorData.EditorStartup.IsTemporaryProject)
-            //{
-            //    if (MultiUserEditorCommunication.PipelinePool.GetInstance != null)
-            //    {
-            //        MultiUserEditorCommunication.PipelinePool.GetInstance.Dispose();
-            //    }
-            //}
-        }
-
-        public void OnAfterAssemblyReload()
-        {
-
-            Debug.Log("After Assembly Reload");
-
-            //if (!MultiUserEditorData.EditorStartup.IsTemporaryProject)
-            //{
-            //    if (MultiUserEditorCommunication.PipelinePool.GetInstance != null)
-            //    {
-            //        MultiUserEditorCommunication.PipelinePool.GetInstance.Dispose();
-            //    }
-            //    MultiUserEditorCommunication.PipelinePool.Instance.CreatePipeLineAsync();
-            //}
-        }
     }
 }
