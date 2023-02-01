@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,7 +27,7 @@ namespace TestMutiPlay
         public static string[] m_CommandLineArgs;
         //public static string m_CommandLine;
 
-        public static string ProjectPath => m_CommandLineArgs == null ? string.Empty : m_CommandLineArgs[2];
+        public static string ProjectPath => Path.GetDirectoryName(Application.dataPath);
         public static string ProjectName => Path.GetFileName(ProjectPath);
         public static bool IsTemporaryProject;
 
@@ -42,6 +44,8 @@ namespace TestMutiPlay
         static MultiUserEditorStartup()
         {
             UnityEngine.Debug.Log("MultiUserEditorData Startup!");
+            UnityEngine.Debug.Log( EditorApplication.applicationPath);
+
             m_CommandLineArgs = Environment.GetCommandLineArgs();
             //StringBuilder sb = new StringBuilder();
             //StringBuilder sb2 = new StringBuilder();
@@ -200,3 +204,4 @@ namespace TestMutiPlay
     }
 }
 
+#endif

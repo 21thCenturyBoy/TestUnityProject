@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -24,6 +25,7 @@ namespace TestMutiPlay
         //GUI
         private bool m_CommandLineFoldoutIsShow;
         private bool m_ConfigFoldoutIsShow;
+        private bool m_ProgressFoldoutIsShow;
 
         void OnGUI()
         {
@@ -43,6 +45,29 @@ namespace TestMutiPlay
             {
                 EditorGUI.indentLevel++;
                 GUILayout.Label(JsonUtility.ToJson(MultiUserEditorStartup.Config, true));
+                EditorGUI.indentLevel--;
+            }
+
+            if (!EditorApplication.isPlaying) return;
+
+            m_ProgressFoldoutIsShow = EditorGUILayout.Foldout(m_ProgressFoldoutIsShow, "Progress：");
+            if (m_ProgressFoldoutIsShow)
+            {
+                GUILayout.Label($"IsTestProgress：{MultiUserEditorDebuger.Instance.IsTestProgress}");
+                GUILayout.Label(JsonUtility.ToJson(MultiUserEditorDebuger.Instance.Data, true));
+
+                EditorGUI.indentLevel++;
+                var keys = MultiUserEditorDebuger.Instance.ProcessPool.Keys.ToArray();
+                foreach (var p in keys)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label($"PID：{MultiUserEditorDebuger.Instance.ProcessPool[p].GetId()}");
+                    if (GUILayout.Button("Kill",GUILayout.MaxWidth(100)))
+                    {
+                        MultiUserEditorDebuger.Instance.KillStudioProcess(p);
+                    }
+                    GUILayout.EndHorizontal();
+                }
                 EditorGUI.indentLevel--;
             }
 

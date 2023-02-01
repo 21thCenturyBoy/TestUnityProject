@@ -7,7 +7,7 @@ using UnityEngine;
 namespace TestMutiPlay
 {
 
-    public static class MultiUserEditorCommunicationTool
+    public static class MultiUserEditorTool
     {
         public class DllInvoke
         {
@@ -124,18 +124,18 @@ namespace TestMutiPlay
         {
             var currDir = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory(path);
-            MultiUserEditorCommunicationTool.PROCESS_INFORMATION pInfo = new();
-            MultiUserEditorCommunicationTool.STARTUPINFO sInfo = new();
-            if (!MultiUserEditorCommunicationTool.DllInvoke.CreateProcess(null, new StringBuilder(command), null, null, false, 0x08000000, null, null,
+            PROCESS_INFORMATION pInfo = new();
+            STARTUPINFO sInfo = new();
+            if (!DllInvoke.CreateProcess(null, new StringBuilder(command), null, null, false, 0x08000000, null, null,
                     ref sInfo, ref pInfo))
             {
                 Debug.LogError("ProcesStart faild :" + command);
             }
 
             Directory.SetCurrentDirectory(currDir);
-            MultiUserEditorCommunicationTool.DllInvoke.WaitForSingleObject(pInfo.hProcess, 0xFFFFFFFF);
-            MultiUserEditorCommunicationTool.DllInvoke.CloseHandle(pInfo.hProcess);
-            MultiUserEditorCommunicationTool.DllInvoke.CloseHandle(pInfo.hThread);
+            DllInvoke.WaitForSingleObject(pInfo.hProcess, 0xFFFFFFFF);
+            DllInvoke.CloseHandle(pInfo.hProcess);
+            DllInvoke.CloseHandle(pInfo.hThread);
 
         }
 
@@ -144,9 +144,9 @@ namespace TestMutiPlay
 
             var currDir = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory(path);
-            MultiUserEditorCommunicationTool.PROCESS_INFORMATION pInfo = new();
-            MultiUserEditorCommunicationTool.STARTUPINFO sInfo = new();
-            if (!MultiUserEditorCommunicationTool.DllInvoke.CreateProcess(null, new StringBuilder(command), null, null, false, 0x08000000, null, null,
+            PROCESS_INFORMATION pInfo = new();
+            STARTUPINFO sInfo = new();
+            if (!DllInvoke.CreateProcess(null, new StringBuilder(command), null, null, false, 0x08000000, null, null,
                     ref sInfo, ref pInfo))
             {
                 Debug.LogError("ProcesStart faild :" + command);
