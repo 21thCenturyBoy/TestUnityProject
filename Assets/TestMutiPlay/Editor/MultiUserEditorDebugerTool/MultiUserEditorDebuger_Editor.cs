@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using TestMutiPlay;
+using UnityEditor;
 
 public class MultiUserEditorDebuger_Editor
 {
@@ -66,8 +67,4 @@ public class MultiUserEditorDebuger_Editor
         UnityEditor.EditorApplication.isPlaying = true;
     }
 
-    [UnityEditor.MenuItem("Tools/MultiUserTools/EditorStop")]
-    public static void EditorStop()
-    {
-    }
 }

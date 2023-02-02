@@ -8,6 +8,10 @@ namespace TestMutiPlay
     /// </summary>
     public partial class MultiUserEditorDebuger : Singleton_Mono<MultiUserEditorDebuger>
     {
+
+        public bool ForceUsePackageEditor = false;
+        public string PackageEditorPath = string.Empty;
+
         public  const string InitUnitySceneName = "TestLogin";
         public static bool CheckTempProjectExits(int index)
         {

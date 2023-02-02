@@ -121,7 +121,7 @@ namespace TestReadPic
 
         void Start()
         {
-            GetComponent<UnityffmpegTools>().scan("badapple",GetComponentInChildren<RawImage>());
+            //GetComponent<UnityffmpegTools>().scan("badapple",GetComponentInChildren<RawImage>());
         }
     }
 

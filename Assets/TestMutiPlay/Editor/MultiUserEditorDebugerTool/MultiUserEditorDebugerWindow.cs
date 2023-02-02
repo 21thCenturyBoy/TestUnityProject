@@ -1,6 +1,4 @@
-using System;
 using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,7 +23,7 @@ namespace TestMutiPlay
         //GUI
         private bool m_CommandLineFoldoutIsShow;
         private bool m_ConfigFoldoutIsShow;
-        private bool m_ProgressFoldoutIsShow;
+        private bool m_ProgressFoldoutIsShow = true;
 
         void OnGUI()
         {
@@ -56,13 +54,20 @@ namespace TestMutiPlay
                 GUILayout.Label($"IsTestProgress：{MultiUserEditorDebuger.Instance.IsTestProgress}");
                 GUILayout.Label(JsonUtility.ToJson(MultiUserEditorDebuger.Instance.Data, true));
 
+                MultiUserEditorDebuger.Instance.ForceUsePackageEditor = EditorGUILayout.BeginToggleGroup("ForceUsePackageEditor", MultiUserEditorDebuger.Instance.ForceUsePackageEditor);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("PackagePath：", GUILayout.MaxWidth(100));
+                MultiUserEditorDebuger.Instance.PackageEditorPath = GUILayout.TextField(MultiUserEditorDebuger.Instance.PackageEditorPath);
+                GUILayout.EndHorizontal();
+                GUILayout.Label("Ex：D:/Program Files/Package.exe");
+                EditorGUILayout.EndToggleGroup();
                 EditorGUI.indentLevel++;
                 var keys = MultiUserEditorDebuger.Instance.ProcessPool.Keys.ToArray();
                 foreach (var p in keys)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label($"PID：{MultiUserEditorDebuger.Instance.ProcessPool[p].GetId()}");
-                    if (GUILayout.Button("Kill",GUILayout.MaxWidth(100)))
+                    if (GUILayout.Button("Kill", GUILayout.MaxWidth(100)))
                     {
                         MultiUserEditorDebuger.Instance.KillStudioProcess(p);
                     }
@@ -71,14 +76,7 @@ namespace TestMutiPlay
                 EditorGUI.indentLevel--;
             }
 
-        }
 
-        void OnEnable()
-        {
-        }
-
-        void OnDisable()
-        {
         }
 
     }

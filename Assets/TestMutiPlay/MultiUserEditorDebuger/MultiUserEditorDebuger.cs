@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -85,21 +84,14 @@ namespace TestMutiPlay
         }
     }
 
-    /// <summary>
-    /// 信息
-    /// </summary>
-    [Serializable]
-    public class MultiUserData
-    {
-        public int MainId;
-        public string Token;
-    }
+
 
     /// <summary>
     /// 多人Editor
     /// </summary>
     public partial class MultiUserEditorDebuger : Singleton_Mono<MultiUserEditorDebuger>
     {
+
         private bool m_Inited = false;
         private MultiUserData m_data = new MultiUserData();
 
@@ -122,6 +114,10 @@ namespace TestMutiPlay
             {
                 if (!m_Inited) Initialize();
 #if UNITY_EDITOR
+                if (ForceUsePackageEditor)
+                {
+                   return PackageEditorPath;
+                }
                 return UnityEditor.EditorApplication.applicationPath;
 #else
                 return m_CommandLineArgs[0];
@@ -143,6 +139,8 @@ namespace TestMutiPlay
 
             try
             {
+                KillAllStudioProcess();
+
                 for (int i = 0; i < num; i++)
                 {
                     StringBuilder sb = new StringBuilder();
@@ -151,8 +149,11 @@ namespace TestMutiPlay
                     switch (CurrentEnvironment)
                     {
                         case IEditorProcess.Type.UnityEditor:
-                            sb.Append($" -projectPath {GetTempProjectPath(i)}");
-                            sb.Append($" -executeMethod \"MultiUserEditorDebuger_Editor.EditorRun\"");
+                            if (!ForceUsePackageEditor)
+                            {
+                                sb.Append($" -projectPath {GetTempProjectPath(i)}");
+                                sb.Append($" -executeMethod \"MultiUserEditorDebuger_Editor.EditorRun\"");
+                            }
                             break;
                         case IEditorProcess.Type.PackageEditor:
                             break;
@@ -170,9 +171,11 @@ namespace TestMutiPlay
                     switch (CurrentEnvironment)
                     {
                         case IEditorProcess.Type.UnityEditor:
-                            process = new UnityEditorProcess(progressId, num.ToString());
+                            if (!ForceUsePackageEditor) process = new UnityEditorProcess(progressId, num.ToString());
+                            else process = new PackageEditorProcess(progressId, num.ToString());
                             break;
                         case IEditorProcess.Type.PackageEditor:
+                            process = new PackageEditorProcess(progressId, num.ToString());
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -227,10 +230,11 @@ namespace TestMutiPlay
         {
             Initialize();
         }
+        public static MultiUserEditorDebuger GetInstance() => Instance.Initialize();
 
-        public void Initialize()
+        public MultiUserEditorDebuger Initialize()
         {
-            if (m_Inited) return;
+            if (m_Inited) return this;
 
             m_CommandLineArgs = Environment.GetCommandLineArgs();
 
@@ -259,6 +263,8 @@ namespace TestMutiPlay
 #endif
 
             m_Inited = true;
+
+            return this;
         }
 
 
