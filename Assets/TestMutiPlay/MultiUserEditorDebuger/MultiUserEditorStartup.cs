@@ -43,8 +43,8 @@ namespace TestMutiPlay
         }
         static MultiUserEditorStartup()
         {
-            UnityEngine.Debug.Log("MultiUserEditorData Startup!");
-            UnityEngine.Debug.Log( EditorApplication.applicationPath);
+            //UnityEngine.Debug.Log("MultiUserEditorData Startup!");
+            //UnityEngine.Debug.Log( EditorApplication.applicationPath);
 
             m_CommandLineArgs = Environment.GetCommandLineArgs();
             //StringBuilder sb = new StringBuilder();
