@@ -4,35 +4,40 @@ using UnityEngine;
 
 namespace TestRecycleListView
 {
-
-    public abstract class ListViewControllerBase : MonoBehaviour
+    public interface IViewController
     {
-        //Public variables
-        [Tooltip("Distance (in meters) we have scrolled from initial position")]
-        public float scrollOffset;
-        [Tooltip("Padding (in meters) between items")]
-        public float padding = 0.01f;
-        [Tooltip("Width (in meters) of visible region")]
-        public float range = 1;
-        [Tooltip("Item temlate prefabs (at least one is required)")]
-        public GameObject[] templates;
+        void Initialize();
+        void ViewUpdate();
+        bool ComputeConditions();
+        void UpdateItems();
+    }
 
-        //Protected variables
+    public abstract class ListViewControllerBase : MonoBehaviour, IViewController
+    {
+        //滚动便宜
+        public float ScrollOffset;
+        //间距
+        public float Padding = 0.01f;
+        //可视范围
+        public float Range = 1;
+
+        public GameObject[] Templates;
+
         protected int m_DataOffset;
         protected int m_NumItems;
         protected Vector3 m_LeftSide;
         protected Vector3 m_ItemSize;
-        protected readonly Dictionary<string, ListViewItemTemplate> m_Templates = new Dictionary<string, ListViewItemTemplate>();
 
-        //Public properties
-        public Vector3 itemSize
+        protected readonly Dictionary<string, ItemTemplatePool> m_Templates = new Dictionary<string, ItemTemplatePool>();
+
+        public Vector3 ItemSize
         {
             get { return m_ItemSize; }
         }
 
         void Start()
         {
-            Setup();
+            Initialize();
         }
 
         void Update()
@@ -40,65 +45,67 @@ namespace TestRecycleListView
             ViewUpdate();
         }
 
-        protected virtual void Setup()
+        public virtual void Initialize()
         {
-            if (templates.Length < 1)
+            if (Templates.Length < 1)
             {
                 Debug.LogError("No templates!");
             }
-            foreach (var template in templates)
+            foreach (var template in Templates)
             {
                 if (m_Templates.ContainsKey(template.name))
                     Debug.LogError("Two templates cannot have the same name");
-                m_Templates[template.name] = new ListViewItemTemplate(template);
+                m_Templates[template.name] = new ItemTemplatePool(template);
             }
         }
 
-        protected virtual void ViewUpdate()
+        public virtual void ViewUpdate()
         {
             ComputeConditions();
             UpdateItems();
         }
 
-        protected virtual void ComputeConditions()
+        public virtual bool ComputeConditions()
         {
-            if (templates.Length > 0)
+            if (Templates.Length > 0)
             {
-                //Use first template to get item size
-                m_ItemSize = GetObjectSize(templates[0]);
+                m_ItemSize = GetObjectSize(Templates[0]);
             }
-            //Resize range to nearest multiple of item width
-            m_NumItems = Mathf.RoundToInt(range / m_ItemSize.x); //Number of cards that will fit
-            range = m_NumItems * m_ItemSize.x;
 
-            //Get initial conditions. This procedure is done every frame in case the collider bounds change at runtime
-            m_LeftSide = transform.position + Vector3.left * range * 0.5f;
+            m_NumItems = Mathf.RoundToInt(Range / m_ItemSize.x); 
+            Range = m_NumItems * m_ItemSize.x;
 
-            m_DataOffset = (int)(scrollOffset / itemSize.x);
-            if (scrollOffset < 0)
+            m_LeftSide = transform.position + Vector3.left * Range * 0.5f;
+
+            m_DataOffset = (int)(ScrollOffset / ItemSize.x) + 1;
+            if (ScrollOffset <= 0)
+            {
                 m_DataOffset--;
+            }
+ 
+            return true;
         }
 
-        protected abstract void UpdateItems();
+        public abstract void UpdateItems();
 
         public virtual void ScrollNext()
         {
-            scrollOffset += m_ItemSize.x;
+            ScrollOffset += m_ItemSize.x;
         }
 
         public virtual void ScrollPrev()
         {
-            scrollOffset -= m_ItemSize.x;
+            ScrollOffset -= m_ItemSize.x;
         }
 
         public virtual void ScrollTo(int index)
         {
-            scrollOffset = index * itemSize.x;
+            ScrollOffset = index * ItemSize.x;
         }
 
         protected virtual void Positioning(Transform t, int offset)
         {
-            t.position = m_LeftSide + (offset * m_ItemSize.x + scrollOffset) * Vector3.right;
+            t.position = m_LeftSide + (offset * m_ItemSize.x + ScrollOffset) * Vector3.right;
         }
 
         protected virtual Vector3 GetObjectSize(GameObject g)
@@ -108,64 +115,64 @@ namespace TestRecycleListView
             Renderer rend = g.GetComponentInChildren<Renderer>();
             if (rend)
             {
-                itemSize.x = Vector3.Scale(g.transform.lossyScale, rend.bounds.extents).x * 2 + padding;
-                itemSize.y = Vector3.Scale(g.transform.lossyScale, rend.bounds.extents).y * 2 + padding;
-                itemSize.z = Vector3.Scale(g.transform.lossyScale, rend.bounds.extents).z * 2 + padding;
+                itemSize.x = Vector3.Scale(g.transform.lossyScale, rend.bounds.extents).x * 2 + Padding;
+                itemSize.y = Vector3.Scale(g.transform.lossyScale, rend.bounds.extents).y * 2 + Padding;
+                itemSize.z = Vector3.Scale(g.transform.lossyScale, rend.bounds.extents).z * 2 + Padding;
             }
             return itemSize;
         }
 
-        protected virtual void RecycleItem(string template, MonoBehaviour item)
+        public virtual void RecycleItem(string template, MonoBehaviour item)
         {
             if (item == null || template == null)
                 return;
-            m_Templates[template].pool.Add(item);
+            m_Templates[template].Pool.Add(item);
             item.gameObject.SetActive(false);
         }
     }
-    public class RecycleListView<DataType, ItemType> : ListViewControllerBase where DataType : ItemData where ItemType : RecycleListItem<DataType>
+    public class RecycleListView<DataType, ItemType> : ListViewControllerBase where DataType : ItemInspectorData where ItemType : RecycleListItem<DataType>
     {
         [Tooltip("Source Data")]
-        public DataType[] data;
+        public DataType[] Data;
 
-        protected override void UpdateItems()
+        public override void UpdateItems()
         {
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < Data.Length; i++)
             {
                 if (i + m_DataOffset < 0)
                 {
-                    ExtremeLeft(data[i]);
+                    ExtremeLeft(Data[i]);
                 }
                 else if (i + m_DataOffset > m_NumItems)
                 {
-                    ExtremeRight(data[i]);
+                    ExtremeRight(Data[i]);
                 }
                 else
                 {
-                    ListMiddle(data[i], i);
+                    ListMiddle(Data[i], i);
                 }
             }
         }
 
         protected virtual void ExtremeLeft(DataType data)
         {
-            RecycleItem(data.template, data.item);
-            data.item = null;
+            RecycleItem(data.TemplateName, data.Item);
+            data.Item = null;
         }
 
         protected virtual void ExtremeRight(DataType data)
         {
-            RecycleItem(data.template, data.item);
-            data.item = null;
+            RecycleItem(data.TemplateName, data.Item);
+            data.Item = null;
         }
 
         protected virtual void ListMiddle(DataType data, int offset)
         {
-            if (data.item == null)
+            if (data.Item == null)
             {
-                data.item = GetItem(data);
+                data.Item = GetItem(data);
             }
-            Positioning(data.item.transform, offset);
+            Positioning(data.Item.transform, offset);
         }
 
         protected virtual ItemType GetItem(DataType data)
@@ -175,31 +182,31 @@ namespace TestRecycleListView
                 Debug.LogWarning("Tried to get item with null data");
                 return null;
             }
-            if (!m_Templates.ContainsKey(data.template))
+            if (!m_Templates.ContainsKey(data.TemplateName))
             {
-                Debug.LogWarning("Cannot get item, template " + data.template + " doesn't exist");
+                Debug.LogWarning("Cannot get item, template " + data.TemplateName + " doesn't exist");
                 return null;
             }
             ItemType item = null;
-            if (m_Templates[data.template].pool.Count > 0)
+            if (m_Templates[data.TemplateName].Pool.Count > 0)
             {
-                item = (ItemType)m_Templates[data.template].pool[0];
-                m_Templates[data.template].pool.RemoveAt(0);
+                item = (ItemType)m_Templates[data.TemplateName].Pool[0];
+                m_Templates[data.TemplateName].Pool.RemoveAt(0);
 
                 item.gameObject.SetActive(true);
-                item.Setup(data);
+                item.Initialize(data);
             }
             else
             {
-                item = Instantiate(m_Templates[data.template].prefab).GetComponent<ItemType>();
+                item = Instantiate(m_Templates[data.TemplateName].Prefab).GetComponent<ItemType>();
                 item.transform.parent = transform;
-                item.Setup(data);
+                item.Initialize(data);
             }
             return item;
         }
     }
 
-    public class RecycleListView : RecycleListView<ItemInspectorData, RecycleListItem>
+    public class RecycleListView : RecycleListView<ItemInspectorData, RecycleListItem3D>
     {
     }
 }

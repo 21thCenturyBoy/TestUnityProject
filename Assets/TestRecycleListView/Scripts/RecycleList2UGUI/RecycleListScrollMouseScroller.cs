@@ -1,52 +1,45 @@
+using System.Collections;
+using System.Collections.Generic;
+using TestRecycleListView;
+using TestRecycleListView.UI;
 using UnityEngine;
 
-namespace TestRecycleListView
+namespace TestRecycleListView.UI
 {
-    public abstract class RecycleListInputHandler : MonoBehaviour
-    {
-        public ListViewControllerBase listView;
 
+    public class RecycleListScrollMouseScroller<TDataType, TItemType> : MonoBehaviour where TItemType : RecycleListScrollViewItem<TDataType> where TDataType : ItemData
+    {
+        public RecycleListScrollViewUI<TDataType, TItemType> View;
+
+        protected bool m_Scrolling;
+        protected Vector3 m_StartPosition;
+        protected float m_StartOffset;
         void Update()
         {
             HandleInput();
         }
-
-        protected abstract void HandleInput();
-    }
-    /// <summary>
-    /// 滚动视图输入
-    /// </summary>
-    public abstract class RecycleListScroller : RecycleListInputHandler
-    {
-        protected bool m_Scrolling;
-        protected Vector3 m_StartPosition;
-        protected float m_StartOffset;
-
         protected virtual void StartScrolling(Vector3 start)
         {
-            if (m_Scrolling)
-                return;
+            //Debug.Log(start);
+            if (m_Scrolling) return;
             m_Scrolling = true;
             m_StartPosition = start;
-            m_StartOffset = listView.ScrollOffset;
+            m_StartOffset = View.ScrollOffset;
         }
 
         protected virtual void Scroll(Vector3 position)
         {
-            if (m_Scrolling)
-                listView.ScrollOffset = m_StartOffset + position.x - m_StartPosition.x;
+            if (m_Scrolling) View.ScrollOffset = m_StartOffset + position.x - m_StartPosition.x;
         }
 
         protected virtual void StopScrolling()
         {
             m_Scrolling = false;
         }
-    }
-    public class RecycleListMouseScroller : RecycleListScroller
-    {
-        float m_ListDepth;
 
-        protected override void HandleInput()
+        protected float m_ListDepth;
+
+        protected virtual void HandleInput()
         {
             Vector3 screenPoint = Input.mousePosition;
             if (Input.GetMouseButton(0))
@@ -71,4 +64,5 @@ namespace TestRecycleListView
             Scroll(Camera.main.ScreenToWorldPoint(screenPoint));
         }
     }
+
 }

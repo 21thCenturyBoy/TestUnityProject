@@ -6,11 +6,11 @@ public class TestRecycleListViewController : TestRecycleListView.RecycleListView
 {
     public string defaultTemplate;
 
-    protected override void Setup()
+    public override void Initialize()
     {
-        base.Setup();
+        base.Initialize();
 
-        data = GetData();
+        Data = GetData();
     }
 
     private TestRecycleListItemData[] GetData()
@@ -21,7 +21,7 @@ public class TestRecycleListViewController : TestRecycleListView.RecycleListView
             Debug.Log(i);
             newDatas[i] = new TestRecycleListItemData();
             newDatas[i].text = $"Text {i}";
-            newDatas[i].template = defaultTemplate;
+            newDatas[i].TemplateName = defaultTemplate;
         }
         return newDatas;
     }
