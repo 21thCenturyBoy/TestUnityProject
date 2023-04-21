@@ -1,13 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TestRecycleListView.UI
 {
-    public class RecycleListScrollViewUI<TDataType, TItemType> : MonoBehaviour, IViewController where TItemType : RecycleListScrollViewItem<TDataType> where TDataType : ItemData
+    public abstract class RecycleListScrollViewUI : MonoBehaviour
     {
-        //滚动便宜
         public float ScrollOffset;
+    }
+
+    public abstract class RecycleListScrollViewUI<TDataType, TDataSet, TItemType> : RecycleListScrollViewUI, IViewController where TItemType : RecycleListScrollViewItem<TDataType> where TDataType : ItemData where TDataSet : IEnumerable<TDataType>
+    {
         //间距
         public float Padding = 0.01f;
         //可视范围
@@ -32,7 +35,7 @@ namespace TestRecycleListView.UI
         }
 
         [Tooltip("Source Data")]
-        public List<TDataType> Data;
+        public TDataSet Data;
 
 
         void Start()
@@ -48,18 +51,21 @@ namespace TestRecycleListView.UI
         public virtual void Initialize()
         {
             m_Templates = new ItemTemplatePool(Templates);
+
+            m_ItemSize = GetObjectSize(Templates);
         }
 
         public virtual void ViewUpdate()
         {
+            if (!Data.Any()) return;
             ComputeConditions();
             UpdateItems();
         }
-
-
+        public abstract void AddData(TDataType data);
+        public abstract void RemoveData(TDataType data);
         public float GetTotalSzie()
         {
-            return Data.Count * ItemSize.x;
+            return Data.Count() * ItemSize.x;
         }
         /// <summary>
         /// 限制滚动
@@ -70,7 +76,7 @@ namespace TestRecycleListView.UI
             m_MinScrollOffset = m_MaxScrollOffset - GetTotalSzie() + Range;
             if (ScrollOffset < m_MinScrollOffset)
             {
-                m_DataOffset = -(Data.Count - m_NumItems);
+                m_DataOffset = -(Data.Count() - m_NumItems);
                 return m_MinScrollOffset;
             }
             else if (ScrollOffset > m_MaxScrollOffset)
@@ -106,6 +112,7 @@ namespace TestRecycleListView.UI
         public virtual void UpdateItems()
         {
             int i = 0;
+
             foreach (TDataType data in Data)
             {
                 if (i + m_DataOffset < 0)

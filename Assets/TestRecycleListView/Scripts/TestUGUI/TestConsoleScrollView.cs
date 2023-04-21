@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TestRecycleListView.UI;
 using UnityEngine;
 
-public class TestConsoleScrollView : RecycleListScrollViewUI<TestLogData, TestLogItem>
+public class TestConsoleScrollView : RecycleListScrollViewUI<TestLogData, List<TestLogData>, TestLogItem>
 {
     public bool TestLog;
     public override void Initialize()
@@ -13,16 +13,23 @@ public class TestConsoleScrollView : RecycleListScrollViewUI<TestLogData, TestLo
 
         Data = new List<TestLogData>();
 
-        for (int i = 0; i < 20; i++)
-        {
-            Data.Add(new TestLogData("Text " +i));
-        }
+
+    }
+
+    public override void AddData(TestLogData data)
+    {
+        Data.Add(data);
+    }
+
+    public override void RemoveData(TestLogData data)
+    {
+        Data.Remove(data);
     }
 
     public void LateUpdate()
     {
         if (!TestLog) return;
 
-        Data.Add(new TestLogData(Time.time.ToString()));
+        AddData(new TestLogData(Time.time.ToString()));
     }
 }

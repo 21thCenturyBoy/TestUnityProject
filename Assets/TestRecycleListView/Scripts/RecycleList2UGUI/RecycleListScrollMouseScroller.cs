@@ -7,9 +7,9 @@ using UnityEngine;
 namespace TestRecycleListView.UI
 {
 
-    public class RecycleListScrollMouseScroller<TDataType, TItemType> : MonoBehaviour where TItemType : RecycleListScrollViewItem<TDataType> where TDataType : ItemData
+    public class RecycleListScrollMouseScroller<TView> : MonoBehaviour where TView : RecycleListScrollViewUI
     {
-        public RecycleListScrollViewUI<TDataType, TItemType> View;
+        public TView View;
 
         protected bool m_Scrolling;
         protected Vector3 m_StartPosition;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TestRecycleListView.UI;
 using UnityEngine;
 
-public class TestConsoleScrollInput : RecycleListScrollMouseScroller<TestLogData, TestLogItem>
+public class TestConsoleScrollInput : RecycleListScrollMouseScroller<TestConsoleScrollView>
 {
     private Vector3 screenPoint;
     private void OnEnable()
