@@ -70,7 +70,7 @@ public class TestConsoleScrollView : RecycleListScrollViewUI<TestLogData, List<T
                 m_ViewRect.sizeDelta = new Vector2(Range - Padding.x, m_ItemSize.y);
                 break;
             case Direction.HorizontalDecrease:
-                m_ViewRect.transform.position = new Vector3(m_LeftSide.x - m_ItemSize.x * 1.5f, m_LeftSide.y, m_LeftSide.z);
+                m_ViewRect.transform.position = new Vector3(m_LeftSide.x - (Range - m_ItemSize.x) * 0.5f, m_LeftSide.y, m_LeftSide.z);
                 m_ViewRect.sizeDelta = new Vector2(Range - Padding.x, m_ItemSize.y);
                 break;
             case Direction.VerticalAdd:

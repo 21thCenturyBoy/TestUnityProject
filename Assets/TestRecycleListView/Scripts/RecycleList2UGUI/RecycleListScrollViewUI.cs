@@ -27,6 +27,8 @@ namespace TestRecycleListView.UI
         public virtual void ScrollTo(int index) { }
         protected abstract void Positioning(Transform t, int offset);
 
+        public const float FailoverFloat = 0.1f;
+
     }
 
     public abstract class RecycleListScrollViewUI<TDataType, TDataSet, TItemType> : RecycleListScrollViewUI, IViewController where TItemType : RecycleListScrollViewItem<TDataType> where TDataType : ItemData where TDataSet : IEnumerable<TDataType>
@@ -91,6 +93,7 @@ namespace TestRecycleListView.UI
         {
             return Data.Count() * ItemLength;
         }
+
         /// <summary>
         /// 限制滚动
         /// </summary>
@@ -104,12 +107,12 @@ namespace TestRecycleListView.UI
             }
 
             m_MinScrollOffset = m_MaxScrollOffset - GetTotalSzie() + Range;
-            if (ScrollOffset < m_MinScrollOffset)
+            if (ScrollOffset - m_MinScrollOffset < 0)
             {
-                m_DataOffset = -(Data.Count() - m_NumItems);
+                m_DataOffset = 1 - (Data.Count() - m_NumItems);
                 return m_MinScrollOffset;
             }
-            else if (ScrollOffset > m_MaxScrollOffset)
+            else if (ScrollOffset >= m_MaxScrollOffset)
             {
                 m_DataOffset = 0;
                 return m_MaxScrollOffset;
@@ -124,7 +127,7 @@ namespace TestRecycleListView.UI
         public virtual bool ComputeConditions()
         {
             m_NumItems = Mathf.FloorToInt(Range / ItemLength);
-            if(OptimumRange) Range = m_NumItems * ItemLength;
+            if (OptimumRange) Range = m_NumItems * ItemLength;
 
             m_LeftSide = transform.position + NegativeOrientation * Range * 0.5f;
 

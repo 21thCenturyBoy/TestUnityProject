@@ -365,11 +365,11 @@ MonoBehaviour:
   ScrollOffset: 0
   Orientation: {x: -1, y: 0, z: 0}
   Padding: {x: 10, y: 10, z: 0}
-  OptimumRange: 0
+  OptimumRange: 1
   Range: 735
   Templates: {fileID: 3264541444581620827, guid: 8a3c20d202250ab48ab3de9ba78ad39c, type: 3}
   Data: []
-  ViewDirection: 3
+  ViewDirection: 0
   m_ViewRect: {fileID: 0}
 --- !u!1 &934847785
 GameObject:
