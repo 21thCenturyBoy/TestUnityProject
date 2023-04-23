@@ -7,12 +7,31 @@ namespace TestRecycleListView.UI
     public abstract class RecycleListScrollViewUI : MonoBehaviour
     {
         public float ScrollOffset;
+
+        public Vector3 Orientation = Vector3.right;
+
+        public Vector3 NormalOrientation
+        {
+            get => (Vector3.Normalize(Orientation));
+        }
+        public Vector3 NegativeOrientation
+        {
+            get => (-NormalOrientation);
+        }
+
+        public virtual void ScrollNext() { }
+
+        public virtual void ScrollPrev() { }
+
+        public virtual void ScrollTo(int index) { }
+        protected abstract void Positioning(Transform t, int offset);
+
     }
 
     public abstract class RecycleListScrollViewUI<TDataType, TDataSet, TItemType> : RecycleListScrollViewUI, IViewController where TItemType : RecycleListScrollViewItem<TDataType> where TDataType : ItemData where TDataSet : IEnumerable<TDataType>
     {
         //间距
-        public float Padding = 0.01f;
+        public Vector3 Padding = Vector3.zero;
         //可视范围
         public float Range = 1;
 
@@ -29,9 +48,9 @@ namespace TestRecycleListView.UI
 
         protected ItemTemplatePool m_Templates;
 
-        public Vector3 ItemSize
+        public float ItemLength
         {
-            get { return m_ItemSize; }
+            get => Vector3.Dot(m_ItemSize, NormalOrientation);
         }
 
         [Tooltip("Source Data")]
@@ -53,7 +72,9 @@ namespace TestRecycleListView.UI
             m_Templates = new ItemTemplatePool(Templates);
 
             m_ItemSize = GetObjectSize(Templates);
+
         }
+
 
         public virtual void ViewUpdate()
         {
@@ -65,7 +86,7 @@ namespace TestRecycleListView.UI
         public abstract void RemoveData(TDataType data);
         public float GetTotalSzie()
         {
-            return Data.Count() * ItemSize.x;
+            return Data.Count() * ItemLength;
         }
         /// <summary>
         /// 限制滚动
@@ -73,6 +94,12 @@ namespace TestRecycleListView.UI
         /// <returns></returns>
         private float ClampScrollOffset()
         {
+            if (Data.Count() <= m_NumItems)
+            {
+                m_DataOffset = 0;
+                return m_MaxScrollOffset;
+            }
+
             m_MinScrollOffset = m_MaxScrollOffset - GetTotalSzie() + Range;
             if (ScrollOffset < m_MinScrollOffset)
             {
@@ -93,14 +120,12 @@ namespace TestRecycleListView.UI
 
         public virtual bool ComputeConditions()
         {
-            m_ItemSize = GetObjectSize(Templates);
+            m_NumItems = Mathf.FloorToInt(Range / ItemLength);
+            Range = m_NumItems * ItemLength;
 
-            m_NumItems = Mathf.FloorToInt(Range / m_ItemSize.x);
-            Range = m_NumItems * m_ItemSize.x;
+            m_LeftSide = transform.position + NegativeOrientation * Range * 0.5f;
 
-            m_LeftSide = transform.position + Vector3.left * Range * 0.5f;
-
-            m_DataOffset = (int)(ScrollOffset / ItemSize.x) + 1;
+            m_DataOffset = (int)(ScrollOffset / ItemLength) + 1;
 
             ScrollOffset = ClampScrollOffset();
 
@@ -152,7 +177,7 @@ namespace TestRecycleListView.UI
             Positioning(data.Item.transform, offset);
         }
 
-        protected virtual TItemType GetItem(TDataType data)
+        protected virtual TItemType GetItem(TDataType data, Transform parent = null)
         {
             if (data == null)
             {
@@ -171,36 +196,43 @@ namespace TestRecycleListView.UI
             }
             else
             {
-                item = Instantiate(m_Templates.Prefab).GetComponent<TItemType>();
-                item.transform.parent = transform;
+                if (parent == null)
+                {
+                    parent = transform;
+                }
+
+                item = Instantiate(m_Templates.Prefab, parent).GetComponent<TItemType>();
+
                 item.ShowData(data);
             }
             return item;
         }
 
-        public virtual void ScrollNext()
+        public override void ScrollNext()
         {
-            ScrollOffset += m_ItemSize.x;
+            ScrollOffset += ItemLength;
         }
 
-        public virtual void ScrollPrev()
+        public override void ScrollPrev()
         {
-            ScrollOffset -= m_ItemSize.x;
+            ScrollOffset -= ItemLength;
         }
 
-        public virtual void ScrollTo(int index)
+        public override void ScrollTo(int index)
         {
-            ScrollOffset = index * ItemSize.x;
+            ScrollOffset = index * ItemLength;
         }
 
-        protected virtual void Positioning(Transform t, int offset)
+        protected override void Positioning(Transform t, int offset)
         {
-            t.position = m_LeftSide + (offset * m_ItemSize.x + ScrollOffset) * Vector3.right;
+            t.position = m_LeftSide + (offset * ItemLength + ScrollOffset) * Orientation;
         }
 
         protected virtual Vector2 GetObjectSize(GameObject g)
         {
-            Vector3 itemSize = g.GetComponent<RectTransform>().sizeDelta;
+            Vector3 itemSize = Padding;
+            itemSize.x += g.GetComponent<RectTransform>().sizeDelta.x;
+            itemSize.y += g.GetComponent<RectTransform>().sizeDelta.y;
             return itemSize;
         }
 

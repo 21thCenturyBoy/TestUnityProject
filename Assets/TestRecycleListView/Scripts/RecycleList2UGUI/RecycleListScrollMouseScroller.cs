@@ -20,16 +20,21 @@ namespace TestRecycleListView.UI
         }
         protected virtual void StartScrolling(Vector3 start)
         {
-            //Debug.Log(start);
             if (m_Scrolling) return;
             m_Scrolling = true;
             m_StartPosition = start;
             m_StartOffset = View.ScrollOffset;
+
         }
 
         protected virtual void Scroll(Vector3 position)
         {
-            if (m_Scrolling) View.ScrollOffset = m_StartOffset + position.x - m_StartPosition.x;
+            if (m_Scrolling)
+            {
+                Vector3 delta = m_StartPosition - position;
+                View.ScrollOffset = m_StartOffset + Vector3.Dot(delta, View.NegativeOrientation);
+            }
+
         }
 
         protected virtual void StopScrolling()
