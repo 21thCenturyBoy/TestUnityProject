@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -32,7 +33,8 @@ namespace TestRecycleListView.UI
     {
         //间距
         public Vector3 Padding = Vector3.zero;
-        //可视范围
+        //最佳
+        public bool OptimumRange = true;
         public float Range = 1;
 
         public GameObject Templates;
@@ -53,6 +55,7 @@ namespace TestRecycleListView.UI
             get => Vector3.Dot(m_ItemSize, NormalOrientation);
         }
 
+        [HideInInspector]
         [Tooltip("Source Data")]
         public TDataSet Data;
 
@@ -121,7 +124,7 @@ namespace TestRecycleListView.UI
         public virtual bool ComputeConditions()
         {
             m_NumItems = Mathf.FloorToInt(Range / ItemLength);
-            Range = m_NumItems * ItemLength;
+            if(OptimumRange) Range = m_NumItems * ItemLength;
 
             m_LeftSide = transform.position + NegativeOrientation * Range * 0.5f;
 

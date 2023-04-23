@@ -363,9 +363,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScrollOffset: 0
-  Orientation: {x: 0, y: 1, z: 0}
+  Orientation: {x: 1, y: 0, z: 0}
   Padding: {x: 10, y: 10, z: 0}
-  Range: 600
+  OptimumRange: 0
+  Range: 735
   Templates: {fileID: 3264541444581620827, guid: 8a3c20d202250ab48ab3de9ba78ad39c, type: 3}
   Data: []
   ViewDirection: 1
