@@ -52,10 +52,10 @@ namespace TestRecycleListView.UI
 
         public float ItemLength
         {
-            get => Vector3.Dot(m_ItemSize, NormalOrientation);
+            get => Mathf.Abs(Vector3.Dot(m_ItemSize, NormalOrientation));
         }
 
-        [HideInInspector]
+        //[HideInInspector]
         [Tooltip("Source Data")]
         public TDataSet Data;
 

@@ -8,19 +8,27 @@ public class TestConsoleScrollView : RecycleListScrollViewUI<TestLogData, List<T
 {
     public enum Direction
     {
-        Horizontal,
-        Vertical
+        HorizontalAdd,
+        VerticalAdd,
+        HorizontalDecrease,
+        VerticalDecrease,
     }
     public Direction ViewDirection;
     public override void Initialize()
     {
         switch (ViewDirection)
         {
-            case Direction.Horizontal:
+            case Direction.HorizontalAdd:
                 Orientation = Vector3.right;
                 break;
-            case Direction.Vertical:
+            case Direction.VerticalAdd:
                 Orientation = Vector3.up;
+                break;
+            case Direction.HorizontalDecrease:
+                Orientation = Vector3.left;
+                break;
+            case Direction.VerticalDecrease:
+                Orientation = Vector3.down;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -57,12 +65,20 @@ public class TestConsoleScrollView : RecycleListScrollViewUI<TestLogData, List<T
 
         switch (ViewDirection)
         {
-            case Direction.Horizontal:
+            case Direction.HorizontalAdd:
                 m_ViewRect.transform.position = new Vector3(m_LeftSide.x + (Range - m_ItemSize.x) * 0.5f, m_LeftSide.y, m_LeftSide.z);
                 m_ViewRect.sizeDelta = new Vector2(Range - Padding.x, m_ItemSize.y);
                 break;
-            case Direction.Vertical:
+            case Direction.HorizontalDecrease:
+                m_ViewRect.transform.position = new Vector3(m_LeftSide.x - m_ItemSize.x * 1.5f, m_LeftSide.y, m_LeftSide.z);
+                m_ViewRect.sizeDelta = new Vector2(Range - Padding.x, m_ItemSize.y);
+                break;
+            case Direction.VerticalAdd:
                 m_ViewRect.transform.position = new Vector3(m_LeftSide.x, m_LeftSide.y + (Range - m_ItemSize.y) * 0.5f, m_LeftSide.z);
+                m_ViewRect.sizeDelta = new Vector2(m_ItemSize.x, Range - Padding.y);
+                break;
+            case Direction.VerticalDecrease:
+                m_ViewRect.transform.position = new Vector3(m_LeftSide.x, m_LeftSide.y - (Range - m_ItemSize.y) * 0.5f, m_LeftSide.z);
                 m_ViewRect.sizeDelta = new Vector2(m_ItemSize.x, Range - Padding.y);
                 break;
             default:

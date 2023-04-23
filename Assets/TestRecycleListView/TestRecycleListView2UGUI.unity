@@ -169,7 +169,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 21286886}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 21286886}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
   m_Name: 
@@ -363,13 +363,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScrollOffset: 0
-  Orientation: {x: 1, y: 0, z: 0}
+  Orientation: {x: -1, y: 0, z: 0}
   Padding: {x: 10, y: 10, z: 0}
   OptimumRange: 0
   Range: 735
   Templates: {fileID: 3264541444581620827, guid: 8a3c20d202250ab48ab3de9ba78ad39c, type: 3}
   Data: []
-  ViewDirection: 1
+  ViewDirection: 3
   m_ViewRect: {fileID: 0}
 --- !u!1 &934847785
 GameObject:
