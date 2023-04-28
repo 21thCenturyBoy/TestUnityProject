@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TestRecycleListView
+namespace GameUIControl.RecycleListView
 {
     public abstract class RecycleListInputHandler : MonoBehaviour
     {

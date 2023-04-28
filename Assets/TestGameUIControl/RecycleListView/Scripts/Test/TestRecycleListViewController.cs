@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class TestRecycleListViewController : TestRecycleListView.RecycleListView<TestRecycleListItemData, TestRecycleListItem>
+public class TestRecycleListViewController : GameUIControl.RecycleListView.RecycleListView<TestRecycleListItemData, TestRecycleListItem>
 {
     public string defaultTemplate;
 

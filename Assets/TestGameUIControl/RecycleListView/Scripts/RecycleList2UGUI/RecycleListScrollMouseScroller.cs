@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using TestRecycleListView;
-using TestRecycleListView.UI;
 using UnityEngine;
 
-namespace TestRecycleListView.UI
+namespace GameUIControl.RecycleListView.UI
 {
 
     public class RecycleListScrollMouseScroller<TView> : MonoBehaviour where TView : RecycleListScrollViewUI

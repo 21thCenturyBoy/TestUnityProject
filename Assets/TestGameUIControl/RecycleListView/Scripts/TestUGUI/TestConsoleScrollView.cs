@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TestRecycleListView.UI;
+using GameUIControl.RecycleListView.UI;
 using UnityEngine;
 
 public class TestConsoleScrollView : RecycleListScrollViewUI<TestLogData, List<TestLogData>, TestLogItem>

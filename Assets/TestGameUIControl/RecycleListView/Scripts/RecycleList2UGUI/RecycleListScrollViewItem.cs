@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using TestRecycleListView;
 using UnityEngine;
 
-namespace TestRecycleListView.UI
+namespace GameUIControl.RecycleListView.UI
 {
 
     public class RecycleListScrollViewItem<DataType> :MonoBehaviour where DataType : ItemData

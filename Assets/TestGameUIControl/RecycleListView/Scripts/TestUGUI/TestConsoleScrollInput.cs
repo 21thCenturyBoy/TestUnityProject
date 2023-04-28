@@ -1,14 +1,17 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TestRecycleListView.UI;
+using GameUIControl.RecycleListView.UI;
 using UnityEngine;
 
 public class TestConsoleScrollInput : RecycleListScrollMouseScroller<TestConsoleScrollView>
 {
     private Vector3 LastScreenPoint;
+    public float MouseScrollSensitivity = 10f;
     protected override void HandleInput()
     {
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            View.ScrollOffset += MouseScrollSensitivity * Input.mouseScrollDelta.y;
+        }
+
         if (Input.GetMouseButton(0))
         {
             StartScrolling(LastScreenPoint);
