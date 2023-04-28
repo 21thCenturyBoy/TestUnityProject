@@ -84,7 +84,9 @@ namespace GameUIControl
             if (m_Slider == null) m_Slider = transform.GetComponent<Slider>();
             if (m_FillRect == null) m_FillRect = m_Slider.fillRect.GetComponent<Image>();
         }
-
+		
+        public Slider GetSlider() => m_Slider;
+		
         public void ClearConfig()
         {
             m_Configs.Clear();
