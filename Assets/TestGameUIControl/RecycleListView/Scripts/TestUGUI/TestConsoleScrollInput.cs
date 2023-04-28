@@ -4,7 +4,7 @@ using UnityEngine;
 public class TestConsoleScrollInput : RecycleListScrollMouseScroller<TestConsoleScrollView>
 {
     private Vector3 LastScreenPoint;
-    public float MouseScrollSensitivity = 10f;
+    public float MouseScrollSensitivity = 30f;
     protected override void HandleInput()
     {
         if (Input.mouseScrollDelta.y != 0)
