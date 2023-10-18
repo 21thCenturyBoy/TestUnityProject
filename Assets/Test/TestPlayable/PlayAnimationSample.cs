@@ -1,30 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
+/// <summary>
+/// 播放动画片段示例
+/// </summary>
+[RequireComponent(typeof(Animator))]
+
 public class PlayAnimationSample : MonoBehaviour
+
 {
+
     public AnimationClip clip;
-    private PlayableGraph graph;
-    // Start is called before the first frame update
+    PlayableGraph playableGraph;
+
     void Start()
+
     {
-        graph = PlayableGraph.Create();
-        graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);//设置游戏更新
+        playableGraph = PlayableGraph.Create();
+        playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
+        var playableOutput = AnimationPlayableOutput.Create(playableGraph, "Animation", GetComponent<Animator>());
+        // Wrap the clip in a playable
+        var clipPlayable = AnimationClipPlayable.Create(playableGraph, clip);
+        // Connect the Playable to an output
+        playableOutput.SetSourcePlayable(clipPlayable);
+        // Plays the Graph.
+        playableGraph.Play();
 
-        var clipplayable = AnimationClipPlayable.Create(graph,clip);
-
-        var output = AnimationPlayableOutput.Create(graph, "Anim", GetComponent<Animator>());
-        output.SetSourcePlayable(clipplayable);
-
-        graph.Play();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDisable()
+
     {
-        
+        // Destroys all Playables and PlayableOutputs created by the graph.
+        playableGraph.Destroy();
     }
+
 }
