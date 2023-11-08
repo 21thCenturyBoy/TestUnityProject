@@ -83,6 +83,10 @@ class ApplyVelocitySample : MonoBehaviour
         // It is not recommended to Complete a job immediately,
         // since that reduces the chance of having other jobs run in parallel with this one.
         // You optimally want to schedule a job early in a frame and then wait for it later in the frame.
+        //确保任务已经完成。
+        //不建议立即完成任务。
+        //因为这样可以减少其他作业与此作业并行运行的机会。
+        //你最好在一个帧的早期调度一个作业，然后在该帧的后期等待它。
         jobHandle.Complete();
 
         Debug.Log(m_Transforms[0].position);
