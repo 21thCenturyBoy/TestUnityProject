@@ -28,7 +28,7 @@ namespace TestUnRedo
         protected int m_MaxSaveNum;
 
         public virtual string GetModuleName() => nameof(UnRedoModule);
-        
+
         public override string ToString()
         {
             return GetModuleName();
@@ -101,7 +101,7 @@ namespace TestUnRedo
         {
             if (!m_Inited)
             {
-                LogService.LogError("未初始化！");
+                Debug.LogError("未初始化！");
                 return;
             }
 
@@ -122,10 +122,10 @@ namespace TestUnRedo
                 }
                 catch (Exception e)
                 {
-                    LogService.LogError($"Undo Redo执行命令抛出异常：" + e.ToString());
+                    Debug.LogError($"Undo Redo执行命令抛出异常：" + e.ToString());
                 }
 
-                KEditorLog.Log("Undo()");
+                Debug.Log("Undo()");
 
                 redoCommands.Push(command);
                 command.State = CommandState.R;
@@ -138,7 +138,7 @@ namespace TestUnRedo
         {
             if (!m_Inited)
             {
-                LogService.LogError("未初始化！");
+                Debug.LogError("未初始化！");
                 return;
             }
 
@@ -158,10 +158,10 @@ namespace TestUnRedo
                 }
                 catch (Exception e)
                 {
-                    LogService.LogError($"Undo Redo执行命令抛出异常：" + e.ToString());
+                    Debug.LogError($"Undo Redo执行命令抛出异常：" + e.ToString());
                 }
 
-                KEditorLog.Log("Redo()");
+                Debug.Log("Redo()");
 
                 undoCommands.Push(command);
                 command.State = CommandState.U;
@@ -174,13 +174,13 @@ namespace TestUnRedo
         {
             if (!m_Inited)
             {
-                LogService.LogError("未初始化！");
+                Debug.LogError("未初始化！");
                 return null;
             }
 
             if (IsUndoing || IsRedoing || command is not { State: CommandState.C })
             {
-                LogService.LogError($"<color=red>非法入栈[{command.State}] {command} 已拦截！</color>");
+                Debug.LogError($"<color=red>非法入栈[{command.State}] {command} 已拦截！</color>");
                 return null;
             }
 
@@ -193,11 +193,32 @@ namespace TestUnRedo
         {
             while (undoCommands.Count >= m_MaxSaveNum)
             {
-                KoalaUtils.RemoveBottomElement(undoCommands);
+                if (undoCommands.Count == 0)
+                {
+                    return;
+                }
+
+                // Create a temporary stack to hold the elements
+                Stack<Command> tempStack = new Stack<Command>();
+
+                // Pop all elements from the original stack and push them onto the temporary stack
+                while (undoCommands.Count > 0)
+                {
+                    tempStack.Push(undoCommands.Pop());
+                }
+
+                // Pop the bottom element from the temporary stack
+                tempStack.Pop();
+
+                // Push all remaining elements from the temporary stack back onto the original stack
+                while (tempStack.Count > 0)
+                {
+                    undoCommands.Push(tempStack.Pop());
+                }
             }
 
             //Debug.Log("EnterStack " + command.Name);
-            KEditorLog.Log($"记录撤销还原:{command.Name}:" + command);
+            Debug.Log($"记录撤销还原:{command.Name}:" + command);
 
             undoCommands.Push(command);
 
