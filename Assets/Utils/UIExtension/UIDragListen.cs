@@ -3,49 +3,53 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UIDragListen : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
+namespace Utils.UGUIExtension
 {
-    public UnityEvent<PointerEventData> OnBeginDragEvent = new UnityEvent<PointerEventData>();
-    public UnityEvent<PointerEventData> OnEndDragEvent = new UnityEvent<PointerEventData>();
-
-    public void OnBeginDrag(PointerEventData eventData)
+    public class UIDragListen : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
     {
-        OnBeginDragEvent.Invoke(eventData);
-        transform.parent?.GetComponentInParent<IBeginDragHandler>()?.OnBeginDrag(eventData);
+        public UnityEvent<PointerEventData> OnBeginDragEvent = new UnityEvent<PointerEventData>();
+        public UnityEvent<PointerEventData> OnEndDragEvent = new UnityEvent<PointerEventData>();
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            OnBeginDragEvent.Invoke(eventData);
+            transform.parent?.GetComponentInParent<IBeginDragHandler>()?.OnBeginDrag(eventData);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            OnEndDragEvent.Invoke(eventData);
+            transform.parent?.GetComponentInParent<IEndDragHandler>()?.OnEndDrag(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            transform.parent?.GetComponentInParent<IDragHandler>()?.OnDrag(eventData);
+        }
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public static partial class UGUIExtension
     {
-        OnEndDragEvent.Invoke(eventData);
-        transform.parent?.GetComponentInParent<IEndDragHandler>()?.OnEndDrag(eventData);
-    }
+        public static UnityEvent<PointerEventData> OnBeginDragListen(this Slider slider)
+        {
+            if (slider.handleRect == null) return null;
 
-    public void OnDrag(PointerEventData eventData)
-    {
-        transform.parent?.GetComponentInParent<IDragHandler>()?.OnDrag(eventData);
-    }
-}
+            UIDragListen listen = slider.handleRect.GetComponent<UIDragListen>();
+            if (listen == null) listen = slider.handleRect.gameObject.AddComponent<UIDragListen>();
 
-public static partial class PropertyUIExtension
-{
-    public static UnityEvent<PointerEventData> OnBeginDragListen(this Slider slider)
-    {
-        if (slider.handleRect == null) return null;
-
-        UIDragListen listen = slider.handleRect.GetComponent<UIDragListen>();
-        if (listen == null) listen = slider.handleRect.gameObject.AddComponent<UIDragListen>();
-
-        return listen.OnBeginDragEvent;
-    }
+            return listen.OnBeginDragEvent;
+        }
     
-    public static UnityEvent<PointerEventData> OnEndDragListen(this Slider slider)
-    {
-        if (slider.handleRect == null) return null;
+        public static UnityEvent<PointerEventData> OnEndDragListen(this Slider slider)
+        {
+            if (slider.handleRect == null) return null;
 
-        UIDragListen listen = slider.handleRect.GetComponent<UIDragListen>();
-        if (listen == null) listen = slider.handleRect.gameObject.AddComponent<UIDragListen>();
+            UIDragListen listen = slider.handleRect.GetComponent<UIDragListen>();
+            if (listen == null) listen = slider.handleRect.gameObject.AddComponent<UIDragListen>();
 
-        return listen.OnEndDragEvent;
+            return listen.OnEndDragEvent;
+        }
     }
+
 }
 
