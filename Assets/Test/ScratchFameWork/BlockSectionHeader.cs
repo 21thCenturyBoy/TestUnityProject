@@ -1,0 +1,173 @@
+using System.Collections;
+using System.Collections.Generic;
+using MG_BlocksEngine2.Block;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace ScratchFramework
+{
+    [ExecuteInEditMode]
+    public class BlockSectionHeader : ScratchUIBehaviour, IScratchModifyLayout
+    {
+        #region property
+
+        private BlockSection m_section;
+
+        public BlockSection Section
+        {
+            get
+            {
+                if (m_section == null && transform.parent != null)
+                {
+                    m_section = transform.parent.GetComponent<BlockSection>();
+                }
+
+                return m_section;
+            }
+        }
+
+        private Block_Layout m_blockLayout;
+
+        public Block_Layout BlockLayout
+        {
+            get
+            {
+                if (m_blockLayout == null && transform.parent != null && transform.parent.parent != null)
+                {
+                    m_blockLayout = transform.parent.parent.GetComponent<Block_Layout>();
+                }
+
+                return m_blockLayout;
+            }
+        }
+
+        private Image m_image;
+
+        public Image Image
+        {
+            get
+            {
+                if (m_image == null)
+                {
+                    m_image = GetComponent<Image>();
+                    m_image.type = Image.Type.Sliced;
+                    m_image.pixelsPerUnitMultiplier = 2;
+                }
+
+                return m_image;
+            }
+        }
+
+        #endregion
+
+        public float minHeight;
+
+        public float minWidth = 150;
+        public float paddingRight = 0;
+
+        Shadow _shadow;
+
+        public Shadow Shadow
+        {
+            get
+            {
+                if (!_shadow)
+                {
+                    if (GetComponent<Shadow>())
+                        _shadow = GetComponent<Shadow>();
+                    else
+                        _shadow = gameObject.AddComponent<Shadow>();
+
+                    _shadow.effectColor = Color.green;
+                    _shadow.effectDistance = new Vector2(-6, -6);
+                }
+
+                return _shadow;
+            }
+        }
+
+        private List<ScratchUIBehaviour> m_HeadSerializeDatas = new List<ScratchUIBehaviour>();
+        public List<ScratchUIBehaviour> HeadSerializeDatas => m_HeadSerializeDatas;
+
+        public void UpdateHeadSerializeData()
+        {
+            m_HeadSerializeDatas.Clear();
+            int childCount = transform.childCount;
+            m_HeadSerializeDatas.Capacity = childCount;
+
+            for (int i = 0; i < childCount; i++)
+            {
+                IScratchSerializeData serializeData = transform.GetChild(i).GetComponent<IScratchSerializeData>();
+
+                if (serializeData is ScratchUIBehaviour scratchUI)
+                {
+                    if (scratchUI != null && scratchUI.Active)
+                    {
+                        m_HeadSerializeDatas.Add(scratchUI);
+                    }
+                }
+            }
+        }
+
+
+        public virtual void OnUpdateLayout()
+        {
+            UpdateHeadSerializeData();
+
+            if (BlockLayout != null)
+            {
+                Image.color = BlockLayout.Color;
+            }
+
+
+            if (Section != null)
+            {
+                if (Section.RectTrans.transform.GetSiblingIndex() == 0)
+                {
+                    float width = 0;
+                    float height = minHeight - 40;
+                    float h = 0;
+                    int itemsLength = m_HeadSerializeDatas.Count;
+                    for (int i = 0; i < itemsLength; i++)
+                    {
+                        ScratchUIBehaviour item = HeadSerializeDatas[i];
+                        width += item.GetSize().x + 15;
+                        if (item.GetSize().y > h)
+                        {
+                            h = item.GetSize().y;
+                        }
+                    }
+
+                    width += 15 + paddingRight;
+
+                    if (width < minWidth)
+                        width = minWidth;
+
+                    height += h;
+                    if (height < minHeight)
+                        height = minHeight;
+
+                    SetSize(new Vector2(width, height));
+                }
+                else
+                {
+                    var width = BlockLayout.SectionsArray[0].Header.GetSize().x;
+                    var height = GetSize().y;
+                    SetSize(new Vector2(width, height));
+                }
+            }
+        }
+
+        public void UpdateLayout()
+        {
+            OnUpdateLayout();
+        }
+
+        public Vector2 SetSize(Vector2 size)
+        {
+            if (RectTrans == null) return Vector2.zero;
+            RectTrans.sizeDelta = size;
+            return size;
+        }
+    }
+}

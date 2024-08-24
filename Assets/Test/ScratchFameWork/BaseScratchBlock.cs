@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ScratchFamework
+namespace ScratchFramework
 {
     public enum Type
     {
         Undefined,
-        Event,
-        Action,
+        Event,//事件
+        Action,//行为
         Control,//控制
         Condition,//条件，与或非
         GetValue ,//取值
@@ -17,7 +17,7 @@ namespace ScratchFamework
     }
 
     /// <summary>Block基类 </summary>
-    public abstract class BaseScratchBlock : MonoBehaviour
+    public abstract class BaseScratchBlock : ScratchUIBehaviour
     {
         
     }
