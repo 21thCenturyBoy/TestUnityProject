@@ -11,6 +11,15 @@ namespace ScratchFramework
         public bool Inited => m_isInitialized;
         public bool IsDestroying => m_isDestroying;
 
+        public virtual bool Active
+        {
+            set
+            {
+                if (!IsDestroying) gameObject.SetActive(value);
+            }
+            get => gameObject.activeSelf;
+        }
+
         public virtual bool Initialize()
         {
             if (m_isInitialized) return false;
@@ -54,6 +63,47 @@ namespace ScratchFramework
             }
 
             return com;
+        }
+    }
+
+    /// <summary>单例Mono，没有的话创建（跳场景不销毁）</summary>
+    public class ScratchSingleton<T> : ScratchBehaviour where T : ScratchSingleton<T>
+    {
+        protected static T _instance;
+
+        protected ScratchSingleton()
+        {
+        }
+
+        public static T Instance
+        {
+            get
+            {
+                if (ReferenceEquals(_instance, null))
+                {
+                    _instance = (T)FindObjectOfType(typeof(T), true);
+
+                    if (FindObjectsOfType(typeof(T)).Length > 1)
+                    {
+                        return _instance;
+                    }
+
+                    if (_instance == null)
+                    {
+                        GameObject singleton = new GameObject();
+                        _instance = singleton.AddComponent<T>();
+                        singleton.name = typeof(T).Name.ToString();
+                    }
+                }
+
+                return _instance;
+            }
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            _instance = null;
         }
     }
 

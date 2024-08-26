@@ -18,6 +18,16 @@ namespace ScratchFramework
         Vector2 SetSize(Vector2 size);
     }
 
+    public interface IScratchManager
+    {
+        bool Initialize();
+        bool Active { get; set; }
+        void OnUpdate();
+        void OnLateUpdate();
+        bool Clear();
+    }
+
+    
     public interface IScratchSerializeData
     {
     }
@@ -25,21 +35,14 @@ namespace ScratchFramework
     public interface IScratchBlockClick : IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
     }
+    public interface IScratchBlockDrag : IBeginDragHandler,IDragHandler,IEndDragHandler
+    {
+    }
 
     public abstract class ScratchUIBehaviour : ScratchBehaviour, IScratchLayout
     {
-        public bool Active
-        {
-            set
-            {
-                if (!IsDestroying) gameObject.SetActive(value);
-            }
-            get => gameObject.activeSelf;
-        }
 
         private bool m_visible;
-
-
         public bool Visible
         {
             set

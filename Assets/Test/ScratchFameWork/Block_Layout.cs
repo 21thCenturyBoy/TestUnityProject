@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ScratchFramework
 {
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class Block_Layout : ScratchUIBehaviour, IScratchModifyLayout
     {
         [SerializeField] private Color m_blockColor = Color.white;
@@ -87,11 +87,7 @@ namespace ScratchFramework
                 SectionsArray[i].UpdateLayout();
             }
         }
-        void OnValidate()
-        {
-            UpdateLayout();
-        }
-
+        
         void LateUpdate()
         {
             UpdateLayout();
