@@ -41,20 +41,33 @@ namespace ScratchFramework
             }
         }
 
-        private Image m_image;
+        private BlockImage m_BlockImage;
 
-        public Image Image
+        public BlockImage Image
         {
             get
             {
-                if (m_image == null)
+                if (m_BlockImage == null)
                 {
-                    m_image = GetComponent<Image>();
-                    m_image.type = Image.Type.Sliced;
-                    m_image.pixelsPerUnitMultiplier = 2;
+                    m_BlockImage = TryAddComponent<BlockImage>();
                 }
 
-                return m_image;
+                return m_BlockImage;
+            }
+        }
+
+        private BlockShadow m_BlockShadow;
+
+        public BlockShadow Shadow
+        {
+            get
+            {
+                if (m_BlockShadow == null)
+                {
+                    m_BlockShadow = TryAddComponent<BlockShadow>();
+                }
+
+                return m_BlockShadow;
             }
         }
 
@@ -64,27 +77,7 @@ namespace ScratchFramework
 
         public float minWidth = 150;
         public float paddingRight = 0;
-
-        Shadow _shadow;
-
-        public Shadow Shadow
-        {
-            get
-            {
-                if (!_shadow)
-                {
-                    if (GetComponent<Shadow>())
-                        _shadow = GetComponent<Shadow>();
-                    else
-                        _shadow = gameObject.AddComponent<Shadow>();
-
-                    _shadow.effectColor = Color.green;
-                    _shadow.effectDistance = new Vector2(-6, -6);
-                }
-
-                return _shadow;
-            }
-        }
+        
 
         private List<ScratchUIBehaviour> m_HeadSerializeDatas = new List<ScratchUIBehaviour>();
         public List<ScratchUIBehaviour> HeadSerializeDatas => m_HeadSerializeDatas;
@@ -112,11 +105,13 @@ namespace ScratchFramework
 
         public virtual void OnUpdateLayout()
         {
+            base.OnUpdateLayout();
+            
             UpdateHeadSerializeData();
 
             if (BlockLayout != null)
             {
-                Image.color = BlockLayout.Color;
+                Image.SetColor(BlockLayout.Color);
             }
 
 

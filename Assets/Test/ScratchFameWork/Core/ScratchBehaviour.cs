@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -5,14 +6,30 @@ namespace ScratchFramework
     public abstract class ScratchBehaviour : MonoBehaviour
     {
         private bool m_isDestroying;
-        protected bool m_isInitialized;
+        private bool m_isInitialized;
 
+        public bool Inited => m_isInitialized;
         public bool IsDestroying => m_isDestroying;
-        
+
+        public virtual bool Initialize()
+        {
+            if (m_isInitialized) return false;
+
+            OnInitialize();
+
+            m_isInitialized = true;
+
+            return m_isInitialized;
+        }
+
+        protected virtual void OnInitialize()
+        {
+        }
+
         protected virtual void OnVisible()
         {
         }
-        
+
         protected virtual void OnInVisible()
         {
         }
@@ -40,43 +57,89 @@ namespace ScratchFramework
         }
     }
 
-    public class ScratchBehaviour<T> : ScratchBehaviour where T : ScratchVMData, new()
+    public class VMContextComponent<T> where T : ScratchVMData, new()
     {
-        protected readonly PropertyBinder<T> Binder = new PropertyBinder<T>();
+        public readonly PropertyBinder<T> Binder = new PropertyBinder<T>();
         public readonly BindableProperty<T> ViewModelProperty = new BindableProperty<T>();
 
-        public bool Inited => m_isInitialized;
+        private bool m_IsDispose;
+        public bool IsDisposed => m_IsDispose;
 
-        public T BindingContext
+        public VMContextComponent()
         {
-            get { return ViewModelProperty.Value; }
+            ViewModelProperty.OnValueChanged += OnBindingContextChanged;
+        }
+
+        public T BindContext
+        {
+            get => ViewModelProperty.Value;
             set
             {
-                if (!Inited)
+                if (IsDisposed)
                 {
-                    m_isInitialized = true;
-                    OnInitialize();
+                    Debug.LogWarning("VMContext 已被释放！");
+                    return;
                 }
 
                 ViewModelProperty.Value = value;
             }
         }
 
-        protected virtual void OnInitialize()
+        public void BindData<TData>(string propertyName, IBindable<TData>.ValueChangedHandler onPropertyChanged)
         {
-            ViewModelProperty.OnValueChanged += OnBindingContextChanged;
+            Binder.Add<TData>(propertyName, onPropertyChanged);
         }
 
-        public virtual void Initialize(T context = null)
-        {
-            if (context == null) BindingContext = new T();
-            else BindingContext = context;
-        }
-
-        protected virtual void OnBindingContextChanged(T oldValue, T newValue)
+        private void OnBindingContextChanged(T oldValue, T newValue)
         {
             Binder.Unbind(oldValue);
             Binder.Bind(newValue);
+        }
+
+        public void Clear()
+        {
+            ViewModelProperty.OnValueChanged = null;
+            ViewModelProperty.Value = null;
+
+            m_IsDispose = true;
+        }
+    }
+
+    public partial class ScratchBehaviour<T> : ScratchBehaviour where T : ScratchVMData, new()
+    {
+        public readonly VMContextComponent<T> ContextComponent = new VMContextComponent<T>();
+
+        public T ContextData
+        {
+            get => ContextComponent.BindContext;
+            set => ContextComponent.BindContext = value;
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (ContextData == null) Initialize();
+        }
+
+        protected virtual void OnDisable()
+        {
+        }
+
+        public virtual bool Initialize(T context = null)
+        {
+            if (base.Initialize())
+            {
+                if (context == null) ContextData = new T();
+                else ContextData = context;
+            }
+
+            return Inited;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            ContextComponent.Clear();
         }
     }
 }

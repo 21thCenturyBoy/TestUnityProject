@@ -17,10 +17,10 @@ namespace ScratchFramework
 
     public class BlockContentParam : ScratchUIBehaviour<BlockContentParam_Data>
     {
-        public override void Initialize(BlockContentParam_Data context = null)
-        {
-            base.Initialize(context);
-        }
+        // public override void Initialize(BlockContentParam_Data context = null)
+        // {
+        //     base.Initialize(context);
+        // }
    
 
         public virtual void OnEnable()

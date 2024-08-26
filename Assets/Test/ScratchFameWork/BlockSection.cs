@@ -53,15 +53,15 @@ namespace ScratchFramework
             }
         }
 
-        private BaseScratchBlock m_block;
+        private Block m_block;
 
-        public BaseScratchBlock Block
+        public Block Block
         {
             get
             {
                 if (m_block == null)
                 {
-                    m_block = GetComponentInParent<BaseScratchBlock>();
+                    m_block = GetComponentInParent<Block>();
                 }
 
                 return m_block;
@@ -70,7 +70,7 @@ namespace ScratchFramework
 
         #endregion
         
-        public virtual Vector2 GetSize()
+        public override Vector2 GetSize()
         {
             if (RectTrans == null) return Vector2.zero;
             if (Header != null)

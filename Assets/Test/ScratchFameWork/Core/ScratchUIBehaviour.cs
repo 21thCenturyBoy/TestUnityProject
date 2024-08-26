@@ -86,21 +86,23 @@ namespace ScratchFramework
 
         public ScratchUIBehaviour Parent { get; set; }
 
-        public virtual void RefreshUI()
-        {
-        }
 
         protected override void OnVisible()
         {
             base.OnVisible();
 
-            TryAddComponent<CanvasGroup>().alpha = 1;
+            if (IsDestroying) return;
+
+            CanvasUI.alpha = 1;
         }
 
         protected override void OnInVisible()
         {
             base.OnInVisible();
-            TryAddComponent<CanvasGroup>().alpha = 0;
+
+            if (IsDestroying) return;
+            
+            CanvasUI.alpha = 0;
         }
 
         public virtual Vector2 GetSize()
@@ -108,18 +110,6 @@ namespace ScratchFramework
             if (RectTrans == null) return Vector2.zero;
             return RectTrans.sizeDelta;
         }
-        // public virtual Vector2 SetSize(Vector2 size)
-        // {
-        //     if (RectTrans == null) return Vector2.zero;
-        //     RectTrans.sizeDelta = size;
-        //     return size;
-        // }
-        //
-        // public virtual void UpdateLayout()
-        // {
-        //     var parent = Ancestors(this);
-        //     parent?.OnUpdateLayout();
-        // }
 
         public virtual void OnUpdateLayout()
         {
@@ -141,69 +131,39 @@ namespace ScratchFramework
 
     public class ScratchUIBehaviour<T> : ScratchUIBehaviour where T : ScratchVMData, new()
     {
-        protected readonly PropertyBinder<T> Binder = new PropertyBinder<T>();
-        public readonly BindableProperty<T> ViewModelProperty = new BindableProperty<T>();
+        public readonly VMContextComponent<T> ContextComponent = new VMContextComponent<T>();
 
-
-        public bool Inited => m_isInitialized;
-
-        public T BindingContext
+        public T ContextData
         {
-            get { return ViewModelProperty.Value; }
-            set
-            {
-                if (!Inited)
-                {
-                    m_isInitialized = true;
-
-                    ViewModelProperty.OnValueChanged += OnBindingContextChanged;
-                    OnInitialize();
-                }
-
-                ViewModelProperty.Value = value;
-            }
-        }
-
-        protected virtual void OnInitialize()
-        {
-        }
-
-        protected virtual void OnRelease()
-        {
+            get => ContextComponent.BindContext;
+            set => ContextComponent.BindContext = value;
         }
 
         protected virtual void OnEnable()
         {
-            if (BindingContext == null) Initialize();
+            if (ContextData == null) Initialize();
         }
 
         protected virtual void OnDisable()
         {
         }
 
-
-        public virtual void Initialize(T context = null)
+        public virtual bool Initialize(T context = null)
         {
-            if (context == null) BindingContext = new T();
-            else BindingContext = context;
+            if (base.Initialize())
+            {
+                if (context == null) ContextData = new T();
+                else ContextData = context;
+            }
+
+            return Inited;
         }
 
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
             base.OnDestroy();
 
-            m_isInitialized = false;
-            ViewModelProperty.OnValueChanged = null;
-
-            OnRelease();
-
-            ViewModelProperty.Value = null;
-        }
-
-        protected virtual void OnBindingContextChanged(T oldValue, T newValue)
-        {
-            Binder.Unbind(oldValue);
-            Binder.Bind(newValue);
+            ContextComponent.Clear();
         }
     }
 }

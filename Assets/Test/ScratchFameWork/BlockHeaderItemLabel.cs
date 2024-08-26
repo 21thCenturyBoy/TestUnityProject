@@ -17,13 +17,16 @@ namespace ScratchFramework
     public class BlockHeaderItemLabel : BlockHeaderItem<BlockHeaderParam_Data_Label>
     {
         public TMP_Text LabelText;
-        public override void Initialize(BlockHeaderParam_Data_Label context = null)
+        public override bool Initialize(BlockHeaderParam_Data_Label context = null)
         {
-            base.Initialize(context);
-            if (context == null)
+            if (base.Initialize(context))
             {
-                BindingContext.DataProperty.Value = LabelText.text;
+                if (context == null)
+                {
+                    ContextData.DataProperty.Value = LabelText.text;
+                }
             }
+            return Inited;
         }
 
         public override void OnUpdateLayout()
@@ -40,7 +43,7 @@ namespace ScratchFramework
         {
             base.OnInitialize();
             
-            Binder.Add<string>(nameof(BindingContext.DataProperty), OnDataPropertyChanged);
+            ContextComponent.BindData<string>(nameof(ContextData.DataProperty), OnDataPropertyChanged);
         }
 
         private void OnDataPropertyChanged(string oldvalue, string newvalue)
