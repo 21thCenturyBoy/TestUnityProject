@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace ScratchFramework
 {
     [ExecuteAlways]
-    public class Block_Layout : ScratchUIBehaviour, IScratchModifyLayout
+    public class BlockLayout : ScratchUIBehaviour, IScratchModifyLayout
     {
         [SerializeField] private Color m_blockColor = Color.white;
 

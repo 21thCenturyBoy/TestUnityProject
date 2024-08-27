@@ -24,15 +24,15 @@ namespace ScratchFramework
             }
         }
 
-        private Block_Layout m_blockLayout;
+        private BlockLayout m_blockLayout;
 
-        public Block_Layout BlockLayout
+        public BlockLayout BlockLayout
         {
             get
             {
                 if (m_blockLayout == null && transform.parent != null && transform.parent.parent != null)
                 {
-                    m_blockLayout = transform.parent.parent.GetComponent<Block_Layout>();
+                    m_blockLayout = transform.parent.parent.GetComponent<BlockLayout>();
                 }
 
                 return m_blockLayout;

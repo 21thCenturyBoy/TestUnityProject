@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,5 +27,15 @@ namespace ScratchFramework
         #endregion
         
         public Vector2 DropPosition => RectTrans.position;
+
+        void OnEnable()
+        {
+            BlockDragManager.Instance.AddSpot(this);
+        }
+
+        void OnDisable()
+        {
+            BlockDragManager.Instance.RemoveSpot(this);
+        }
     }
 }

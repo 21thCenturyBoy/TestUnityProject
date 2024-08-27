@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,19 +40,35 @@ namespace ScratchFramework
             set => m_type = value;
         }
 
-        private Block_Layout m_Layout;
-        public Block_Layout Layout => m_Layout;
+        private BlockLayout m_Layout;
+
+        public BlockLayout Layout
+        {
+            get
+            {
+                if (m_Layout == null)
+                {
+                    m_Layout = GetComponent<BlockLayout>();
+                }
+
+                return m_Layout;
+            }
+        }
 
         public BlockSection ParentSection => GetParentSection();
-        public override bool Initialize()
+
+        public void Start()
         {
-            if (base.Initialize())
-            {
-                if (Layout) m_Layout = GetComponent<Block_Layout>();
-            }
-            return Inited;
+            Initialize();
         }
-        
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+
+            BlockDirector.AddBlockDrag(this);
+        }
+
         BlockSection GetParentSection()
         {
             return GetComponentInParent<BlockSection>();

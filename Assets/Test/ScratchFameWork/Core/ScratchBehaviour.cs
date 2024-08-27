@@ -6,7 +6,7 @@ namespace ScratchFramework
     public abstract class ScratchBehaviour : MonoBehaviour
     {
         private bool m_isDestroying;
-        private bool m_isInitialized;
+        protected bool m_isInitialized;
 
         public bool Inited => m_isInitialized;
         public bool IsDestroying => m_isDestroying;

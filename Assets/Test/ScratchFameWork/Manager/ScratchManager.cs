@@ -5,17 +5,20 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
-    public class ScratchCanvasManager : Singleton<ScratchCanvasManager>, IScratchManager
+    public class ScratchManager : ScratchSingleton<ScratchManager>, IScratchManager
     {
         private void Start()
         {
             Initialize();
         }
 
-        public bool Initialize()
+        public override bool Initialize()
         {
+            base.Initialize();
+            m_isInitialized = false;
             ScratchResources.Instance.LoadAllResource(LoadResourceFinish);
 
+     
             return true;
         }
 
@@ -23,6 +26,9 @@ namespace ScratchFramework
         {
             //ScratchDataManager
             ScratchDataManager.Instance.Initialize();
+            
+            //ScratchEventManager
+            ScratchEventManager.Instance.Initialize();
 
             //BlockCanvasManager
             BlockCanvasManager.Instance.transform.SetParent(transform);
@@ -33,12 +39,23 @@ namespace ScratchFramework
             BlockDragManager.Instance.transform.SetParent(transform);
             BlockDragManager.Instance.transform.localPosition = Vector3.zero;
             BlockDragManager.Instance.Initialize();
+
+            m_isInitialized = true;
         }
 
         public bool Active { get; set; }
 
+
+        private void Update()
+        {
+            if (!Inited)return;
+
+            OnUpdate();
+        }
+
         public void OnUpdate()
         {
+            BlockDragManager.Instance.OnUpdate();
         }
 
         public void OnLateUpdate()
