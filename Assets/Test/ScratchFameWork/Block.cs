@@ -34,7 +34,7 @@ namespace ScratchFramework
         [SerializeField] 
         private BlockType m_type;
 
-        public BlockType Type
+        public virtual BlockType Type
         {
             get => m_type;
             set => m_type = value;

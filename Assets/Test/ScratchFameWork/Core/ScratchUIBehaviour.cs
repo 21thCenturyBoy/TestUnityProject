@@ -27,7 +27,7 @@ namespace ScratchFramework
         bool Clear();
     }
 
-    
+
     public interface IScratchSerializeData
     {
     }
@@ -35,28 +35,13 @@ namespace ScratchFramework
     public interface IScratchBlockClick : IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
     }
-    public interface IScratchBlockDrag : IBeginDragHandler,IDragHandler,IEndDragHandler
+
+    public interface IScratchBlockDrag : IBeginDragHandler, IDragHandler, IEndDragHandler
     {
     }
 
     public abstract class ScratchUIBehaviour : ScratchBehaviour, IScratchLayout
     {
-
-        private bool m_visible;
-        public bool Visible
-        {
-            set
-            {
-                if (!IsDestroying && m_visible != value)
-                {
-                    m_visible = value;
-                    if (value) OnVisible();
-                    else OnInVisible();
-                }
-            }
-            get => m_visible;
-        }
-
         private RectTransform m_rectTrans;
 
         public RectTransform RectTrans
@@ -87,9 +72,6 @@ namespace ScratchFramework
             }
         }
 
-        public ScratchUIBehaviour Parent { get; set; }
-
-
         protected override void OnVisible()
         {
             base.OnVisible();
@@ -104,7 +86,7 @@ namespace ScratchFramework
             base.OnInVisible();
 
             if (IsDestroying) return;
-            
+
             CanvasUI.alpha = 0;
         }
 
@@ -117,20 +99,47 @@ namespace ScratchFramework
         public virtual void OnUpdateLayout()
         {
         }
-
-        public ScratchUIBehaviour Ancestors(ScratchUIBehaviour origin)
-        {
-            if (origin == null) return null;
-
-            var parentUI = origin.Parent;
-            if (parentUI != null)
-            {
-                return Ancestors(parentUI);
-            }
-            else return origin;
-        }
     }
 
+    public class ScratchUISingleton<T> : ScratchUIBehaviour where T : ScratchUISingleton<T>
+    {
+        private static T _instance;
+
+        protected ScratchUISingleton()
+        {
+        }
+
+        public static T Instance
+        {
+            get
+            {
+                if (ReferenceEquals(_instance, null))
+                {
+                    _instance = (T)FindObjectOfType(typeof(T), true);
+
+                    if (FindObjectsOfType(typeof(T)).Length > 1)
+                    {
+                        return _instance;
+                    }
+
+                    if (_instance == null)
+                    {
+                        GameObject singleton = new GameObject();
+                        _instance = singleton.AddComponent<T>();
+                        singleton.name = typeof(T).Name.ToString();
+                    }
+                }
+
+                return _instance;
+            }
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            _instance = null;
+        }
+    }
 
     public class ScratchUIBehaviour<T> : ScratchUIBehaviour where T : ScratchVMData, new()
     {
@@ -142,13 +151,10 @@ namespace ScratchFramework
             set => ContextComponent.BindContext = value;
         }
 
-        protected virtual void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
             if (ContextData == null) Initialize();
-        }
-
-        protected virtual void OnDisable()
-        {
         }
 
         public virtual bool Initialize(T context = null)

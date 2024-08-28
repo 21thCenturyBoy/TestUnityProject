@@ -87,9 +87,11 @@ namespace ScratchFramework
                 SectionsArray[i].UpdateLayout();
             }
         }
-        
-        void LateUpdate()
+
+        public void LateUpdate()
         {
+            if (BlockDragManager.Instance.CurrentDragBlock != null) return;
+
             UpdateLayout();
             LayoutRebuilder.ForceRebuildLayoutImmediate(RectTrans);
         }

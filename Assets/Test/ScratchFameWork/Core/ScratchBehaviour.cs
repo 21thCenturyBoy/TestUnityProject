@@ -19,6 +19,22 @@ namespace ScratchFramework
             }
             get => gameObject.activeSelf;
         }
+        
+        private bool m_visible;
+
+        public bool Visible
+        {
+            set
+            {
+                if (!IsDestroying && m_visible != value)
+                {
+                    m_visible = value;
+                    if (value) OnVisible();
+                    else OnInVisible();
+                }
+            }
+            get => m_visible;
+        }
 
         public virtual bool Initialize()
         {
@@ -31,6 +47,16 @@ namespace ScratchFramework
             return m_isInitialized;
         }
 
+        protected virtual void OnEnable()
+        {
+            Visible = true;
+        }
+        
+        protected virtual void OnDisable()
+        {
+            Visible = false;
+        }
+        
         protected virtual void OnInitialize()
         {
         }
@@ -65,8 +91,7 @@ namespace ScratchFramework
             return com;
         }
     }
-
-    /// <summary>单例Mono，没有的话创建（跳场景不销毁）</summary>
+    
     public class ScratchSingleton<T> : ScratchBehaviour where T : ScratchSingleton<T>
     {
         protected static T _instance;
@@ -165,13 +190,10 @@ namespace ScratchFramework
             set => ContextComponent.BindContext = value;
         }
 
-        protected virtual void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
             if (ContextData == null) Initialize();
-        }
-
-        protected virtual void OnDisable()
-        {
         }
 
         public virtual bool Initialize(T context = null)

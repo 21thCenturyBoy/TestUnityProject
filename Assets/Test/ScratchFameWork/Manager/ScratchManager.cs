@@ -7,6 +7,7 @@ namespace ScratchFramework
 {
     public class ScratchManager : ScratchSingleton<ScratchManager>, IScratchManager
     {
+        private TempCanvasManager m_TempCanvas;
         private void Start()
         {
             Initialize();
@@ -16,6 +17,10 @@ namespace ScratchFramework
         {
             base.Initialize();
             m_isInitialized = false;
+
+            m_TempCanvas = GetComponentInChildren<TempCanvasManager>();
+            m_TempCanvas.Initialize();
+                
             ScratchResources.Instance.LoadAllResource(LoadResourceFinish);
 
      

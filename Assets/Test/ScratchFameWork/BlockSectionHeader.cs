@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ScratchFramework
 {
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class BlockSectionHeader : ScratchUIBehaviour, IScratchModifyLayout
     {
         #region property

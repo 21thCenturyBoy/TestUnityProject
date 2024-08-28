@@ -39,17 +39,17 @@ namespace ScratchFramework
             }
         }
 
-        private BlockSectionBody_Spot m_Spot;
+        private BlockSpot_SectionBody _m;
         
-        public BlockSectionBody_Spot Spot
+        public BlockSpot_SectionBody Spot
         {
             get
             {
-                if (m_Spot == null )
+                if (_m == null )
                 {
-                    m_Spot = GetComponent<BlockSectionBody_Spot>();
+                    _m = GetComponent<BlockSpot_SectionBody>();
                 }
-                return m_Spot;
+                return _m;
             }
         }
         

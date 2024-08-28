@@ -9,15 +9,17 @@ namespace ScratchFramework
     {
         [Header("配置")] public float DetectionDistance = 40f;
 
-        private List<BlockSectionBody_Spot> m_spotsList = new List<BlockSectionBody_Spot>();
+        private List<BlockSpot> m_spotsList = new List<BlockSpot>();
 
-        public List<BlockSectionBody_Spot> SpotsList => m_spotsList;
+        public List<BlockSpot> SpotsList => m_spotsList;
 
-        private LinkedList<BlockSectionBody_Spot> m_AddListenSpotQueue = new LinkedList<BlockSectionBody_Spot>();
+        private LinkedList<BlockSpot> m_AddListenSpotQueue = new LinkedList<BlockSpot>();
 
-        private Block m_CurrentDrag;
+        private Block m_CurrentDragBlock;
+        private BlockSpot m_TargetSpot;
 
-        public Block CurrentDrag => m_CurrentDrag;
+        public BlockSpot TargetSpot => m_TargetSpot;
+        public Block CurrentDragBlock => m_CurrentDragBlock;
 
         public override bool Initialize()
         {
@@ -28,8 +30,8 @@ namespace ScratchFramework
         {
             blockDragTrigger.transform.SetParent(transform);
 
-            m_CurrentDrag = blockDragTrigger.Block;
-            
+            m_CurrentDragBlock = blockDragTrigger.Block;
+
             ScratchEventManager.Instance.SendEvent<Block>(ScratchEventDefine.OnBlockBeginDrag, blockDragTrigger.Block);
         }
 
@@ -41,17 +43,22 @@ namespace ScratchFramework
         public void OnBlockEndDrag(BlockDrag blockDragTrigger)
         {
             blockDragTrigger.transform.SetParent(BlockCanvasManager.Instance.transform);
-            
+
             ScratchEventManager.Instance.SendEvent<Block>(ScratchEventDefine.OnBlockEndDrag, blockDragTrigger.Block);
-            
-            m_CurrentDrag = null;
+
+            m_CurrentDragBlock = null;
         }
 
-        public void AddSpot(BlockSectionBody_Spot spot)
+        public void SetTargetSpot(BlockSpot spot)
+        {
+            m_TargetSpot = spot;
+        }
+
+        public void AddSpot(BlockSpot spot)
         {
             if (!Inited)
             {
-                m_AddListenSpotQueue.AddLast(new LinkedListNode<BlockSectionBody_Spot>(spot));
+                m_AddListenSpotQueue.AddLast(new LinkedListNode<BlockSpot>(spot));
                 return;
             }
 
@@ -61,7 +68,7 @@ namespace ScratchFramework
             }
         }
 
-        public void RemoveSpot(BlockSectionBody_Spot spot)
+        public void RemoveSpot(BlockSpot spot)
         {
             if (m_AddListenSpotQueue.Contains(spot))
             {

@@ -1,0 +1,32 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ScratchFramework
+{
+    public class Block_GhostBlock : Block
+    {
+        public override BlockType Type
+        {
+            get => BlockType.none;
+            set => base.Type = BlockType.none;
+        }
+
+        public override bool Initialize()
+        {
+            Type = BlockType.none;
+            
+            return base.Initialize();
+        }
+
+        public void InsertSpot(Transform parentTrans,int index = 0)
+        {
+            transform.SetParent(parentTrans);
+            
+            //TOOD Set CSS Size
+            RectTrans.localScale = Vector3.one;
+            
+            transform.SetSiblingIndex(index);
+        }
+    }
+}

@@ -81,9 +81,9 @@ namespace ScratchFramework
                 if (Body != null)
                 {
                     size.y += Body.GetSize().y;
+                    size.x = Body.GetSize().x;
+                    
                 }
-
-                size.x = Body.GetSize().x;
 
                 return size;
             }
