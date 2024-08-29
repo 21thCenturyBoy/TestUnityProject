@@ -7,8 +7,13 @@ namespace ScratchFramework
     public class TempCanvasManager : ScratchUIBehaviour, IScratchManager
     {
         private Block_GhostBlock m_GhostBlock;
-
         public Block_GhostBlock GhostBlock => m_GhostBlock;
+
+        private MenuMask m_MenuMask;
+        public MenuMask MenuMask => m_MenuMask;
+
+        private ScratchBlockMenu m_BlockMenu;
+        public ScratchBlockMenu BlockMenu => m_BlockMenu;
 
         private static TempCanvasManager _instance;
 
@@ -23,8 +28,15 @@ namespace ScratchFramework
         public override bool Initialize()
         {
             _instance = this;
+
             m_GhostBlock = transform.GetComponentInChildren<Block_GhostBlock>(true);
             m_GhostBlock.Active = false;
+
+            m_MenuMask = transform.GetComponentInChildren<MenuMask>(true);
+            m_MenuMask.Active = false;
+            
+            m_BlockMenu = transform.GetComponentInChildren<ScratchBlockMenu>(true);
+            m_BlockMenu.Active = false;
 
             return base.Initialize();
         }

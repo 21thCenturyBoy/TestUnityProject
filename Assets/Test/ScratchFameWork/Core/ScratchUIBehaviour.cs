@@ -57,39 +57,6 @@ namespace ScratchFramework
             }
         }
 
-        private CanvasGroup m_CanvasGroup;
-
-        public CanvasGroup CanvasUI
-        {
-            get
-            {
-                if (m_CanvasGroup == null)
-                {
-                    m_CanvasGroup = TryAddComponent<CanvasGroup>();
-                }
-
-                return m_CanvasGroup;
-            }
-        }
-
-        protected override void OnVisible()
-        {
-            base.OnVisible();
-
-            if (IsDestroying) return;
-
-            CanvasUI.alpha = 1;
-        }
-
-        protected override void OnInVisible()
-        {
-            base.OnInVisible();
-
-            if (IsDestroying) return;
-
-            CanvasUI.alpha = 0;
-        }
-
         public virtual Vector2 GetSize()
         {
             if (RectTrans == null) return Vector2.zero;

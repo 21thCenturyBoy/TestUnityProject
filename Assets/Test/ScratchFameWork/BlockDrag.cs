@@ -37,7 +37,10 @@ namespace ScratchFramework
             if (BlockDragDebug) Debug.LogError(nameof(OnPointerDown));
             offsetPointerDown = transform.position - Input.mousePosition;
 
- 
+            if (Input.GetMouseButtonDown(1))
+            {
+                ScratchMenuManager.Instance.RightPointerMenu_Block(Block);
+            }
         }
 
         public virtual void OnBeginDrag(PointerEventData eventData)

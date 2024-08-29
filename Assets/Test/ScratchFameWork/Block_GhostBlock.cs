@@ -15,18 +15,16 @@ namespace ScratchFramework
         public override bool Initialize()
         {
             Type = BlockType.none;
-            
+
             return base.Initialize();
         }
 
-        public void InsertSpot(Transform parentTrans,int index = 0)
+        public void InsertSpot(Transform parentTrans, int index = 0)
         {
-            transform.SetParent(parentTrans);
-            
+            this.SetParent(parentTrans, index);
+
             //TOOD Set CSS Size
             RectTrans.localScale = Vector3.one;
-            
-            transform.SetSiblingIndex(index);
         }
     }
 }

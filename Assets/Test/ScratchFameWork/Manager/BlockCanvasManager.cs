@@ -14,7 +14,7 @@ namespace ScratchFramework
             var childs = TempCanvasManager.Instance.GetChildTempBlock();
             for (int i = 0; i < childs.Length; i++)
             {
-                childs[i].transform.SetParent(transform);
+                childs[i].SetParent(transform);
             }
 
             return true;

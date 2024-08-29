@@ -36,14 +36,19 @@ namespace ScratchFramework
             ScratchEventManager.Instance.Initialize();
 
             //BlockCanvasManager
-            BlockCanvasManager.Instance.transform.SetParent(transform);
+            BlockCanvasManager.Instance.SetParent(transform);
             BlockCanvasManager.Instance.transform.localPosition = Vector3.zero;
             BlockCanvasManager.Instance.Initialize();
 
             //BlockDragManager
-            BlockDragManager.Instance.transform.SetParent(transform);
+            BlockDragManager.Instance.SetParent(transform);
             BlockDragManager.Instance.transform.localPosition = Vector3.zero;
             BlockDragManager.Instance.Initialize();
+            
+            //ScratchMenuManager
+            ScratchMenuManager.Instance.SetParent(transform);
+            ScratchMenuManager.Instance.transform.localPosition = Vector3.zero;
+            ScratchMenuManager.Instance.Initialize();
 
             m_isInitialized = true;
         }
@@ -60,6 +65,7 @@ namespace ScratchFramework
 
         public void OnUpdate()
         {
+            ScratchEventManager.Instance.OnUpdate();
             BlockDragManager.Instance.OnUpdate();
         }
 

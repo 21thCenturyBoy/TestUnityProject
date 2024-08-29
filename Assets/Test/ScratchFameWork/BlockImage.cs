@@ -42,7 +42,7 @@ namespace ScratchFramework
 
             Image.enabled = false;
         }
-
+        
         public void SetColor(Color color)
         {
             if (IsDestroying) return;

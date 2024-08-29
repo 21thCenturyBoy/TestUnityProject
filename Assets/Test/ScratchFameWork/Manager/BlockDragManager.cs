@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -28,7 +30,7 @@ namespace ScratchFramework
 
         public void OnBlockBeginDrag(BlockDrag blockDragTrigger)
         {
-            blockDragTrigger.transform.SetParent(transform);
+            blockDragTrigger.SetParent(transform);
 
             m_CurrentDragBlock = blockDragTrigger.Block;
 
@@ -42,7 +44,7 @@ namespace ScratchFramework
 
         public void OnBlockEndDrag(BlockDrag blockDragTrigger)
         {
-            blockDragTrigger.transform.SetParent(BlockCanvasManager.Instance.transform);
+            blockDragTrigger.SetParent(BlockCanvasManager.Instance);
 
             ScratchEventManager.Instance.SendEvent<Block>(ScratchEventDefine.OnBlockEndDrag, blockDragTrigger.Block);
 
@@ -89,6 +91,39 @@ namespace ScratchFramework
                 m_AddListenSpotQueue.Clear();
             }
         }
+
+        private void OnRenderObject()
+        {
+            if (BlockDrag.BlockDragDebug)
+            {
+                if (CurrentDragBlock != null)
+                {
+                    ScratchUtils.DrawScreenEllipse(CurrentDragBlock.GetComponent<BlockDrag>().RectTrans.position, BlockDragManager.Instance.DetectionDistance, BlockDragManager.Instance.DetectionDistance, Color.green);
+                }
+                for (int i = 0; i < SpotsList.Count; i++)
+                {
+                    if (SpotsList[i] != null)
+                    {
+                        if (CurrentDragBlock == null)
+                        {
+                            ScratchUtils.DrawScreenEllipse(SpotsList[i].DropPosition, DetectionDistance, DetectionDistance, Color.yellow);
+                      
+                        }
+                        else
+                        {
+                            if (SpotsList[i].GetComponentInParent<Block>() != CurrentDragBlock)
+                            {
+                                ScratchUtils.DrawScreenEllipse(SpotsList[i].DropPosition, DetectionDistance, DetectionDistance, Color.yellow);
+                            }
+                        }
+                 
+                    }
+                }
+
+       
+            }
+        }
+
 
         public void OnLateUpdate()
         {

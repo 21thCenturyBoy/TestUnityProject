@@ -10,14 +10,16 @@ namespace ScratchFramework
     public enum ScratchEventDefine
     {
         Default,
-        
+
         //Block
         OnBlockBeginDrag,
         OnBlockDrag,
         OnBlockEndDrag,
     }
 
-    public class SafeListener { }
+    public class SafeListener
+    {
+    }
 
     public class SafeListener<T> : SafeListener
     {
@@ -53,10 +55,10 @@ namespace ScratchFramework
         }
     }
 
-    public class ScratchEventManager : Singleton_Class<ScratchEventManager>,IScratchManager
+    public class ScratchEventManager : Singleton_Class<ScratchEventManager>, IScratchManager
     {
         private Dictionary<ScratchEventDefine, SafeListener> m_eventMap = new();
-        
+
         public void AddListener<T>(ScratchEventDefine eventKey, Action<T> callback)
         {
             if (!m_eventMap.ContainsKey(eventKey))
@@ -92,7 +94,7 @@ namespace ScratchFramework
                     eventListener?.Invoke(data);
                 }
             }
-            
+
             try
             {
                 //TODO CustomSendEvent
@@ -105,16 +107,25 @@ namespace ScratchFramework
 
         public bool Initialize()
         {
+            Active = true;
             return true;
         }
 
         public bool Active { get; set; }
+
         public void OnUpdate()
         {
+            if (!Active) return;
+
+            if (Input.anyKey||Input.GetMouseButton(0)||Input.GetMouseButton(1)||Input.GetMouseButton(2))
+            {
+                
+            }
         }
 
         public void OnLateUpdate()
         {
+            if (!Active) return;
         }
 
         public bool Clear()

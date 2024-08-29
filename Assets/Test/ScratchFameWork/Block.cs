@@ -31,8 +31,7 @@ namespace ScratchFramework
     /// <summary>Block基类 </summary>
     public class Block : ScratchUIBehaviour
     {
-        [SerializeField] 
-        private BlockType m_type;
+        [SerializeField] private BlockType m_type;
 
         public virtual BlockType Type
         {
@@ -55,6 +54,21 @@ namespace ScratchFramework
             }
         }
 
+        private CanvasGroup m_CanvasGroup;
+
+        public CanvasGroup CanvasUI
+        {
+            get
+            {
+                if (m_CanvasGroup == null)
+                {
+                    m_CanvasGroup = TryAddComponent<CanvasGroup>();
+                }
+
+                return m_CanvasGroup;
+            }
+        }
+
         public BlockSection ParentSection => GetParentSection();
 
         public void Start()
@@ -62,18 +76,34 @@ namespace ScratchFramework
             Initialize();
         }
 
+        protected override void OnVisible()
+        {
+            base.OnVisible();
+            if (IsDestroying) return;
+
+            CanvasUI.alpha = 1;
+        }
+
+        protected override void OnInVisible()
+        {
+            base.OnInVisible();
+            if (IsDestroying) return;
+
+            CanvasUI.alpha = 0;
+        }
+
         protected override void OnInitialize()
         {
             base.OnInitialize();
 
-            BlockDirector.AddBlockDrag(this);
+            BlockDirector.InitializeStruct(this);
         }
 
         BlockSection GetParentSection()
         {
             return GetComponentInParent<BlockSection>();
         }
-        
+
         public void SetShadowActive(bool value)
         {
             if (Type != BlockType.operation)
@@ -84,6 +114,7 @@ namespace ScratchFramework
                     {
                         section.Header.Shadow.Visible = value;
                     }
+
                     if (section.Body != null && section.Body.Shadow)
                     {
                         section.Body.Shadow.Visible = value;

@@ -90,8 +90,6 @@ namespace ScratchFramework
 
         public void LateUpdate()
         {
-            if (BlockDragManager.Instance.CurrentDragBlock != null) return;
-
             UpdateLayout();
             LayoutRebuilder.ForceRebuildLayoutImmediate(RectTrans);
         }

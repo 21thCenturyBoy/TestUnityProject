@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,6 +34,7 @@ namespace ScratchFramework
             }
             else
             {
+                ghostBlock.SetParent(TempCanvasManager.Instance);
                 ghostBlock.Active = false;
 
                 BlockDragManager.Instance.SetTargetSpot(null);
@@ -43,11 +45,6 @@ namespace ScratchFramework
             ghostBlockTrans.localEulerAngles = Vector3.zero;
         }
 
-        void DropTo(Transform spot, int siblinIndex)
-        {
-            transform.SetParent(spot);
-            transform.SetSiblingIndex(siblinIndex);
-        }
 
         public override void OnEndDrag(PointerEventData eventData)
         {
@@ -59,11 +56,11 @@ namespace ScratchFramework
 
                 if (target is BlockSpot_SectionBody)
                 {
-                    DropTo(target.transform, 0);
+                    this.SetParent(target.transform, 0);
                 }
                 else
                 {
-                    DropTo(target.Block.transform.parent, target.Block.transform.GetSiblingIndex() + 1);
+                    this.SetParent(target.Block.transform.parent, target.Block.transform.GetSiblingIndex() + 1);
                 }
 
                 BlockDragManager.Instance.SetTargetSpot(null);
@@ -75,7 +72,7 @@ namespace ScratchFramework
                 {
                     if (spot.transform.IsChildOf(BlockCanvasManager.Instance.transform))
                     {
-                        transform.SetParent(BlockCanvasManager.Instance.transform);
+                        this.SetParent(BlockCanvasManager.Instance);
                     }
                 }
             }
@@ -84,7 +81,7 @@ namespace ScratchFramework
             transform.localEulerAngles = Vector3.zero;
 
             var ghostBlock = TempCanvasManager.Instance.GhostBlock;
-            ghostBlock.transform.SetParent(TempCanvasManager.Instance.transform);
+            ghostBlock.SetParent(TempCanvasManager.Instance);
             ghostBlock.Active = false;
         }
     }
