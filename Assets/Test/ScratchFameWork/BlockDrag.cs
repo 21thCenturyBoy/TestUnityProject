@@ -23,9 +23,7 @@ namespace ScratchFramework
         }
 
         protected Vector3 offsetPointerDown = Vector3.zero;
-
-
-        public static readonly bool BlockDragDebug = false;
+        
 
         private bool m_IsDraging = false;
         public bool IsDraging => m_IsDraging;
@@ -34,7 +32,7 @@ namespace ScratchFramework
 
         public virtual void OnPointerDown(PointerEventData eventData)
         {
-            if (BlockDragDebug) Debug.LogError(nameof(OnPointerDown));
+            // if (BlockDragDebug) Debug.LogError(nameof(OnPointerDown));
             offsetPointerDown = transform.position - Input.mousePosition;
 
             if (Input.GetMouseButtonDown(1))
@@ -45,7 +43,7 @@ namespace ScratchFramework
 
         public virtual void OnBeginDrag(PointerEventData eventData)
         {
-            if (BlockDragDebug) Debug.LogError(nameof(OnBeginDrag));
+            // if (BlockDragDebug) Debug.LogError(nameof(OnBeginDrag));
             m_IsDraging = true;
             BlockDragManager.Instance.OnBlockBeginDrag(this);
         }
@@ -54,17 +52,17 @@ namespace ScratchFramework
         {
             transform.position = Input.mousePosition + offsetPointerDown;
             BlockDragManager.Instance.OnBlockDrag(this);
-            if (BlockDragDebug) Debug.LogError(nameof(OnDrag));
+            // if (BlockDragDebug) Debug.LogError(nameof(OnDrag));
         }
 
         public virtual void OnPointerUp(PointerEventData eventData)
         {
-            if (BlockDragDebug) Debug.LogError(nameof(OnPointerUp));
+            // if (BlockDragDebug) Debug.LogError(nameof(OnPointerUp));
         }
 
         public virtual void OnPointerClick(PointerEventData eventData)
         {
-            if (BlockDragDebug) Debug.LogError(nameof(OnPointerClick));
+            // if (BlockDragDebug) Debug.LogError(nameof(OnPointerClick));
         }
 
         public virtual void OnEndDrag(PointerEventData eventData)
@@ -72,7 +70,7 @@ namespace ScratchFramework
             m_IsDraging = false;
             
             BlockDragManager.Instance.OnBlockEndDrag(this);
-            if (BlockDragDebug) Debug.LogError(nameof(OnEndDrag));
+            // if (BlockDragDebug) Debug.LogError(nameof(OnEndDrag));
         }
 
         #endregion

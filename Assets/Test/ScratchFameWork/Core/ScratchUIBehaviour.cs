@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -27,9 +29,29 @@ namespace ScratchFramework
         bool Clear();
     }
 
-
-    public interface IScratchSerializeData
+    public interface IScratchEditorData : IScratchData
     {
+        public IScratchData AssetData { get; set; }
+    }
+
+    public interface IScratchData
+    {
+        DataType DataType { get; }
+        int Version { get; }
+
+        byte[] Serialize();
+        bool Deserialize(MemoryStream stream, int version = -1);
+    }
+
+    public interface IScratchDataBlock
+    {
+        IScratchData Data { get; protected set; }
+    }
+
+    public enum SerializeMode
+    {
+        Json,
+        MessagePack,
     }
 
     public interface IScratchBlockClick : IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
@@ -39,6 +61,19 @@ namespace ScratchFramework
     public interface IScratchBlockDrag : IBeginDragHandler, IDragHandler, IEndDragHandler
     {
     }
+
+    [Serializable]
+    public enum DataType : byte
+    {
+        Undefined,
+        Label,
+        InputField,
+        Dropdown,
+        Operation,
+        Toggle,
+        Variable
+    }
+
 
     public abstract class ScratchUIBehaviour : ScratchBehaviour, IScratchLayout
     {
@@ -108,14 +143,23 @@ namespace ScratchFramework
         }
     }
 
-    public class ScratchUIBehaviour<T> : ScratchUIBehaviour where T : ScratchVMData, new()
+    public abstract class ScratchUIBehaviour<T> : ScratchUIBehaviour where T : ScratchVMData, new()
     {
         public readonly VMContextComponent<T> ContextComponent = new VMContextComponent<T>();
 
         public T ContextData
         {
             get => ContextComponent.BindContext;
-            set => ContextComponent.BindContext = value;
+            set
+            {
+                if (ContextComponent.BindContext != value)
+                {
+                    if (ContextComponent.BindContext != null) ContextComponent.BindContext.PropertyChanged -= ContextDataOnPropertyChanged;
+                    if (value != null) value.PropertyChanged += ContextDataOnPropertyChanged;
+
+                    ContextComponent.BindContext = value;
+                }
+            }
         }
 
         protected override void OnEnable()
@@ -141,5 +185,12 @@ namespace ScratchFramework
 
             ContextComponent.Clear();
         }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+        }
+
+        public abstract void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e);
     }
 }

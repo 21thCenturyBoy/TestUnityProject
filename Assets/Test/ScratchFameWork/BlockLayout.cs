@@ -81,6 +81,7 @@ namespace ScratchFramework
 
             SetSize(GetSize());
 
+
             int sectionsLength = SectionsArray.Length;
             for (int i = 0; i < sectionsLength; i++)
             {
@@ -104,6 +105,7 @@ namespace ScratchFramework
         {
             if (RectTrans == null) return Vector2.zero;
             RectTrans.sizeDelta = size;
+
             return size;
         }
     }

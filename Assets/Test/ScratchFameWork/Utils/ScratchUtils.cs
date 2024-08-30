@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -48,53 +50,93 @@ namespace ScratchFramework
             scratch.SetParent(parent.transform);
         }
 
+        public static SerializeMode SerializeMode = SerializeMode.Json;
+
+        public static byte[] SerializeData<T>(this IScratchData scratchData, T data)
+        {
+            switch (SerializeMode)
+            {
+                case SerializeMode.Json:
+                    return ScratchSerialize_Json.SerializeData(data);
+                    break;
+                case SerializeMode.MessagePack:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return null;
+        }
+        
+        public static T DeserializeData<T>(this IScratchData scratchData, byte[] data)
+        {
+            switch (SerializeMode)
+            {
+                case SerializeMode.Json:
+                    return ScratchSerialize_Json.DeserializeData<T>(data);
+                    break;
+                case SerializeMode.MessagePack:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return default;
+        }
+
         private static Material s_material;
+
         internal static void DrawScreenRect(Rect rect, Color color)
         {
             if (s_material == null)
             {
-                s_material = new Material (Shader.Find ("Unlit/Color"));
+                s_material = new Material(Shader.Find("Unlit/Color"));
             }
-            s_material.SetPass (0);
-            GL.LoadOrtho ();
-            GL.Begin (GL.LINES);
-            s_material.SetColor ("_Color", color);
 
-            GL.Vertex3 (rect.xMin / Screen.width, rect.yMin / Screen.height, 0);
-            GL.Vertex3 (rect.xMin / Screen.width, rect.yMax / Screen.height, 0);
+            s_material.SetPass(0);
+            GL.LoadOrtho();
+            GL.Begin(GL.LINES);
+            s_material.SetColor("_Color", color);
 
-            GL.Vertex3 (rect.xMin / Screen.width, rect.yMax / Screen.height, 0);
-            GL.Vertex3 (rect.xMax / Screen.width, rect.yMax / Screen.height, 0);
+            GL.Vertex3(rect.xMin / Screen.width, rect.yMin / Screen.height, 0);
+            GL.Vertex3(rect.xMin / Screen.width, rect.yMax / Screen.height, 0);
 
-            GL.Vertex3 (rect.xMax / Screen.width, rect.yMax / Screen.height, 0);
-            GL.Vertex3 (rect.xMax / Screen.width, rect.yMin / Screen.height, 0);
+            GL.Vertex3(rect.xMin / Screen.width, rect.yMax / Screen.height, 0);
+            GL.Vertex3(rect.xMax / Screen.width, rect.yMax / Screen.height, 0);
 
-            GL.Vertex3 (rect.xMax / Screen.width, rect.yMin / Screen.height, 0);
-            GL.Vertex3 (rect.xMin / Screen.width, rect.yMin / Screen.height, 0);
-            
-            GL.End ();
+            GL.Vertex3(rect.xMax / Screen.width, rect.yMax / Screen.height, 0);
+            GL.Vertex3(rect.xMax / Screen.width, rect.yMin / Screen.height, 0);
+
+            GL.Vertex3(rect.xMax / Screen.width, rect.yMin / Screen.height, 0);
+            GL.Vertex3(rect.xMin / Screen.width, rect.yMin / Screen.height, 0);
+
+            GL.End();
         }
+
         internal static void DrawScreenEllipse(Vector2 center, float xRadius, float yRadius, Color color, int smooth = 50)
         {
-            if (s_material == null)
-            {
-                s_material = new Material (Shader.Find ("Unlit/Color"));
-            }
-            s_material.SetPass (0);
-            GL.LoadOrtho ();
-            GL.Begin (GL.LINES);
-            s_material.SetColor ("_Color", color);
-            
+            // if (s_material == null)
+            // {
+            //     Material s_material = new Material(Shader.Find("Unlit/Color"));
+            //     // s_material = new Material(Shader.Find("UI/Default"));
+            // }
+            Material s_material = new Material(Shader.Find("Unlit/Color"));
+            s_material.SetPass(0);
+            GL.LoadOrtho();
+            GL.Begin(GL.LINES);
+            s_material.SetColor("_Color", color);
+            s_material.renderQueue = 4000;
+
             for (int i = 0; i < smooth; ++i)
             {
                 int nextStep = (i + 1) % smooth;
-                GL.Vertex3 ((center.x + xRadius * Mathf.Cos (2 * Mathf.PI / smooth * i)) / Screen.width,
-                    (center.y + yRadius * Mathf.Sin (2 * Mathf.PI / smooth * i)) / Screen.height, 0);
-                GL.Vertex3 ((center.x + xRadius * Mathf.Cos (2 * Mathf.PI / smooth * nextStep)) / Screen.width,
-                    (center.y + yRadius * Mathf.Sin (2 * Mathf.PI / smooth * nextStep)) / Screen.height, 0);
+                GL.Vertex3((center.x + xRadius * Mathf.Cos(2 * Mathf.PI / smooth * i)) / Screen.width,
+                    (center.y + yRadius * Mathf.Sin(2 * Mathf.PI / smooth * i)) / Screen.height, 0);
+                GL.Vertex3((center.x + xRadius * Mathf.Cos(2 * Mathf.PI / smooth * nextStep)) / Screen.width,
+                    (center.y + yRadius * Mathf.Sin(2 * Mathf.PI / smooth * nextStep)) / Screen.height, 0);
             }
 
-            GL.End ();
+            GL.End();
         }
 
         public static void ConvertSimpleBlock(GameObject obj)

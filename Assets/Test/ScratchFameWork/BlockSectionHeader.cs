@@ -86,13 +86,14 @@ namespace ScratchFramework
         {
             m_HeadSerializeDatas.Clear();
             int childCount = transform.childCount;
+
             m_HeadSerializeDatas.Capacity = childCount;
 
             for (int i = 0; i < childCount; i++)
             {
-                IScratchSerializeData serializeData = transform.GetChild(i).GetComponent<IScratchSerializeData>();
+                IScratchDataBlock dataBlock = transform.GetChild(i).GetComponent<IScratchDataBlock>();
 
-                if (serializeData is ScratchUIBehaviour scratchUI)
+                if (dataBlock is ScratchUIBehaviour scratchUI)
                 {
                     if (scratchUI != null && scratchUI.Active)
                     {

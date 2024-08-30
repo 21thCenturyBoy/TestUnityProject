@@ -1,40 +1,40 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 namespace ScratchFramework
 {
-    public class ScratchVMData
+    public class ScratchVMData :INotifyPropertyChanged
     {
-        private bool _isInitialized;
-        public ScratchVMData Parent { get; set; }
-        
-        protected virtual void OnInitialize()
+        [NonSerialized]
+        private string _name;
+
+    
+        public string Name
         {
-        }
-        public virtual void ShowData()
-        {
-            if (!_isInitialized)
+            get => _name;
+            set
             {
-                OnInitialize();
-                _isInitialized = true;
+                if (value == _name) return;
+                _name = value;
+                OnPropertyChanged();
             }
         }
-        public virtual void ClearData()
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public T Ancestors<T>(ScratchVMData origin) where T : ScratchVMData
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
-            if (origin == null) return null;
-
-            var parentViewModel = origin.Parent;
-            while (parentViewModel != null)
-            {
-                if (parentViewModel is T castedViewModel)
-                {
-                    return castedViewModel;
-                }
-                parentViewModel = parentViewModel.Parent;
-            }
-            return null;
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }
-

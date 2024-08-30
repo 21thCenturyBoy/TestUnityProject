@@ -81,6 +81,37 @@ namespace ScratchFramework
             return results.ToArray();
         }
 
+        public T FindClosestSpotOfType<T>(BlockDrag drag, float maxDistance) where T : BlockSpot
+        {
+            float minDistance = Mathf.Infinity;
+            T found = null;
+            var spots = BlockDragManager.Instance.SpotsList;
+            for (int i = 0; i < spots.Count; i++)
+            {
+                BlockSpot spot = spots[i];
+
+                if ((spot is T targetT && spot.Active && spot.Visible))
+                {
+                    BlockDrag d = spot.GetComponentInParent<BlockDrag>();
+
+                    if (d.transform.IsChildOf(transform))
+                    {
+                        if (d != drag && Active && Visible)
+                        {
+                            float distance = Vector2.Distance(drag.RectTrans.position, spot.DropPosition);
+                            if (distance < minDistance && distance <= maxDistance)
+                            {
+                                found = targetT;
+                                minDistance = distance;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return found;
+        }
+
         public BlockSpot FindClosestSpotForBlock(BlockDrag drag, float maxDistance)
         {
             float minDistance = Mathf.Infinity;

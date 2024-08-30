@@ -37,6 +37,7 @@ namespace ScratchFramework
                     block.TryAddComponent<BlockDrag_Simple>();
                     break;
                 case BlockType.operation:
+                    block.TryAddComponent<BlockDrag_Operation>();
                     break;
                 case BlockType.define:
                     break;
@@ -61,12 +62,10 @@ namespace ScratchFramework
                     }
                     break;
                 case BlockType.simple:
-                    block.TryAddComponent<BlockDrag_Simple>();
                     break;
                 case BlockType.condition:
                     break;
                 case BlockType.loop:
-                    block.TryAddComponent<BlockDrag_Simple>();
                     break;
                 case BlockType.operation:
                     break;

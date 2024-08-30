@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
+
     public class ScratchDataManager : Singleton_Class<ScratchDataManager>, IScratchManager
     {
         public bool Initialize()

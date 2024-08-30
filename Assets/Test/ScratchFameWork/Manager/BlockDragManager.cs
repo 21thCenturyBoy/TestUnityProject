@@ -11,6 +11,10 @@ namespace ScratchFramework
     {
         [Header("配置")] public float DetectionDistance = 40f;
 
+#if UNITY_EDITOR
+        [Header("Editor Debug")] 
+        public bool DragDebug = false;
+#endif
         private List<BlockSpot> m_spotsList = new List<BlockSpot>();
 
         public List<BlockSpot> SpotsList => m_spotsList;
@@ -91,11 +95,13 @@ namespace ScratchFramework
                 m_AddListenSpotQueue.Clear();
             }
         }
+#if UNITY_EDITOR
 
         private void OnRenderObject()
         {
-            if (BlockDrag.BlockDragDebug)
+            if (DragDebug)
             {
+                ScratchUtils.DrawScreenEllipse(Input.mousePosition, BlockDragManager.Instance.DetectionDistance, BlockDragManager.Instance.DetectionDistance, Color.gray);
                 if (CurrentDragBlock != null)
                 {
                     ScratchUtils.DrawScreenEllipse(CurrentDragBlock.GetComponent<BlockDrag>().RectTrans.position, BlockDragManager.Instance.DetectionDistance, BlockDragManager.Instance.DetectionDistance, Color.green);
@@ -107,7 +113,6 @@ namespace ScratchFramework
                         if (CurrentDragBlock == null)
                         {
                             ScratchUtils.DrawScreenEllipse(SpotsList[i].DropPosition, DetectionDistance, DetectionDistance, Color.yellow);
-                      
                         }
                         else
                         {
@@ -119,11 +124,11 @@ namespace ScratchFramework
                  
                     }
                 }
-
        
             }
         }
-
+        
+#endif
 
         public void OnLateUpdate()
         {
