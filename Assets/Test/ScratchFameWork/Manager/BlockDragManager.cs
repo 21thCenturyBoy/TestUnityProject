@@ -7,13 +7,77 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
-    public class BlockDragManager : ScratchSingleton<BlockDragManager>, IScratchManager
+    public class CameraDragDebug : MonoBehaviour
+    {
+#if UNITY_EDITOR
+
+        private Material m_MousePositionDraw;
+        private Material m_CurrentDragBlockDraw;
+        private Material m_SpotsListDraw;
+
+        private void OnGUI()
+        {
+            if (BlockDragManager.Instance.DragDebug)
+            {
+                GUILayout.BeginVertical();
+                GUILayout.Label(nameof(BlockDragManager.PointerPos) + BlockDragManager.Instance.PointerPos.ToString());
+                if (BlockDragManager.Instance.CurrentDragBlock)
+                {
+                    GUILayout.Label(nameof(BlockDragManager.CurrentDragBlock) + BlockDragManager.Instance.CurrentDragBlock.Position.ToString());
+                    GUILayout.Label(nameof(BlockDrag.OffsetPointerDown) + BlockDragManager.Instance.CurrentDragBlock.GetComponent<BlockDrag>().OffsetPointerDown.ToString());
+                }
+
+                GUILayout.EndVertical();
+            }
+        }
+
+        private void OnPostRender()
+        {
+            if (BlockDragManager.Instance.DragDebug)
+            {
+                if (m_MousePositionDraw == null) m_MousePositionDraw = new Material(Shader.Find("Unlit/Color"));
+                if (m_CurrentDragBlockDraw == null) m_CurrentDragBlockDraw = new Material(Shader.Find("Unlit/Color"));
+                if (m_SpotsListDraw == null) m_SpotsListDraw = new Material(Shader.Find("Unlit/Color"));
+
+                var CurrentDragBlock = BlockDragManager.Instance.CurrentDragBlock;
+                var DetectionDistance = BlockDragManager.Instance.DetectionDistance;
+
+                ScratchUtils.DrawScreenEllipse(Input.mousePosition, DetectionDistance, DetectionDistance, Color.gray, m_MousePositionDraw);
+                if (CurrentDragBlock != null)
+                {
+                    ScratchUtils.DrawScreenEllipse(ScratchUtils.WorldPos2ScreenPos(CurrentDragBlock.Position), DetectionDistance, DetectionDistance, Color.green, m_CurrentDragBlockDraw);
+                }
+
+                var SpotsList = BlockDragManager.Instance.SpotsList;
+                for (int i = 0; i < SpotsList.Count; i++)
+                {
+                    if (SpotsList[i] != null)
+                    {
+                        if (CurrentDragBlock == null)
+                        {
+                            ScratchUtils.DrawScreenEllipse(ScratchUtils.WorldPos2ScreenPos(SpotsList[i].DropPosition), DetectionDistance, DetectionDistance, Color.yellow, m_SpotsListDraw);
+                        }
+                        else
+                        {
+                            if (SpotsList[i].GetComponentInParent<Block>() != CurrentDragBlock)
+                            {
+                                ScratchUtils.DrawScreenEllipse(ScratchUtils.WorldPos2ScreenPos(SpotsList[i].DropPosition), DetectionDistance, DetectionDistance, Color.yellow, m_SpotsListDraw);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+#endif
+    }
+
+    public class BlockDragManager : ScratchUISingleton<BlockDragManager>, IScratchManager
     {
         [Header("配置")] public float DetectionDistance = 40f;
 
 #if UNITY_EDITOR
-        [Header("Editor Debug")] 
-        public bool DragDebug = false;
+        [Header("Editor Debug")] public bool DragDebug = false;
 #endif
         private List<BlockSpot> m_spotsList = new List<BlockSpot>();
 
@@ -26,9 +90,11 @@ namespace ScratchFramework
 
         public BlockSpot TargetSpot => m_TargetSpot;
         public Block CurrentDragBlock => m_CurrentDragBlock;
+        public Vector3 PointerPos => Input.mousePosition;
 
         public override bool Initialize()
         {
+            Camera.main.gameObject.AddComponent<CameraDragDebug>();
             return base.Initialize();
         }
 
@@ -95,40 +161,7 @@ namespace ScratchFramework
                 m_AddListenSpotQueue.Clear();
             }
         }
-#if UNITY_EDITOR
 
-        private void OnRenderObject()
-        {
-            if (DragDebug)
-            {
-                ScratchUtils.DrawScreenEllipse(Input.mousePosition, BlockDragManager.Instance.DetectionDistance, BlockDragManager.Instance.DetectionDistance, Color.gray);
-                if (CurrentDragBlock != null)
-                {
-                    ScratchUtils.DrawScreenEllipse(CurrentDragBlock.GetComponent<BlockDrag>().RectTrans.position, BlockDragManager.Instance.DetectionDistance, BlockDragManager.Instance.DetectionDistance, Color.green);
-                }
-                for (int i = 0; i < SpotsList.Count; i++)
-                {
-                    if (SpotsList[i] != null)
-                    {
-                        if (CurrentDragBlock == null)
-                        {
-                            ScratchUtils.DrawScreenEllipse(SpotsList[i].DropPosition, DetectionDistance, DetectionDistance, Color.yellow);
-                        }
-                        else
-                        {
-                            if (SpotsList[i].GetComponentInParent<Block>() != CurrentDragBlock)
-                            {
-                                ScratchUtils.DrawScreenEllipse(SpotsList[i].DropPosition, DetectionDistance, DetectionDistance, Color.yellow);
-                            }
-                        }
-                 
-                    }
-                }
-       
-            }
-        }
-        
-#endif
 
         public void OnLateUpdate()
         {

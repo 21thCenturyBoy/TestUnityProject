@@ -9,6 +9,18 @@ namespace ScratchFramework
     [Serializable]
     public class BlockHeaderParam_Data_Operation : BlockHeaderParam_Data<BlockHeaderParam_Data_Operation>
     {
+        private BlockHeaderParam_Data_Input _parentInput;
+
+        public BlockHeaderParam_Data_Input ParentInput
+        {
+            get => _parentInput;
+            set
+            {
+                if (Equals(value, _parentInput)) return;
+                _parentInput = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public class BlockHeaderItem_Operation : BlockHeaderItem<BlockHeaderParam_Data_Operation>
@@ -33,14 +45,14 @@ namespace ScratchFramework
 
         public override void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            // switch (e.PropertyName)
-            // {
-            //     case nameof(BlockHeaderParam_Data_Label.DataProperty):
-            //         LabelText.text = ContextData.DataProperty;
-            //         break;
-            //     default:
-            //         break;
-            // }
+            switch (e.PropertyName)
+            {
+                case nameof(BlockHeaderParam_Data_Operation.ParentInput):
+                    // LabelText.text = ContextData.DataProperty;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

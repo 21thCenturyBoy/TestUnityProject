@@ -34,6 +34,50 @@ namespace ScratchFramework
             GameObject.Destroy(block.gameObject);
         }
 
+        public static Vector3 ScreenPos2WorldPos(this ScratchUIBehaviour transform, Vector2 screenPos)
+        {
+            Vector3 worldPos = Vector3.zero;
+            var camera = ScratchManager.Instance.Canvas.worldCamera;
+            switch (ScratchManager.Instance.Canvas.renderMode)
+            {
+                case RenderMode.ScreenSpaceOverlay:
+                    worldPos = screenPos;
+                    break;
+                case RenderMode.ScreenSpaceCamera:
+                    worldPos = camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, transform.Position.z));
+                    break;
+                case RenderMode.WorldSpace:
+                    worldPos = camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, transform.Position.z));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return worldPos;
+        }
+
+        public static Vector3 WorldPos2ScreenPos(Vector3 worldPos)
+        {
+            Vector3 screenPos = Vector3.zero;
+            var camera = ScratchManager.Instance.Canvas.worldCamera;
+            switch (ScratchManager.Instance.Canvas.renderMode)
+            {
+                case RenderMode.ScreenSpaceOverlay:
+                    screenPos = worldPos;
+                    break;
+                case RenderMode.ScreenSpaceCamera:
+                    screenPos =  Camera.main.WorldToScreenPoint(worldPos);
+                    break;
+                case RenderMode.WorldSpace:
+                    screenPos = Camera.main.WorldToScreenPoint(worldPos);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return screenPos;
+        }
+
         public static void SetParent(this ScratchBehaviour scratch, Transform parent)
         {
             scratch.transform.SetParent(parent);
@@ -67,7 +111,7 @@ namespace ScratchFramework
 
             return null;
         }
-        
+
         public static T DeserializeData<T>(this IScratchData scratchData, byte[] data)
         {
             switch (SerializeMode)
@@ -113,19 +157,18 @@ namespace ScratchFramework
             GL.End();
         }
 
-        internal static void DrawScreenEllipse(Vector2 center, float xRadius, float yRadius, Color color, int smooth = 50)
+        internal static void DrawScreenEllipse(Vector2 center, float xRadius, float yRadius, Color color, Material material = null, int smooth = 50)
         {
-            // if (s_material == null)
-            // {
-            //     Material s_material = new Material(Shader.Find("Unlit/Color"));
-            //     // s_material = new Material(Shader.Find("UI/Default"));
-            // }
-            Material s_material = new Material(Shader.Find("Unlit/Color"));
-            s_material.SetPass(0);
+            GL.PushMatrix();
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Unlit/Color"));
+            }
+
+            material.SetPass(0);
             GL.LoadOrtho();
             GL.Begin(GL.LINES);
-            s_material.SetColor("_Color", color);
-            s_material.renderQueue = 4000;
+            material.SetColor("_Color", color);
 
             for (int i = 0; i < smooth; ++i)
             {
@@ -137,6 +180,7 @@ namespace ScratchFramework
             }
 
             GL.End();
+            GL.PopMatrix();
         }
 
         public static void ConvertSimpleBlock(GameObject obj)

@@ -8,7 +8,7 @@ namespace ScratchFramework
 {
     public class BlockCanvasManager : ScratchUISingleton<BlockCanvasManager>, IScratchManager
     {
-        public bool Initialize()
+        protected override void OnInitialize()
         {
             // Move to Block ,Clear Temp Canvas
             var childs = TempCanvasManager.Instance.GetChildTempBlock();
@@ -17,9 +17,8 @@ namespace ScratchFramework
                 childs[i].SetParent(transform);
             }
 
-            return true;
+            base.OnInitialize();
         }
-
 
         public void OnUpdate()
         {
@@ -42,7 +41,7 @@ namespace ScratchFramework
 
             PointerEventData _pointerEventData = new PointerEventData(eventSystem);
 
-            _pointerEventData.position = Input.mousePosition;
+            _pointerEventData.position = BlockDragManager.Instance.PointerPos;
             List<RaycastResult> globalResults = new List<RaycastResult>();
             eventSystem.RaycastAll(_pointerEventData, globalResults);
 
@@ -67,7 +66,7 @@ namespace ScratchFramework
 
             PointerEventData _pointerEventData = new PointerEventData(eventSystem);
 
-            _pointerEventData.position = Input.mousePosition;
+            _pointerEventData.position = BlockDragManager.Instance.PointerPos;
             List<RaycastResult> globalResults = new List<RaycastResult>();
             eventSystem.RaycastAll(_pointerEventData, globalResults);
 
@@ -81,11 +80,12 @@ namespace ScratchFramework
             return results.ToArray();
         }
 
-        public T FindClosestSpotOfType<T>(BlockDrag drag, float maxDistance) where T : BlockSpot
+        public T FindClosestSpotOfType<T>(BlockDrag drag, float maxDistance, bool usePointer = false) where T : BlockSpot
         {
             float minDistance = Mathf.Infinity;
             T found = null;
             var spots = BlockDragManager.Instance.SpotsList;
+            Vector2 dragPos = ScratchUtils.WorldPos2ScreenPos(drag.Position);
             for (int i = 0; i < spots.Count; i++)
             {
                 BlockSpot spot = spots[i];
@@ -98,7 +98,9 @@ namespace ScratchFramework
                     {
                         if (d != drag && Active && Visible)
                         {
-                            float distance = Vector2.Distance(drag.RectTrans.position, spot.DropPosition);
+                            Vector2 spotPos = ScratchUtils.WorldPos2ScreenPos(spot.DropPosition);
+                            float distance = Vector2.Distance(usePointer ? BlockDragManager.Instance.PointerPos : dragPos, spotPos);
+
                             if (distance < minDistance && distance <= maxDistance)
                             {
                                 found = targetT;
@@ -112,11 +114,12 @@ namespace ScratchFramework
             return found;
         }
 
-        public BlockSpot FindClosestSpotForBlock(BlockDrag drag, float maxDistance)
+        public BlockSpot FindClosestSpotForBlock(BlockDrag drag, float maxDistance, bool usePointer = false)
         {
             float minDistance = Mathf.Infinity;
             BlockSpot found = null;
             var spots = BlockDragManager.Instance.SpotsList;
+            Vector2 dragPos = ScratchUtils.WorldPos2ScreenPos(drag.Position);
             for (int i = 0; i < spots.Count; i++)
             {
                 BlockSpot spot = spots[i];
@@ -129,7 +132,8 @@ namespace ScratchFramework
                     {
                         if (d != drag && Active && Visible)
                         {
-                            float distance = Vector2.Distance(drag.RectTrans.position, spot.DropPosition);
+                            Vector2 spotPos = ScratchUtils.WorldPos2ScreenPos(spot.DropPosition);
+                            float distance = Vector2.Distance(usePointer ? BlockDragManager.Instance.PointerPos : dragPos, spotPos);
                             if (distance < minDistance && distance <= maxDistance)
                             {
                                 found = spot;

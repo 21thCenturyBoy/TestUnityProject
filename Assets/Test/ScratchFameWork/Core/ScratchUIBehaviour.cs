@@ -92,6 +92,20 @@ namespace ScratchFramework
             }
         }
 
+        public Vector3 Position
+        {
+            get => RectTrans.position;
+            set => RectTrans.position = value;
+        }
+        
+        public Vector3 LocalPosition
+        {
+            get => RectTrans.localPosition;
+            set => RectTrans.localPosition = value;
+        }
+        
+        public Vector3 ScreenPos => ScratchUtils.WorldPos2ScreenPos(Position);
+        
         public virtual Vector2 GetSize()
         {
             if (RectTrans == null) return Vector2.zero;
@@ -109,6 +123,21 @@ namespace ScratchFramework
 
         protected ScratchUISingleton()
         {
+        }
+
+        public override bool Initialize()
+        {
+            TryAddComponent<RectTransform>();
+
+            var sourceRectTransform = TempCanvasManager.Instance.RectTrans;
+            RectTrans.anchorMin = sourceRectTransform.anchorMin;
+            RectTrans.anchorMax = sourceRectTransform.anchorMax;
+            RectTrans.anchoredPosition = sourceRectTransform.anchoredPosition;
+            RectTrans.sizeDelta = sourceRectTransform.sizeDelta;
+            RectTrans.pivot = sourceRectTransform.pivot;
+            RectTrans.localScale = sourceRectTransform.localScale;
+
+            return base.Initialize();
         }
 
         public static T Instance

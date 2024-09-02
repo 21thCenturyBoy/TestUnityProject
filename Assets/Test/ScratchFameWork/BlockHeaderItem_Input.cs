@@ -12,7 +12,7 @@ namespace ScratchFramework
     public class BlockHeaderParam_Data_Input : BlockHeaderParam_Data<BlockHeaderParam_Data_Input>
     {
         private string _dataProperty;
-        private BlockHeaderParam_Data_Operation _bindOperation;
+        private BlockHeaderParam_Data_Operation _childOperation;
 
         public string DataProperty
         {
@@ -26,20 +26,34 @@ namespace ScratchFramework
         }
 
 
-        public BlockHeaderParam_Data_Operation BindOperation
+        public BlockHeaderParam_Data_Operation ChildOperation
         {
-            get => _bindOperation;
+            get => _childOperation;
             set
             {
-                if (Equals(value, _bindOperation)) return;
-                _bindOperation = value;
+                if (_childOperation != null)
+                {
+                    //push null
+                    _childOperation.ParentInput = null;
+                }
+                
+                if (Equals(value, _childOperation)) return;
+                _childOperation = value;
+                
+                if (value != null)
+                {
+                    //push null
+                    _childOperation.ParentInput = this;
+                }
+                
                 OnPropertyChanged();
             }
         }
+        
     }
+
     public class BlockHeaderItem_Input : BlockHeaderItem<BlockHeaderParam_Data_Input>
     {
-
         private TMP_InputField m_InputField;
 
         public TMP_InputField InputField
@@ -50,9 +64,11 @@ namespace ScratchFramework
                 {
                     m_InputField = GetComponent<TMP_InputField>();
                 }
+
                 return m_InputField;
             }
         }
+
         public override bool Initialize(BlockHeaderParam_Data_Input context = null)
         {
             if (base.Initialize(context))
@@ -65,7 +81,7 @@ namespace ScratchFramework
 
             return Inited;
         }
-        
+
         public override void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -73,7 +89,12 @@ namespace ScratchFramework
                 case nameof(BlockHeaderParam_Data_Input.DataProperty):
                     InputField.text = ContextData.DataProperty;
                     break;
-                case nameof(BlockHeaderParam_Data_Input.BindOperation):
+                case nameof(BlockHeaderParam_Data_Input.ChildOperation):
+                    Active = ContextData.ChildOperation == null;
+                    // tempInput.
+                    // _usedSpotTransform.SetSiblingIndex(Transform.GetSiblingIndex());
+                    // _usedSpotTransform.gameObject.SetActive(true);
+                    // _usedSpotTransform = null;
                     // InputField.text = ContextData.DataProperty;
                     break;
                 default:
@@ -81,5 +102,4 @@ namespace ScratchFramework
             }
         }
     }
-
 }

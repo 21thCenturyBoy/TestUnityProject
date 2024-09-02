@@ -7,7 +7,41 @@ namespace ScratchFramework
 {
     public class ScratchManager : ScratchSingleton<ScratchManager>, IScratchManager
     {
+        private Canvas m_Canvas;
+
+        public Canvas Canvas
+        {
+            get
+            {
+                if (m_Canvas == null)
+                {
+                    //Search Canvas
+                    m_Canvas = GetComponentInChildren<Canvas>();
+                    if (m_Canvas == null)
+                    {
+                        m_Canvas = GetComponentInParent<Canvas>();
+                    }
+                }
+
+                return m_Canvas;
+            }
+        }
+
+
+        public Camera CanvasCamera
+        {
+            get
+            {
+                if (Canvas == null) return null;
+
+                if (Canvas.renderMode == RenderMode.ScreenSpaceOverlay) return null;
+
+                return Camera.main;
+            }
+        }
+
         private TempCanvasManager m_TempCanvas;
+
         private void Start()
         {
             Initialize();
@@ -20,10 +54,10 @@ namespace ScratchFramework
 
             m_TempCanvas = GetComponentInChildren<TempCanvasManager>();
             m_TempCanvas.Initialize();
-                
+
             ScratchResources.Instance.LoadAllResource(LoadResourceFinish);
 
-     
+
             return true;
         }
 
@@ -31,7 +65,7 @@ namespace ScratchFramework
         {
             //ScratchDataManager
             ScratchDataManager.Instance.Initialize();
-            
+
             //ScratchEventManager
             ScratchEventManager.Instance.Initialize();
 
@@ -44,7 +78,7 @@ namespace ScratchFramework
             BlockDragManager.Instance.SetParent(transform);
             BlockDragManager.Instance.transform.localPosition = Vector3.zero;
             BlockDragManager.Instance.Initialize();
-            
+
             //ScratchMenuManager
             ScratchMenuManager.Instance.SetParent(transform);
             ScratchMenuManager.Instance.transform.localPosition = Vector3.zero;
@@ -58,7 +92,7 @@ namespace ScratchFramework
 
         private void Update()
         {
-            if (!Inited)return;
+            if (!Inited) return;
 
             OnUpdate();
         }

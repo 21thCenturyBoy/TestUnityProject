@@ -23,7 +23,8 @@ namespace ScratchFramework
         }
 
         protected Vector3 offsetPointerDown = Vector3.zero;
-        
+        public Vector3 OffsetPointerDown => offsetPointerDown;
+
 
         private bool m_IsDraging = false;
         public bool IsDraging => m_IsDraging;
@@ -33,7 +34,7 @@ namespace ScratchFramework
         public virtual void OnPointerDown(PointerEventData eventData)
         {
             // if (BlockDragDebug) Debug.LogError(nameof(OnPointerDown));
-            offsetPointerDown = transform.position - Input.mousePosition;
+            offsetPointerDown = Position - this.ScreenPos2WorldPos(eventData.position);
 
             if (Input.GetMouseButtonDown(1))
             {
@@ -50,7 +51,7 @@ namespace ScratchFramework
 
         public virtual void OnDrag(PointerEventData eventData)
         {
-            transform.position = Input.mousePosition + offsetPointerDown;
+            Position = this.ScreenPos2WorldPos(eventData.position) + offsetPointerDown;
             BlockDragManager.Instance.OnBlockDrag(this);
             // if (BlockDragDebug) Debug.LogError(nameof(OnDrag));
         }
@@ -68,7 +69,7 @@ namespace ScratchFramework
         public virtual void OnEndDrag(PointerEventData eventData)
         {
             m_IsDraging = false;
-            
+
             BlockDragManager.Instance.OnBlockEndDrag(this);
             // if (BlockDragDebug) Debug.LogError(nameof(OnEndDrag));
         }

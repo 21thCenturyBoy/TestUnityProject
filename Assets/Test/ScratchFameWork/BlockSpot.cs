@@ -25,7 +25,7 @@ namespace ScratchFramework
 
         #endregion
 
-        public Vector2 DropPosition => RectTrans.position;
+        public Vector2 DropPosition => Position;
 
         protected override void OnEnable()
         {

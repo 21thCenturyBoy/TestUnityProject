@@ -7,11 +7,19 @@ namespace ScratchFramework
 {
     public class BlockDrag_Operation : BlockDrag
     {
+        public BlockHeaderItem_Operation CurrentOperation => GetComponent<BlockHeaderItem_Operation>();
+
         public override void OnDrag(PointerEventData eventData)
         {
             base.OnDrag(eventData);
 
-            BlockSpot_Input spot = BlockCanvasManager.Instance.FindClosestSpotOfType<BlockSpot_Input>(this, BlockDragManager.Instance.DetectionDistance);
+            var parentInput = CurrentOperation.ContextData.ParentInput;
+            if (parentInput!=null)
+            {
+                parentInput.ChildOperation = null;
+            }
+
+            BlockSpot_Input spot = BlockCanvasManager.Instance.FindClosestSpotOfType<BlockSpot_Input>(this, BlockDragManager.Instance.DetectionDistance, true);
 
             if (spot != null)
             {
@@ -53,8 +61,7 @@ namespace ScratchFramework
             BlockHeaderItem_Input input = target.GetComponent<BlockHeaderItem_Input>();
             if (input != null)
             {
-                input.ContextData.BindOperation = GetComponent<BlockHeaderItem_Operation>().ContextData;
-                input.Active = false;
+                input.ContextData.ChildOperation = CurrentOperation.ContextData;
             }
         }
 
@@ -67,8 +74,7 @@ namespace ScratchFramework
                 var target = BlockDragManager.Instance.TargetSpot;
 
                 DropPlace(target);
-
-
+                
                 BlockDragManager.Instance.SetTargetSpot(null);
             }
             else

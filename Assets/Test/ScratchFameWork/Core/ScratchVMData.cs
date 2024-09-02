@@ -5,12 +5,11 @@ using System.Runtime.CompilerServices;
 
 namespace ScratchFramework
 {
-    public class ScratchVMData :INotifyPropertyChanged
+    public class ScratchVMData : INotifyPropertyChanged
     {
-        [NonSerialized]
-        private string _name;
+        [NonSerialized] private string _name;
 
-    
+
         public string Name
         {
             get => _name;
