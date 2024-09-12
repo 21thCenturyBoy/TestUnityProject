@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
-    public class ScratchMenuManager : ScratchUISingleton<ScratchMenuManager>
+    public class ScratchMenuManager : ScratchUISingleton<ScratchMenuManager>,IScratchManager
     {
         public MenuMask ScratchMenuMask { get; set; }
 
@@ -52,6 +52,21 @@ namespace ScratchFramework
 
             ScratchMenuMask.Active = true;
             BlockMenu.Active = true;
+        }
+
+        public void OnUpdate()
+        {
+            
+        }
+
+        public void OnLateUpdate()
+        {
+
+        }
+
+        public bool Clear()
+        {
+            return true;
         }
     }
 }

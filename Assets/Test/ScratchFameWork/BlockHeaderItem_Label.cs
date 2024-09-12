@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using ScratchFramework;
 using TMPro;
 using UnityEngine;
@@ -10,7 +11,7 @@ using UnityEngine.UI;
 namespace ScratchFramework
 {
     [Serializable]
-    public class BlockHeaderParam_Data_Label : BlockHeaderParam_Data<BlockHeaderParam_Data_Label>
+    public sealed class BlockHeaderParam_Data_Label : BlockHeaderParam_Data<BlockHeaderParam_Data_Label>
     {
         private string _dataProperty;
 
@@ -23,6 +24,24 @@ namespace ScratchFramework
                 _dataProperty = value;
                 OnPropertyChanged();
             }
+        }
+
+        public override DataType DataType => DataType.Label;
+
+        protected override byte[] OnSerialize()
+        {
+            var bytes = ScratchUtils.ScratchSerializeString(DataProperty);
+            return bytes;
+        }
+
+        protected override void OnDeserialize(MemoryStream memoryStream, int version = -1)
+        {
+            DataProperty = memoryStream.ScratchDeserializeString();
+        }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()}, {nameof(DataProperty)}: {DataProperty}";
         }
     }
 
@@ -38,22 +57,16 @@ namespace ScratchFramework
                 {
                     m_LabelText = GetComponent<TMP_Text>();
                 }
+
                 return m_LabelText;
             }
         }
 
-        public override bool Initialize(BlockHeaderParam_Data_Label context = null)
+        protected override void OnCreateContextData()
         {
-            if (base.Initialize(context))
-            {
-                if (context == null)
-                {
-                    ContextData.DataProperty = LabelText.text;
-                }
-            }
-
-            return Inited;
+            ContextData.DataProperty = LabelText.text;
         }
+        
 
         public override void OnUpdateLayout()
         {
@@ -64,7 +77,7 @@ namespace ScratchFramework
 
             LayoutRebuilder.MarkLayoutForRebuild(RectTrans);
         }
-        
+
         public override void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -75,6 +88,11 @@ namespace ScratchFramework
                 default:
                     break;
             }
+        }
+
+        public override void RefreshUI()
+        {
+            LabelText.text = ContextData.DataProperty;
         }
     }
 }

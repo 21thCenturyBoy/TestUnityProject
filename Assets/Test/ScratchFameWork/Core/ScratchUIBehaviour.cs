@@ -8,70 +8,15 @@ using UnityEngine.EventSystems;
 
 namespace ScratchFramework
 {
-    public interface IScratchLayout
-    {
-        Vector2 GetSize();
-        void OnUpdateLayout();
-    }
-
-    public interface IScratchModifyLayout
-    {
-        void UpdateLayout();
-        Vector2 SetSize(Vector2 size);
-    }
-
-    public interface IScratchManager
-    {
-        bool Initialize();
-        bool Active { get; set; }
-        void OnUpdate();
-        void OnLateUpdate();
-        bool Clear();
-    }
-
-    public interface IScratchEditorData : IScratchData
-    {
-        public IScratchData AssetData { get; set; }
-    }
-
-    public interface IScratchData
-    {
-        DataType DataType { get; }
-        int Version { get; }
-
-        byte[] Serialize();
-        bool Deserialize(MemoryStream stream, int version = -1);
-    }
-
-    public interface IScratchDataBlock
-    {
-        IScratchData Data { get; protected set; }
-    }
-
-    public enum SerializeMode
-    {
-        Json,
-        MessagePack,
-    }
-
-    public interface IScratchBlockClick : IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
-    {
-    }
-
-    public interface IScratchBlockDrag : IBeginDragHandler, IDragHandler, IEndDragHandler
-    {
-    }
-
     [Serializable]
     public enum DataType : byte
     {
         Undefined,
         Label,
-        InputField,
-        Dropdown,
+        Input,
         Operation,
-        Toggle,
-        Variable
+        VariableLabel,
+        Icon,
     }
 
 
@@ -92,20 +37,35 @@ namespace ScratchFramework
             }
         }
 
+        private RectTransform m_Parent;
+
+        public RectTransform ParentTrans
+        {
+            get
+            {
+                if (m_Parent == null)
+                {
+                    m_Parent = transform.parent.GetComponent<RectTransform>();
+                }
+
+                return m_Parent;
+            }
+        }
+
         public Vector3 Position
         {
             get => RectTrans.position;
             set => RectTrans.position = value;
         }
-        
+
         public Vector3 LocalPosition
         {
             get => RectTrans.localPosition;
             set => RectTrans.localPosition = value;
         }
-        
+
         public Vector3 ScreenPos => ScratchUtils.WorldPos2ScreenPos(Position);
-        
+
         public virtual Vector2 GetSize()
         {
             if (RectTrans == null) return Vector2.zero;
@@ -183,41 +143,57 @@ namespace ScratchFramework
             {
                 if (ContextComponent.BindContext != value)
                 {
-                    if (ContextComponent.BindContext != null) ContextComponent.BindContext.PropertyChanged -= ContextDataOnPropertyChanged;
+                    T orginData = ContextComponent.BindContext;
+                    
+                    if (orginData!= null) orginData.PropertyChanged -= ContextDataOnPropertyChanged;
                     if (value != null) value.PropertyChanged += ContextDataOnPropertyChanged;
 
                     ContextComponent.BindContext = value;
+
+                    OnContextDataChanged(orginData, value);
                 }
             }
         }
 
-        protected override void OnEnable()
+        protected virtual void Start()
         {
-            base.OnEnable();
-            if (ContextData == null) Initialize();
+            if (!Inited) Initialize();
         }
 
-        public virtual bool Initialize(T context = null)
+        public override bool Initialize()
         {
-            if (base.Initialize())
+            base.Initialize();
+
+            if (ContextData == null)
             {
-                if (context == null) ContextData = new T();
-                else ContextData = context;
+                ContextData = new T();
+                OnCreateContextData();
             }
 
             return Inited;
         }
+
+        protected abstract void OnCreateContextData();
+
+        protected virtual void OnContextDataChanged(T orginData,T newData)
+        {
+            
+        }
+
+        public virtual bool Initialize(T context)
+        {
+            ContextData = context;
+            Initialize();
+
+            return Inited;
+        }
+
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
 
             ContextComponent.Clear();
-        }
-
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
         }
 
         public abstract void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e);

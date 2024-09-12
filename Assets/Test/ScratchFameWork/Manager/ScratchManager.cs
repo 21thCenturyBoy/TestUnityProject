@@ -107,6 +107,29 @@ namespace ScratchFramework
         {
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            //TempCanvasManager
+            TempCanvasManager.Instance.Clear();
+            
+            //ScratchDataManager
+            ScratchDataManager.Instance.Clear();
+
+            //ScratchEventManager
+            ScratchEventManager.Instance.Clear();
+
+            //BlockCanvasManager
+            BlockCanvasManager.Instance.Clear();
+
+            //BlockDragManager
+            BlockDragManager.Instance.Clear();
+
+            //ScratchMenuManager
+            ScratchMenuManager.Instance.Clear();
+        }
+
         public bool Clear()
         {
             return true;

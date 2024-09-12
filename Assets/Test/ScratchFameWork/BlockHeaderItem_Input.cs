@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,10 +10,11 @@ using UnityEngine.UI;
 namespace ScratchFramework
 {
     [Serializable]
-    public class BlockHeaderParam_Data_Input : BlockHeaderParam_Data<BlockHeaderParam_Data_Input>
+    public sealed class BlockHeaderParam_Data_Input : BlockHeaderParam_Data<BlockHeaderParam_Data_Input>, IScratchRefreshRef
     {
-        private string _dataProperty;
-        private BlockHeaderParam_Data_Operation _childOperation;
+        private string _dataProperty = string.Empty;
+
+        private ScratchVMDataRef<BlockHeaderParam_Data_Operation> _childOperation = ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
 
         public string DataProperty
         {
@@ -25,31 +27,90 @@ namespace ScratchFramework
             }
         }
 
-
-        public BlockHeaderParam_Data_Operation ChildOperation
+        public ScratchVMDataRef<BlockHeaderParam_Data_Operation> ChildOperation
         {
             get => _childOperation;
             set
             {
-                if (_childOperation != null)
+                if (value == null || !value.InVaildPtr)
                 {
-                    //push null
-                    _childOperation.ParentInput = null;
+                    if (_childOperation != null)
+                    {
+                        //push null
+                        _childOperation.GetData().ParentInput = null;
+                    }
+
+                    value ??= ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
+                    if (Equals(value, _childOperation)) return;
+
+                    _childOperation = value;
+
+                    if (_childOperation != null)
+                    {
+                        _childOperation.GetData().ParentInput = this.CreateRef<BlockHeaderParam_Data_Input>();
+                    }
+
+                    OnPropertyChanged();
                 }
-                
-                if (Equals(value, _childOperation)) return;
-                _childOperation = value;
-                
-                if (value != null)
+                else
                 {
-                    //push null
-                    _childOperation.ParentInput = this;
+                    value ??= ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
+                    _childOperation = value;
                 }
-                
-                OnPropertyChanged();
             }
         }
-        
+
+        public override DataType DataType => DataType.Input;
+
+        protected override byte[] OnSerialize()
+        {
+            var stream = ScratchUtils.CreateMemoryStream();
+
+            var bytes = ScratchUtils.ScratchSerializeString(DataProperty);
+            stream.Write(bytes);
+            bytes = ScratchUtils.ScratchSerializeInt(ChildOperation.RefIdPtr);
+            stream.Write(bytes);
+
+            return stream.ToArray();
+        }
+
+        protected override void OnDeserialize(MemoryStream memoryStream, int version = -1)
+        {
+            DataProperty = memoryStream.ScratchDeserializeString();
+
+            int DataPtr = memoryStream.ScratchDeserializeInt();
+            if (DataPtr == UnallocatedId)
+            {
+                ChildOperation = null;
+            }
+            else
+            {
+                ChildOperation = ScratchVMDataRef<BlockHeaderParam_Data_Operation>.CreateInVaildPtr<BlockHeaderParam_Data_Operation>(DataPtr);
+            }
+        }
+
+        public void RefreshRef(Dictionary<int, int> refreshDic)
+        {
+            if (ChildOperation != null)
+            {
+                ChildOperation.RefreshRef(refreshDic);
+
+                var data = ChildOperation.GetData();
+                if (data != null)
+                {
+                    data.ParentInput = this.CreateRef<BlockHeaderParam_Data_Input>();
+                }
+            }
+
+            OnPropertyChanged(nameof(ChildOperation));
+        }
+
+        public BlockHeaderItem_Input InputBlock { get; set; }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()}, {nameof(DataProperty)}: {DataProperty}, {nameof(ChildOperation)}: {ChildOperation}";
+        }
     }
 
     public class BlockHeaderItem_Input : BlockHeaderItem<BlockHeaderParam_Data_Input>
@@ -69,17 +130,10 @@ namespace ScratchFramework
             }
         }
 
-        public override bool Initialize(BlockHeaderParam_Data_Input context = null)
+        protected override void OnCreateContextData()
         {
-            if (base.Initialize(context))
-            {
-                if (context == null)
-                {
-                    ContextData.DataProperty = InputField.text;
-                }
-            }
-
-            return Inited;
+            ContextData.DataProperty = InputField.text;
+            ContextData.InputBlock = this;
         }
 
         public override void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -87,19 +141,20 @@ namespace ScratchFramework
             switch (e.PropertyName)
             {
                 case nameof(BlockHeaderParam_Data_Input.DataProperty):
-                    InputField.text = ContextData.DataProperty;
+                    InputField.SetTextWithoutNotify(ContextData.DataProperty);
                     break;
                 case nameof(BlockHeaderParam_Data_Input.ChildOperation):
-                    Active = ContextData.ChildOperation == null;
-                    // tempInput.
-                    // _usedSpotTransform.SetSiblingIndex(Transform.GetSiblingIndex());
-                    // _usedSpotTransform.gameObject.SetActive(true);
-                    // _usedSpotTransform = null;
-                    // InputField.text = ContextData.DataProperty;
+                    Active = ContextData.ChildOperation == ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
                     break;
                 default:
                     break;
             }
+        }
+
+        public override void RefreshUI()
+        {
+            InputField.SetTextWithoutNotify(ContextData.DataProperty);
+            Active = ContextData.ChildOperation == ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
         }
     }
 }

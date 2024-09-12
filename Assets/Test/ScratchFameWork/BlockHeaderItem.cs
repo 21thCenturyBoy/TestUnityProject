@@ -9,82 +9,69 @@ using UnityEngine.EventSystems;
 namespace ScratchFramework
 {
     [Serializable]
-    public abstract class BlockHeaderParam_Data<T> : ScratchVMData, IScratchEditorData where T : BlockHeaderParam_Data<T>
+    public abstract class BlockHeaderParam_Data<T> : ScratchVMData, IBlockHeadData where T : BlockHeaderParam_Data<T>
     {
-        protected DataType m_dataType = DataType.Undefined;
-        protected int m_version;
+        public abstract DataType DataType { get; }
+        public virtual IBlockData GetBlockData() => null;
 
-        public virtual DataType DataType
+        public byte[] Serialize()
         {
-            get => m_dataType;
-            protected set => m_dataType = value;
-        }
+            byte[] datas = OnSerialize();
+            var stream = ScratchUtils.CreateMemoryStream();
+            
+            stream.WriteByte((byte)DataType);
+            stream.WriteBytes(datas);
 
-        public virtual int Version
-        {
-            get => m_version;
-            protected set => m_version = value;
-        }
-
-        public virtual byte[] Serialize()
-        {
-            //TODO Other Serialize Data
-            int dataSize = 0;
-            dataSize += Marshal.SizeOf<int>();
-            dataSize += Marshal.SizeOf<byte>();
-
-            byte[] datas = this.SerializeData(this);
-
-            dataSize += datas.Length;
-
-            MemoryStream memoryStream = new MemoryStream();
-
-            memoryStream.Write(BitConverter.GetBytes(dataSize));
-            memoryStream.Write(BitConverter.GetBytes((byte)m_dataType));
-            memoryStream.Write(datas);
-
-            return memoryStream.ToArray();
+            return stream.ToArray();
         }
 
         public bool Deserialize(MemoryStream stream, int version = -1)
         {
-            //TODO Other Deserialize Data 优化缓存
+            DataType dataType = (DataType)ScratchUtils.ReadByte(stream);
+            if (DataType != dataType)
+            {
+                Debug.LogError($"{dataType}  Not Equals:{DataType}");
+            }
 
-            byte[] byteArray = new byte[Marshal.SizeOf<int>()];
-            int offset = 0;
-            stream.Read(byteArray, offset, byteArray.Length);
-            offset += byteArray.Length;
-            int dataSize = BitConverter.ToInt32(byteArray);
-
-            byteArray = new byte[Marshal.SizeOf<byte>()];
-            stream.Read(byteArray, offset, byteArray.Length);
-            offset += byteArray.Length;
-            m_dataType = (DataType)byteArray[0];
-
-            byteArray = new byte[dataSize];
-            stream.Read(byteArray, offset, byteArray.Length);
-            offset += byteArray.Length;
-
-            T data = this.DeserializeData<T>(byteArray);
-            Copy(data);
+            OnDeserialize(stream, version);
 
             return true;
         }
 
-        public virtual void Copy(T data)
-        {
-        }
-
-        public virtual IScratchData AssetData { get; set; }
+        protected abstract byte[] OnSerialize();
+        protected abstract void OnDeserialize(MemoryStream memoryStream, int version = -1);
+        
     }
-    public abstract class BlockHeaderItem<T> : ScratchUIBehaviour<T>, IScratchDataBlock where T : ScratchVMData, new()
-    {
-        private IScratchData _mData;
 
-        IScratchData IScratchDataBlock.Data
+    public abstract class BlockHeaderItem<T> : ScratchUIBehaviour<T>, IBlockScratch_Head where T : BlockHeaderParam_Data<T>, new()
+    {
+        public IBlockHeadData CopyData()
         {
-            get => _mData;
-            set => _mData = value;
+            byte[] bytesDatas = ContextData.Serialize();
+            T newData = new T();
+
+            //Current Editor Version
+            int currentVersion = ScratchUtils.CurrentSerializeVersion;
+            
+            var memory = ScratchUtils.CreateMemoryStream(bytesDatas);
+            newData.Deserialize(memory, currentVersion);
+
+            return newData;
         }
+
+        public IBlockHeadData DataRef()
+        {
+            return ContextData;
+        }
+
+        public void SetData(IBlockHeadData data)
+        {
+            if (data is T tdata)
+            {      
+                Initialize(tdata);
+            }
+        }
+
+        public abstract void RefreshUI();
     }
 }

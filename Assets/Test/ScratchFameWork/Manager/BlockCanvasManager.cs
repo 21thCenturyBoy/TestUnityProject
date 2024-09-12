@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MG_BlocksEngine2.Block;
@@ -8,6 +9,8 @@ namespace ScratchFramework
 {
     public class BlockCanvasManager : ScratchUISingleton<BlockCanvasManager>, IScratchManager
     {
+
+        private Dictionary<Guid, Block> m_BlockDict = new Dictionary<Guid, Block>();
         protected override void OnInitialize()
         {
             // Move to Block ,Clear Temp Canvas
@@ -17,7 +20,22 @@ namespace ScratchFramework
                 childs[i].SetParent(transform);
             }
 
+            m_BlockDict.Clear();
+            
             base.OnInitialize();
+        }
+
+        public void AddBlock(Block block)
+        {
+            if (!m_BlockDict.ContainsKey(block.BlockId))
+            {
+                block.BlockId = Guid.NewGuid();
+                m_BlockDict[block.BlockId] = block;
+            }
+            else
+            {
+                Debug.LogError("AddBlock Failed!");
+            }
         }
 
         public void OnUpdate()

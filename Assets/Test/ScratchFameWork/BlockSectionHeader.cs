@@ -81,17 +81,20 @@ namespace ScratchFramework
 
         private List<ScratchUIBehaviour> m_HeadSerializeDatas = new List<ScratchUIBehaviour>();
         public List<ScratchUIBehaviour> HeadSerializeDatas => m_HeadSerializeDatas;
+        public List<IBlockScratch_Head> AllHeadSerializeDatas { get;} = new List<IBlockScratch_Head>();
 
         public void UpdateHeadSerializeData()
         {
             m_HeadSerializeDatas.Clear();
+            AllHeadSerializeDatas.Clear();
+            
             int childCount = transform.childCount;
 
             m_HeadSerializeDatas.Capacity = childCount;
 
             for (int i = 0; i < childCount; i++)
             {
-                IScratchDataBlock dataBlock = transform.GetChild(i).GetComponent<IScratchDataBlock>();
+                IBlockScratch_Head dataBlock = transform.GetChild(i).GetComponent<IBlockScratch_Head>();
 
                 if (dataBlock is ScratchUIBehaviour scratchUI)
                 {
@@ -100,6 +103,7 @@ namespace ScratchFramework
                         m_HeadSerializeDatas.Add(scratchUI);
                     }
                 }
+                AllHeadSerializeDatas.Add(dataBlock);
             }
         }
 

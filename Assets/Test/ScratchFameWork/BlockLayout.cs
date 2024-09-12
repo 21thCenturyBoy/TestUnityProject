@@ -108,5 +108,26 @@ namespace ScratchFramework
 
             return size;
         }
+
+        public void FixedScale()
+        {
+            ScratchUIBehaviour[] scratchUIBehaviours = transform.GetComponentsInChildren<ScratchUIBehaviour>();
+
+            Vector3[] orginPos = new Vector3[scratchUIBehaviours.Length];
+            for (int i = 0; i < scratchUIBehaviours.Length; i++)
+            {
+                orginPos[i] = scratchUIBehaviours[i].LocalPosition;
+            }
+
+            for (int i = 0; i < scratchUIBehaviours.Length; i++)
+            {
+                scratchUIBehaviours[i].RectTrans.localScale = Vector3.one;
+            }
+            
+            for (int i = 0; i < scratchUIBehaviours.Length; i++)
+            {
+                scratchUIBehaviours[i].LocalPosition = new Vector2(orginPos[i].x, orginPos[i].y);
+            }
+        }
     }
 }

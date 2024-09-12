@@ -16,7 +16,7 @@ namespace ScratchFramework
             {
                 if (m_Image == null)
                 {
-                    m_Image = GetComponent<Image>();
+                    m_Image = TryAddComponent<Image>();
                     m_Image.type = Image.Type.Sliced;
                     m_Image.pixelsPerUnitMultiplier = 2;
                 }

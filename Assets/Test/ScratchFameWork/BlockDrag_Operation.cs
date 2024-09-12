@@ -13,8 +13,8 @@ namespace ScratchFramework
         {
             base.OnDrag(eventData);
 
-            var parentInput = CurrentOperation.ContextData.ParentInput;
-            if (parentInput!=null)
+            var parentInput = CurrentOperation.ContextData.ParentInput?.GetData();
+            if (parentInput != null)
             {
                 parentInput.ChildOperation = null;
             }
@@ -61,7 +61,7 @@ namespace ScratchFramework
             BlockHeaderItem_Input input = target.GetComponent<BlockHeaderItem_Input>();
             if (input != null)
             {
-                input.ContextData.ChildOperation = CurrentOperation.ContextData;
+                input.ContextData.ChildOperation = CurrentOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
             }
         }
 
@@ -74,7 +74,7 @@ namespace ScratchFramework
                 var target = BlockDragManager.Instance.TargetSpot;
 
                 DropPlace(target);
-                
+
                 BlockDragManager.Instance.SetTargetSpot(null);
             }
             else

@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ScratchFramework
 {
-    public class BlockSection : ScratchUIBehaviour, IScratchModifyLayout
+    public partial class BlockSection : ScratchUIBehaviour, IScratchModifyLayout, IBlockScratch_Section
     {
         #region property
 
@@ -69,7 +70,7 @@ namespace ScratchFramework
         }
 
         #endregion
-        
+
         public override Vector2 GetSize()
         {
             if (RectTrans == null) return Vector2.zero;
@@ -82,7 +83,7 @@ namespace ScratchFramework
                 {
                     size.y += Body.GetSize().y;
                 }
-                
+
                 size.x = Header.GetSize().x;
 
                 return size;
@@ -105,6 +106,38 @@ namespace ScratchFramework
             if (RectTrans == null) return Vector2.zero;
             RectTrans.sizeDelta = size;
             return size;
+        }
+
+        public IBlockSectionData CopyData()
+        {
+            BlockSectionData data = new BlockSectionData();
+
+            if (Header != null)
+            {
+                data.BlockHeadTreeList = new IBlockHeadData[Header.AllHeadSerializeDatas.Count];
+                for (int i = 0; i < Header.AllHeadSerializeDatas.Count; i++)
+                {
+                    var orginId =  Header.AllHeadSerializeDatas[i].DataRef().GetDataId();
+
+                    data.BlockHeadTreeList[i] = Header.AllHeadSerializeDatas[i].CopyData();
+
+                    if (orginId != ScratchVMData.UnallocatedId)
+                    {
+                        data.OperationRefDict[orginId] = data.BlockHeadTreeList[i].GetDataId();
+                    }
+                }
+            }
+
+            if (Body != null)
+            {
+                data.BlockTreeList = new IBlockData[Body.ChildBlocksArray.Count];
+                for (int i = 0; i < Body.ChildBlocksArray.Count; i++)
+                {
+                    data.BlockTreeList[i] = Body.ChildBlocksArray[i].CopyData();
+                }
+            }
+
+            return data;
         }
     }
 }

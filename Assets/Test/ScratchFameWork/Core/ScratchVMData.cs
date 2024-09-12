@@ -2,23 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace ScratchFramework
 {
-    public class ScratchVMData : INotifyPropertyChanged
+    public partial class ScratchVMData : INotifyPropertyChanged
     {
-        [NonSerialized] private string _name;
+        [NonSerialized] protected readonly Guid m_guid = Guid.Empty;
+        public Guid Guid => m_guid;
 
+        public const int UnallocatedId = 0;
+        public int IdPtr { get; set; } = UnallocatedId;
 
-        public string Name
+        protected ScratchVMData()
         {
-            get => _name;
-            set
+            m_guid = Guid.NewGuid();
+            ScratchDataManager.Instance.AddData(this);
+            Debug.LogError($"!!{m_guid}:{IdPtr}:{GetType()}");
+        }
+
+        public ScratchVMDataRef<T> CreateRef<T>() where T : ScratchVMData
+        {
+            if (this is T Tdata)
             {
-                if (value == _name) return;
-                _name = value;
-                OnPropertyChanged();
+                return ScratchVMDataRef<T>.CreateVMDataRef(Tdata);
             }
+
+            return default;
+        }
+
+        public ScratchVMDataRef<ScratchVMData> CreateRef()
+        {
+            return CreateRef<ScratchVMData>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -34,6 +49,12 @@ namespace ScratchFramework
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+
+        public override string ToString()
+        {
+            return String.Empty;
+            // return $"{nameof(Guid)}: {Guid}";
         }
     }
 }

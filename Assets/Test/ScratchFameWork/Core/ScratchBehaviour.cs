@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace ScratchFramework
             }
             get => gameObject.activeSelf;
         }
-        
+
         private bool m_visible;
 
         public bool Visible
@@ -51,12 +52,12 @@ namespace ScratchFramework
         {
             Visible = true;
         }
-        
+
         protected virtual void OnDisable()
         {
             Visible = false;
         }
-        
+
         protected virtual void OnInitialize()
         {
         }
@@ -91,7 +92,7 @@ namespace ScratchFramework
             return com;
         }
     }
-    
+
     public class ScratchSingleton<T> : ScratchBehaviour where T : ScratchSingleton<T>
     {
         protected static T _instance;
@@ -178,6 +179,12 @@ namespace ScratchFramework
 
             m_IsDispose = true;
         }
+
+        public VMContextComponent<T> Init(Action<T, T> callback = null)
+        {
+            ViewModelProperty.OnValueChanged += (value, newValue) => { callback?.Invoke(value, newValue); };
+            return this;
+        }
     }
 
     public partial class ScratchBehaviour<T> : ScratchBehaviour where T : ScratchVMData, new()
@@ -189,6 +196,7 @@ namespace ScratchFramework
             get => ContextComponent.BindContext;
             set => ContextComponent.BindContext = value;
         }
+        
 
         protected override void OnEnable()
         {

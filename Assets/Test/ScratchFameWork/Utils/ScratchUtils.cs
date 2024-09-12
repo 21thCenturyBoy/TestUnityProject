@@ -23,9 +23,47 @@ namespace ScratchFramework
 
         public static Block CloneBlock(Block block)
         {
-            //TODO Data
-            var obj = GameObject.Instantiate(block.gameObject, BlockCanvasManager.Instance.transform);
-            return obj.GetComponent<Block>();
+            var dict = new Dictionary<int, int>();
+            BlockData newBlockData = block.CopyData() as BlockData;
+
+
+            foreach (IScratchRefreshRef refreshRef in newBlockData.RefreshRefDict)
+            {
+                refreshRef.RefreshRef(newBlockData.DataRefIdDict);
+            }
+            
+            Block newblock = BlockCreator.CreateBlock(newBlockData, block.ParentTrans);
+
+            return newblock;
+        }
+
+        public static int GetDataId(this ScratchVMData data)
+        {
+            if (data == null) return ScratchVMData.UnallocatedId;
+            return data.IdPtr;
+        }
+
+        public static int GetDataId(this IBlockHeadData data)
+        {
+            if (data == null) return ScratchVMData.UnallocatedId;
+            return GetDataId(data as ScratchVMData);
+        }
+
+        public static bool IdIsValid(int id)
+        {
+            return id > ScratchVMData.UnallocatedId;
+        }
+
+        public static int UnallocatedId(ref int id)
+        {
+            if (id > 0) id = -id;
+            return id;
+        }
+
+        public static int AllocatedId(ref int id)
+        {
+            if (id < 0) id = ~id + 1;
+            return id;
         }
 
         public static void DestroyBlock(Block block)
@@ -66,7 +104,7 @@ namespace ScratchFramework
                     screenPos = worldPos;
                     break;
                 case RenderMode.ScreenSpaceCamera:
-                    screenPos =  Camera.main.WorldToScreenPoint(worldPos);
+                    screenPos = Camera.main.WorldToScreenPoint(worldPos);
                     break;
                 case RenderMode.WorldSpace:
                     screenPos = Camera.main.WorldToScreenPoint(worldPos);
@@ -92,40 +130,6 @@ namespace ScratchFramework
         public static void SetParent(this ScratchBehaviour scratch, ScratchBehaviour parent)
         {
             scratch.SetParent(parent.transform);
-        }
-
-        public static SerializeMode SerializeMode = SerializeMode.Json;
-
-        public static byte[] SerializeData<T>(this IScratchData scratchData, T data)
-        {
-            switch (SerializeMode)
-            {
-                case SerializeMode.Json:
-                    return ScratchSerialize_Json.SerializeData(data);
-                    break;
-                case SerializeMode.MessagePack:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return null;
-        }
-
-        public static T DeserializeData<T>(this IScratchData scratchData, byte[] data)
-        {
-            switch (SerializeMode)
-            {
-                case SerializeMode.Json:
-                    return ScratchSerialize_Json.DeserializeData<T>(data);
-                    break;
-                case SerializeMode.MessagePack:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return default;
         }
 
         private static Material s_material;
