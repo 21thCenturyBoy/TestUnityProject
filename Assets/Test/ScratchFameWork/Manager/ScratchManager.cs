@@ -68,7 +68,7 @@ namespace ScratchFramework
 
             //ScratchEventManager
             ScratchEventManager.Instance.Initialize();
-
+            
             //BlockCanvasManager
             BlockCanvasManager.Instance.SetParent(transform);
             BlockCanvasManager.Instance.transform.localPosition = Vector3.zero;
@@ -106,11 +106,10 @@ namespace ScratchFramework
         public void OnLateUpdate()
         {
         }
+        
 
-        protected override void OnDestroy()
+        public bool Clear()
         {
-            base.OnDestroy();
-            
             //TempCanvasManager
             TempCanvasManager.Instance.Clear();
             
@@ -128,10 +127,6 @@ namespace ScratchFramework
 
             //ScratchMenuManager
             ScratchMenuManager.Instance.Clear();
-        }
-
-        public bool Clear()
-        {
             return true;
         }
     }

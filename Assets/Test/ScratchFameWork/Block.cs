@@ -168,5 +168,12 @@ namespace ScratchFramework
 
             return data;
         }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            BlockCanvasManager.Instance.RemoveBlock(this);
+        }
     }
 }

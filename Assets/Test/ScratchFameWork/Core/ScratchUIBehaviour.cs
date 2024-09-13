@@ -115,6 +115,7 @@ namespace ScratchFramework
 
                     if (_instance == null)
                     {
+                        if (!Application.isPlaying) return _instance;
                         GameObject singleton = new GameObject();
                         _instance = singleton.AddComponent<T>();
                         singleton.name = typeof(T).Name.ToString();

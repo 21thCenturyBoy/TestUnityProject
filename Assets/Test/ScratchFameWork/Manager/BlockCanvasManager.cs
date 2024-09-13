@@ -7,10 +7,35 @@ using UnityEngine.EventSystems;
 
 namespace ScratchFramework
 {
+    public class BlockTree
+    {
+        public Guid BlockGuid;
+
+        public List<BlockTreeNode> BlockTreeNode = new List<BlockTreeNode>();
+
+        public int Index { get; set; }
+        public int Depth { get; set; }
+        public string DisplayName => $"{nameof(BlockTree)}_{Index}";
+
+        public bool Header;
+    }
+
+    public class BlockTreeNode
+    {
+        public string DisplayName => nameof(BlockTreeNode) + SectionIndex.ToString();
+        public int SectionIndex;
+
+        public List<BlockTree> HeadBlocks = new List<BlockTree>();
+        public List<BlockTree> BodyBlocks = new List<BlockTree>();
+    }
+
+
     public class BlockCanvasManager : ScratchUISingleton<BlockCanvasManager>, IScratchManager
     {
-
         private Dictionary<Guid, Block> m_BlockDict = new Dictionary<Guid, Block>();
+        public Dictionary<Guid, Block> BlockDict => m_BlockDict;
+        
+        public Action OnBlockDictChanged;
         protected override void OnInitialize()
         {
             // Move to Block ,Clear Temp Canvas
@@ -21,22 +46,129 @@ namespace ScratchFramework
             }
 
             m_BlockDict.Clear();
+            OnBlockDictChanged = null;
             
             base.OnInitialize();
         }
 
         public void AddBlock(Block block)
         {
-            if (!m_BlockDict.ContainsKey(block.BlockId))
+            if (block.Type == BlockType.none) return;
+
+            if (block.BlockId == Guid.Empty || !m_BlockDict.ContainsKey(block.BlockId))
             {
                 block.BlockId = Guid.NewGuid();
                 m_BlockDict[block.BlockId] = block;
+                
+                OnBlockDictChanged?.Invoke();
             }
             else
             {
                 Debug.LogError("AddBlock Failed!");
             }
         }
+
+        public void RemoveBlock(Block block)
+        {
+            if (block.Type == BlockType.none) return;
+            
+            if (m_BlockDict.ContainsKey(block.BlockId))
+            {
+                m_BlockDict.Remove(block.BlockId);
+                
+                OnBlockDictChanged?.Invoke();
+                return;
+            }
+            Debug.LogError("RemoveBlock Failed!");
+        }
+
+
+        public List<BlockTree> GetBlockTree()
+        {
+            List<BlockTree> trees = new List<BlockTree>();
+            trees.Clear();
+            int childCount = transform.childCount;
+            int index = 0;
+            int deep = 0;
+            for (int i = 0; i < childCount; i++)
+            {
+                Block block = transform.GetChild(i).GetComponent<Block>();
+
+                if (block != null && block.Active && block.Visible)
+                {
+                    BlockTree tree = new BlockTree();
+                    tree.BlockGuid = block.BlockId;
+                    tree.Depth = deep;
+                    tree.Index = index;
+                    tree.Header = false;
+
+                    GetBlockDeep(tree, deep + 1);
+                    trees.Add(tree);
+                    index++;
+                }
+            }
+
+            return trees;
+        }
+
+        private void GetBlockDeep(BlockTree block, int deep)
+        {
+            var sections = m_BlockDict[block.BlockGuid].Layout.SectionsArray;
+            for (int j = 0; j < sections.Length; j++)
+            {
+                BlockTreeNode treeNode = new BlockTreeNode();
+                treeNode.SectionIndex = j;
+                block.BlockTreeNode.Add(treeNode);
+                if (sections[j].Header != null)
+                {
+                    int headChildCount = sections[j].Header.transform.childCount;
+                    int index_head = 0;
+                    for (int k = 0; k < headChildCount; k++)
+                    {
+                        Block childBlock = sections[j].Header.transform.GetChild(k).GetComponent<Block>();
+                        if (childBlock != null)
+                        {
+                            BlockTree blockTree_headBlock = new BlockTree();
+                            blockTree_headBlock.BlockGuid = childBlock.BlockId;
+                            blockTree_headBlock.Depth = deep;
+                            blockTree_headBlock.Index = index_head;
+                            blockTree_headBlock.Header = true;
+
+                            treeNode.HeadBlocks.Add(blockTree_headBlock);
+
+                            GetBlockDeep(blockTree_headBlock, deep + 1);
+
+                            index_head++;
+                        }
+                    }
+                }
+
+                if (sections[j].Body != null)
+                {
+                    int bodyChildCount = sections[j].Body.transform.childCount;
+                    int index_body = 0;
+
+                    for (int k = 0; k < bodyChildCount; k++)
+                    {
+                        Block childBlock = sections[j].Header.transform.GetChild(k).GetComponent<Block>();
+                        if (childBlock != null)
+                        {
+                            index_body++;
+                            BlockTree blockTree_bodyBlock = new BlockTree();
+                            blockTree_bodyBlock.BlockGuid = childBlock.BlockId;
+                            blockTree_bodyBlock.Depth = deep;
+                            blockTree_bodyBlock.Index = index_body;
+                            blockTree_bodyBlock.Header = false;
+
+                            treeNode.BodyBlocks.Add(blockTree_bodyBlock);
+
+                            GetBlockDeep(blockTree_bodyBlock, deep + 1);
+                        }
+                    }
+                }
+            }
+        }
+
 
         public void OnUpdate()
         {
