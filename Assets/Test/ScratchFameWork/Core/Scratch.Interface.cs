@@ -31,29 +31,30 @@ namespace ScratchFramework
     {
         BlockType Type { get; set; }
         int Version { get; }
+        
         IBlockSectionData[] SectionTreeList { get; }
-        void CopyData(Block block);
+        void GetData(Block block);
         Block CreateBlock();
     }
 
     public interface IBlockSectionData : IScratchData
     {
-        Dictionary<int, int> OperationRefDict { get; }
-        IBlockHeadData[] BlockHeadTreeList { get; }
-        IBlockData[] BlockTreeList { get; }
+        IBlockHeadData[] BlockHeadTreeList { get; set; }
+        IBlockData[] BlockTreeList { get; set; }
+        IBlockScratch_Block[] BlockTreeRefList { get; set; }
     }
 
     public interface IBlockHeadData : IScratchData
     {
         DataType DataType { get; }
-
-        IBlockData GetBlockData();
+        
+        bool Deserialize(MemoryStream stream, int version = -1);
     }
 
     public interface IScratchData
     {
         byte[] Serialize();
-        bool Deserialize(MemoryStream stream, int version = -1);
+        // bool Deserialize(MemoryStream stream, int version = -1);
     }
 
     public interface IScratchRefreshRef
@@ -68,22 +69,26 @@ namespace ScratchFramework
         int RefIdPtr { get; }
     }
 
-    public interface IBlockScratch { }
-    
-    public interface IBlockScratch_Head:IBlockScratch
+    public interface IBlockScratch
+    {
+    }
+
+    public interface IBlockScratch_Head : IBlockScratch
     {
         IBlockHeadData CopyData();
         IBlockHeadData DataRef();
         void SetData(IBlockHeadData data);
         void RefreshUI();
     }
-    public interface IBlockScratch_Section:IBlockScratch
+
+    public interface IBlockScratch_Section : IBlockScratch
     {
-        IBlockSectionData CopyData();
+        IBlockSectionData GetData();
     }
-    public interface IBlockScratch_Block:IBlockScratch
+
+    public interface IBlockScratch_Block : IBlockScratch
     {
-        IBlockData CopyData();
+        IBlockData GetDataRef();
     }
 
     public interface IScratchBlockClick : IPointerDownHandler, IPointerUpHandler, IPointerClickHandler

@@ -18,7 +18,6 @@ namespace ScratchFramework
         {
             m_guid = Guid.NewGuid();
             ScratchDataManager.Instance.AddData(this);
-            Debug.LogError($"!!{m_guid}:{IdPtr}:{GetType()}");
         }
 
         public ScratchVMDataRef<T> CreateRef<T>() where T : ScratchVMData
@@ -53,7 +52,7 @@ namespace ScratchFramework
 
         public override string ToString()
         {
-            return String.Empty;
+            return $"[{IdPtr}]";
             // return $"{nameof(Guid)}: {Guid}";
         }
     }

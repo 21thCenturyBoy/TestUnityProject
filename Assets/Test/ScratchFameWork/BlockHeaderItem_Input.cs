@@ -95,11 +95,11 @@ namespace ScratchFramework
             {
                 ChildOperation.RefreshRef(refreshDic);
 
-                var data = ChildOperation.GetData();
-                if (data != null)
-                {
-                    data.ParentInput = this.CreateRef<BlockHeaderParam_Data_Input>();
-                }
+                // var data = ChildOperation.GetData();
+                // if (data != null)
+                // {
+                //     data.ParentInput = this.CreateRef<BlockHeaderParam_Data_Input>();
+                // }
             }
 
             OnPropertyChanged(nameof(ChildOperation));

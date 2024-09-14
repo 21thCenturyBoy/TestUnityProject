@@ -8,9 +8,13 @@ namespace ScratchFramework
 {
     public static class BlockCreator
     {
+        private static int IdIndex = 0;
+
         public static Block CreateBlock(BlockData data, RectTransform parentTrans)
         {
-            GameObject obj = new GameObject(data.Name);
+            GameObject obj = new GameObject($"[{IdIndex}]" + data.Name);
+            IdIndex++;
+
             Block block = obj.AddComponent<Block>();
             BlockLayout layout = obj.AddComponent<BlockLayout>();
 
@@ -20,8 +24,7 @@ namespace ScratchFramework
             rectTransform.anchorMin = new Vector2(0, 1);
             rectTransform.anchorMax = new Vector2(0, 1);
             rectTransform.pivot = new Vector2(0, 1);
-
-            block.Position = data.Position;
+            
             block.BlockFucType = data.BlockFucType;
             block.Type = data.Type;
             block.Version = data.Version;
@@ -66,8 +69,6 @@ namespace ScratchFramework
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
                     layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_Variable;
-                    BlockHeaderItem_Operation HeadOperation = block.TryAddComponent<BlockHeaderItem_Operation>();
-
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -85,11 +86,13 @@ namespace ScratchFramework
                     break;
                 case BlockType.condition:
                     CreateOuterArea(block);
+
                     break;
                 case BlockType.loop:
                     CreateOuterArea(block);
                     break;
                 case BlockType.operation:
+                    BlockHeaderItem_Operation HeadOperation = block.TryAddComponent<BlockHeaderItem_Operation>();
                     break;
                 case BlockType.define:
                     CreateOuterArea(block);
@@ -99,6 +102,8 @@ namespace ScratchFramework
             }
 
             layout.FixedScale();
+            
+            block.LocalPosition = data.LocalPosition;
 
             return block;
         }
@@ -154,7 +159,7 @@ namespace ScratchFramework
 
                 BlockSection section = obj.AddComponent<BlockSection>();
                 RectTransform rectTransform = obj.AddComponent<RectTransform>();
-                
+
                 rectTransform.anchorMin = new Vector2(0, 1);
                 rectTransform.anchorMax = new Vector2(0, 1);
                 rectTransform.pivot = new Vector2(0, 1);
@@ -457,13 +462,11 @@ namespace ScratchFramework
                     scratchHead = scratchHead_Input;
                     break;
                 case DataType.Operation:
-                    IBlockData blockData = headData.GetBlockData();
-                    if (blockData != null)
-                    {
-                        Block block = CreateBlock(blockData as BlockData, headerTrans);
-                        var scratchHead_Operation = block.TryAddComponent<BlockHeaderItem_Operation>();
-                        scratchHead = scratchHead_Operation;
-                    }
+                    BlockHeaderParam_Data_Operation headOperationData = headData as BlockHeaderParam_Data_Operation;
+                    var blockData = headOperationData.GetBlockData() as BlockData;
+                    Block block = CreateBlock(blockData, headerTrans);
+                    var scratchHead_Operation = block.TryAddComponent<BlockHeaderItem_Operation>();
+                    scratchHead = scratchHead_Operation;
 
                     break;
                 case DataType.VariableLabel:
@@ -479,7 +482,7 @@ namespace ScratchFramework
             }
 
             scratchHead.SetData(headData);
-            
+
             scratchHead.RefreshUI();
             return scratchHead;
         }

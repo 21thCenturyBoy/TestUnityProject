@@ -42,7 +42,7 @@ namespace ScratchFramework
 
         private TempCanvasManager m_TempCanvas;
 
-        private void Start()
+        private void Awake()
         {
             Initialize();
         }

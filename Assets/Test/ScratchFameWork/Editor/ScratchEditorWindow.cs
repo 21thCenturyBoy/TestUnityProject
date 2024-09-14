@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using ScratchFramework.Editor;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -38,9 +34,45 @@ namespace ScratchFramework
             if (_selectedItem.displayName == ScratchEditorMenuType[0])
             {
                 GUILayout.BeginVertical();
-                foreach (var vmData in BlockCanvasManager.Instance.BlockDict.Values)
+                // var blockTrees = BlockCanvasManager.Instance.GetBlockTree();
+                //
+                // for (int i = 0; i < blockTrees.Count; i++)
+                // {
+                //     ShowBlcok(blockTrees[i]);
+                // }
+
+                foreach (var block in BlockCanvasManager.Instance.BlockDict.Values)
+                {
+                    GUILayout.Label($"{block}");
+                }
+                GUILayout.Label($"--------------------------");
+                foreach (ScratchVMData vmData in ScratchDataManager.Instance.DataDict.Values)
                 {
                     GUILayout.Label($"{vmData}");
+                }
+                GUILayout.Label($"--------------------------");
+                var inputs = GameObject.FindObjectsOfType<BlockHeaderItem_Input>();
+                foreach (var input in inputs)
+                {
+                    GUILayout.Label($"[{input.ContextData.IdPtr}][{input.ContextData.ChildOperation}]");
+                }
+                
+                GUILayout.Label($"--------------------------");
+                var ScratchUIBehaviours = GameObject.FindObjectsOfType<ScratchUIBehaviour>(true);
+                foreach (var input in ScratchUIBehaviours)
+                {
+                    if (input is IBlockScratch_Head inputHead)
+                    {
+                        if (inputHead.DataRef() == null)
+                        {
+                            GUILayout.Label($"NULL[{input.gameObject.name}]");
+                        }
+                        else
+                        {
+                            GUILayout.Label($"[{input.gameObject.name}][{inputHead.DataRef().ToString()}]");
+                        }
+                    }
+     
                 }
 
                 GUILayout.EndVertical();
@@ -48,29 +80,32 @@ namespace ScratchFramework
             }
         }
 
-        private void RuntimeDatabaseOnGUI()
+        private void ShowBlcok(BlockTree tree)
         {
-            if (!EditorApplication.isPlaying) return;
-
-            GUILayout.BeginVertical();
-
-            foreach (ScratchVMData vmData in ScratchDataManager.Instance.DataDict.Values)
+            int orginDep = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = tree.Depth;
+            GUILayout.Label($"{tree}");
+            for (int j = 0; j < tree.BlockTreeNode.Count; j++)
             {
-                GUILayout.Label($"[{vmData.IdPtr}]{vmData}");
+                EditorGUI.indentLevel++;
+                GUILayout.Label($"{tree.BlockTreeNode[j]}");
+                for (int k = 0; k < tree.BlockTreeNode[j].HeadBlocks.Count; k++)
+                {
+                    EditorGUI.indentLevel++;
+                    ShowBlcok(tree.BlockTreeNode[j].HeadBlocks[k]);
+                    EditorGUI.indentLevel--;
+                }
+                for (int k = 0; k < tree.BlockTreeNode[j].BodyBlocks.Count; k++)
+                {
+                    EditorGUI.indentLevel++;
+                    ShowBlcok(tree.BlockTreeNode[j].BodyBlocks[k]);
+                    EditorGUI.indentLevel--;
+                }
+                EditorGUI.indentLevel--;
             }
-
-            GUILayout.Label($"--------------------------");
-
-            var inputs = GameObject.FindObjectsOfType<BlockHeaderItem_Input>();
-
-            foreach (var input in inputs)
-            {
-                GUILayout.Label($"[{input.ContextData.IdPtr}][{input.ContextData.ChildOperation}]");
-            }
-
-            GUILayout.EndVertical();
+            EditorGUI.indentLevel = orginDep;
         }
-
+        
         protected override CustomMenuTreeView BuildMenuTree(TreeViewState _treeViewState)
         {
             CustomMenuTreeView menuTree = new CustomMenuTreeView(_treeViewState);

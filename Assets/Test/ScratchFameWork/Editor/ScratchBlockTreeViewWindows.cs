@@ -22,27 +22,27 @@ namespace ScratchFramework.Editor
             var allItems = new List<TreeViewItem>();
             if (Application.isPlaying)
             {
-                // BlockCanvasManager canvasManager = GameObject.FindObjectOfType<BlockCanvasManager>();
-                //
-                // if (canvasManager != null && canvasManager.Inited)
-                // {
-                //     trees = GameObject.FindObjectOfType<BlockCanvasManager>().GetBlockTree();
-                //     int idIndex = 1;
-                //     int depthVal = 0;
-                //
-                //
-                //     for (int i = 0; i < trees.Count; i++)
-                //     {
-                //         var item = new TreeViewItem
-                //         {
-                //             id = idIndex,
-                //             depth = depthVal,
-                //             displayName = trees[i].DisplayName
-                //         };
-                //         idIndex++;
-                //         allItems.Add(item);
-                //     }
-                // }
+                BlockCanvasManager canvasManager = GameObject.FindObjectOfType<BlockCanvasManager>();
+                
+                if (canvasManager != null && canvasManager.Inited)
+                {
+                    trees = GameObject.FindObjectOfType<BlockCanvasManager>().GetBlockTree();
+                    int idIndex = 1;
+                    int depthVal = 0;
+                
+                
+                    for (int i = 0; i < trees.Count; i++)
+                    {
+                        var item = new TreeViewItem
+                        {
+                            id = idIndex,
+                            depth = depthVal,
+                            displayName = trees[i].DisplayName
+                        };
+                        idIndex++;
+                        allItems.Add(item);
+                    }
+                }
             }
 
             // var allItems = new List<TreeViewItem>

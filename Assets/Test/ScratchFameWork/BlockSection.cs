@@ -108,7 +108,7 @@ namespace ScratchFramework
             return size;
         }
 
-        public IBlockSectionData CopyData()
+        public IBlockSectionData GetData()
         {
             BlockSectionData data = new BlockSectionData();
 
@@ -117,23 +117,16 @@ namespace ScratchFramework
                 data.BlockHeadTreeList = new IBlockHeadData[Header.AllHeadSerializeDatas.Count];
                 for (int i = 0; i < Header.AllHeadSerializeDatas.Count; i++)
                 {
-                    var orginId =  Header.AllHeadSerializeDatas[i].DataRef().GetDataId();
-
-                    data.BlockHeadTreeList[i] = Header.AllHeadSerializeDatas[i].CopyData();
-
-                    if (orginId != ScratchVMData.UnallocatedId)
-                    {
-                        data.OperationRefDict[orginId] = data.BlockHeadTreeList[i].GetDataId();
-                    }
+                    data.BlockHeadTreeList[i] = Header.AllHeadSerializeDatas[i].DataRef();
                 }
             }
 
             if (Body != null)
             {
-                data.BlockTreeList = new IBlockData[Body.ChildBlocksArray.Count];
+                data.BlockTreeRefList = new IBlockScratch_Block[Body.ChildBlocksArray.Count];
                 for (int i = 0; i < Body.ChildBlocksArray.Count; i++)
                 {
-                    data.BlockTreeList[i] = Body.ChildBlocksArray[i].CopyData();
+                    data.BlockTreeRefList[i] = Body.ChildBlocksArray[i];
                 }
             }
 

@@ -38,6 +38,11 @@ namespace ScratchFramework
             return true;
         }
 
+        public override string ToString()
+        {
+            return base.ToString()+$"({DataType})";
+        }
+
         protected abstract byte[] OnSerialize();
         protected abstract void OnDeserialize(MemoryStream memoryStream, int version = -1);
         
@@ -45,9 +50,11 @@ namespace ScratchFramework
 
     public abstract class BlockHeaderItem<T> : ScratchUIBehaviour<T>, IBlockScratch_Head where T : BlockHeaderParam_Data<T>, new()
     {
-        public IBlockHeadData CopyData()
+
+        public virtual IBlockHeadData CopyData()
         {
             byte[] bytesDatas = ContextData.Serialize();
+            
             T newData = new T();
 
             //Current Editor Version

@@ -160,11 +160,11 @@ namespace ScratchFramework
             return sections;
         }
 
-        public IBlockData CopyData()
+        public IBlockData GetDataRef()
         {
             BlockData data = new BlockData();
 
-            data.CopyData(this);
+            data.GetData(this);
 
             return data;
         }

@@ -24,15 +24,82 @@ namespace ScratchFramework
         public static Block CloneBlock(Block block)
         {
             var dict = new Dictionary<int, int>();
-            BlockData newBlockData = block.CopyData() as BlockData;
+
+            BlockData blockData = block.GetDataRef() as BlockData;
+
+            BlockData.OrginData.Clear();
+            BlockData.NewData.Clear();
+
+            byte[] datas = blockData.Serialize();
+            MemoryStream memoryStream = CreateMemoryStream(datas);
+
+            BlockData newBlockData = new BlockData();
+            newBlockData.BlockData_Deserialize(memoryStream, 0, true);
+            
+            Block newblock = null;
+
+            BlockData.SetReocordDeserialize(true);
 
 
-            foreach (IScratchRefreshRef refreshRef in newBlockData.RefreshRefDict)
+            if (newBlockData.Type == BlockType.operation)
             {
-                refreshRef.RefreshRef(newBlockData.DataRefIdDict);
+                newblock = BlockCreator.CreateBlock(newBlockData, BlockCanvasManager.Instance.RectTrans);
+            }
+            else
+            {
+                newblock = BlockCreator.CreateBlock(newBlockData, block.ParentTrans);
             }
             
-            Block newblock = BlockCreator.CreateBlock(newBlockData, block.ParentTrans);
+
+            if (BlockData.OrginData.Count != BlockData.NewData.Count)
+            {
+                Debug.LogError("CloneBlock Failed !");
+            }
+            else
+            {
+                Dictionary<int, int> dictionary = new Dictionary<int, int>();
+                List<int> orginHeadDataIds = new List<int>();
+                List<int> newHeadDataIds = new List<int>();
+                for (int i = 0; i < BlockData.OrginData.Count; i++)
+                {
+                    if (BlockData.OrginData[i] is IBlockHeadData headData)
+                    {
+                        int dataId = headData.GetDataId();
+                        orginHeadDataIds.Add(dataId);
+                    }
+                }
+                for (int i = 0; i < BlockData.NewData.Count; i++)
+                {
+                    if (BlockData.NewData[i] is IBlockHeadData headData)
+                    {
+                        int dataId = headData.GetDataId();
+                        newHeadDataIds.Add(dataId);
+                    }
+                }
+
+                int len = orginHeadDataIds.Count;
+                for (int i = 0; i < len; i++)
+                {
+                    dictionary[orginHeadDataIds[i]] = newHeadDataIds[i];
+                }
+                
+                
+                for (int i = 0; i < BlockData.NewData.Count; i++)
+                {
+                    if (BlockData.NewData[i] is IScratchRefreshRef refreshRef)
+                    {
+                        refreshRef.RefreshRef(dictionary);
+                    }
+                }
+            }
+
+
+            // foreach (IScratchRefreshRef refreshRef in newBlockData.RefreshRefDict)
+            // {
+            //     refreshRef.RefreshRef(newBlockData.DataRefIdDict);
+            // }
+
+            BlockData.SetReocordDeserialize(false);
 
             return newblock;
         }
