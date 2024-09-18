@@ -38,37 +38,37 @@ namespace ScratchFramework
                 case FucType.Undefined:
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
-                    layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_Undefined;
+                    layout.Color = ScratchConfig.Instance.BlockColor_Undefined;
                     break;
                 case FucType.Event:
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
-                    layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_Event;
+                    layout.Color = ScratchConfig.Instance.BlockColor_Event;
                     break;
                 case FucType.Action:
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
-                    layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_Action;
+                    layout.Color = ScratchConfig.Instance.BlockColor_Action;
                     break;
                 case FucType.Control:
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
-                    layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_Control;
+                    layout.Color = ScratchConfig.Instance.BlockColor_Control;
                     break;
                 case FucType.Condition:
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
-                    layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_Condition;
+                    layout.Color = ScratchConfig.Instance.BlockColor_Condition;
                     break;
                 case FucType.GetValue:
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
-                    layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_GetValue;
+                    layout.Color = ScratchConfig.Instance.BlockColor_GetValue;
                     break;
                 case FucType.Variable:
                     AddVerticalLayoutGroup(rectTransform);
                     CreateSections(block, data);
-                    layout.Color = BlockSpriteResourcesRef.Instance.BlockColor_Variable;
+                    layout.Color = ScratchConfig.Instance.BlockColor_Variable;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -220,19 +220,19 @@ namespace ScratchFramework
                     verticaltalLayoutGroup.padding = new RectOffset(20, 0, -10, 0);
                     if (data.SectionTreeList.Length == 1)
                     {
-                        image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_EndBody;
+                        image.Image.sprite = ScratchConfig.Instance.Condition_EndBody;
                     }
 
                     if (data.SectionTreeList.Length == 2)
                     {
                         if (sectionIndex == 0)
                         {
-                            image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_MiddleBody;
+                            image.Image.sprite = ScratchConfig.Instance.Condition_MiddleBody;
                         }
 
                         if (sectionIndex == 1)
                         {
-                            image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_EndBody;
+                            image.Image.sprite = ScratchConfig.Instance.Condition_EndBody;
                         }
                     }
 
@@ -241,7 +241,7 @@ namespace ScratchFramework
                     break;
                 case BlockType.loop:
                     verticaltalLayoutGroup.padding = new RectOffset(20, 0, -10, 0);
-                    image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_EndBody;
+                    image.Image.sprite = ScratchConfig.Instance.Condition_EndBody;
 
                     body.TryAddComponent<BlockSpot_SectionBody>();
                     break;
@@ -331,49 +331,49 @@ namespace ScratchFramework
             switch (data.Type)
             {
                 case BlockType.none:
-                    image.Image.sprite = BlockSpriteResourcesRef.Instance.Simple_HeaderGhost;
+                    image.Image.sprite = ScratchConfig.Instance.Simple_HeaderGhost;
                     break;
                 case BlockType.trigger:
-                    image.Image.sprite = BlockSpriteResourcesRef.Instance.Trigger_Header;
+                    image.Image.sprite = ScratchConfig.Instance.Trigger_Header;
 
                     header.minHeight = 105;
                     header.minWidth = 150;
 
                     break;
                 case BlockType.simple:
-                    image.Image.sprite = BlockSpriteResourcesRef.Instance.Simple_Header;
+                    image.Image.sprite = ScratchConfig.Instance.Simple_Header;
                     break;
                 case BlockType.condition:
                     if (data.SectionTreeList.Length == 1)
                     {
-                        image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_Header;
+                        image.Image.sprite = ScratchConfig.Instance.Condition_Header;
                     }
 
                     if (data.SectionTreeList.Length == 2)
                     {
                         if (sectionIndex == 0)
                         {
-                            image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_Header;
+                            image.Image.sprite = ScratchConfig.Instance.Condition_Header;
                         }
 
                         if (sectionIndex == 1)
                         {
-                            image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_MiddleHeader;
+                            image.Image.sprite = ScratchConfig.Instance.Condition_MiddleHeader;
                         }
                     }
 
                     break;
                 case BlockType.loop:
-                    image.Image.sprite = BlockSpriteResourcesRef.Instance.Condition_Header;
+                    image.Image.sprite = ScratchConfig.Instance.Condition_Header;
                     break;
                 case BlockType.operation:
-                    image.Image.sprite = BlockSpriteResourcesRef.Instance.Operation_Header;
+                    image.Image.sprite = ScratchConfig.Instance.Operation_Header;
 
                     header.minHeight = 50;
 
                     break;
                 case BlockType.define:
-                    image.Image.sprite = BlockSpriteResourcesRef.Instance.Define_Header;
+                    image.Image.sprite = ScratchConfig.Instance.Define_Header;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -452,12 +452,12 @@ namespace ScratchFramework
                 case DataType.Undefined:
                     break;
                 case DataType.Label:
-                    prefab = BlockSpriteResourcesRef.Instance.Prefab_Label;
+                    prefab = ScratchConfig.Instance.Prefab_Label;
                     var scratchHead_Label = GameObject.Instantiate(prefab, headerTrans).AddComponent<BlockHeaderItem_Label>();
                     scratchHead = scratchHead_Label;
                     break;
                 case DataType.Input:
-                    prefab = BlockSpriteResourcesRef.Instance.Prefab_Input;
+                    prefab = ScratchConfig.Instance.Prefab_Input;
                     var scratchHead_Input = GameObject.Instantiate(prefab, headerTrans).AddComponent<BlockHeaderItem_Input>();
                     scratchHead = scratchHead_Input;
                     break;
@@ -470,7 +470,7 @@ namespace ScratchFramework
 
                     break;
                 case DataType.VariableLabel:
-                    prefab = BlockSpriteResourcesRef.Instance.Prefab_VariabelLabel;
+                    prefab = ScratchConfig.Instance.Prefab_VariabelLabel;
                     var scratchHead_VariableLabel = GameObject.Instantiate(prefab, headerTrans).AddComponent<BlockHeaderItem_VariableLabel>();
                     scratchHead = scratchHead_VariableLabel;
                     // scratchHead_VariableLabel.enabled = true;

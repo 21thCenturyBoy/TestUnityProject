@@ -34,7 +34,6 @@ namespace ScratchFramework
         
         IBlockSectionData[] SectionTreeList { get; }
         void GetData(Block block);
-        Block CreateBlock();
     }
 
     public interface IBlockSectionData : IScratchData

@@ -10,27 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f80ad1e255cd3434b9b31268a420de9a, type: 3}
-  m_Name: BlockSpriteResourcesRef
+  m_Name: ScratchConfig
   m_EditorClassIdentifier: 
   Condition_EndBody: {fileID: 21300000, guid: 6f8c31b1652ca9c4ba95fe6e566c5854, type: 3}
   Condition_Header: {fileID: 21300000, guid: 01be241314031bb4886656ad15a2948d, type: 3}
-  Condition_MiddleBody: {fileID: 21300000, guid: 23206006febf58a4fbaa0d956c44df4e,
-    type: 3}
-  Condition_MiddleHeader: {fileID: 21300000, guid: ce96e34fef0cfae44aafb5fcea5586c2,
-    type: 3}
-  Condition_RoundConditional: {fileID: 21300000, guid: e9fc4aaca5fde884cb809a9e967c683c,
-    type: 3}
+  Condition_MiddleBody: {fileID: 21300000, guid: 23206006febf58a4fbaa0d956c44df4e, type: 3}
+  Condition_MiddleHeader: {fileID: 21300000, guid: ce96e34fef0cfae44aafb5fcea5586c2, type: 3}
+  Condition_RoundConditional: {fileID: 21300000, guid: e9fc4aaca5fde884cb809a9e967c683c, type: 3}
   Define_Header: {fileID: 21300000, guid: ebdf4897052602a4c8c9a57bb452a5e8, type: 3}
   Operation_Header: {fileID: 21300000, guid: 0b35b76acd833db4db5cd58bad62e929, type: 3}
   Simple_Header: {fileID: 21300000, guid: 7fd65bfe701d18f4d9a5858178167614, type: 3}
   Simple_HeaderGhost: {fileID: 21300000, guid: 7ea92de6893d8684bacda510915166e0, type: 3}
   Trigger_Header: {fileID: 21300000, guid: 8f23784754207ac43bf2784bfaf7e471, type: 3}
-  Prefab_Label: {fileID: 865805305278626213, guid: 4b10d00c1c4348b4b9fef6606e1d29cd,
-    type: 3}
-  Prefab_Input: {fileID: 8177020592716962826, guid: 042ea00c5b19ea2459adbb116ed1afff,
-    type: 3}
-  Prefab_VariabelLabel: {fileID: 865805305278626213, guid: 4d162e7e189937c42835df95e38f83da,
-    type: 3}
+  Prefab_Label: {fileID: 865805305278626213, guid: 4b10d00c1c4348b4b9fef6606e1d29cd, type: 3}
+  Prefab_Input: {fileID: 8177020592716962826, guid: 042ea00c5b19ea2459adbb116ed1afff, type: 3}
+  Prefab_VariabelLabel: {fileID: 865805305278626213, guid: 4d162e7e189937c42835df95e38f83da, type: 3}
   BlockColor_Undefined: {r: 0.7647059, g: 0.7647059, b: 0.7647059, a: 0.85882354}
   BlockColor_Event: {r: 1, g: 0.78039217, b: 0.043137256, a: 1}
   BlockColor_Action: {r: 0.15686275, g: 0.69411767, b: 0.90588236, a: 1}

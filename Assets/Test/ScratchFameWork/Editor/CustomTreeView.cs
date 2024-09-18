@@ -25,7 +25,8 @@ namespace ScratchFramework.Editor
 {
     public class CustomTreeViewItem : TreeViewItem
     {
-        public object userData;
+        public ScratchEditorWindow.IMenuTreeWindow CustomWindow;
+        
     }
 
     public abstract class CustomTreeView : TreeView

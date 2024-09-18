@@ -14,8 +14,17 @@ namespace ScratchFramework
 
         public int Index { get; set; }
         public int Depth { get; set; }
-        public string DisplayName => $"{nameof(BlockTree)}_{Index}";
 
+        public string DisplayName
+        {
+            get
+            {
+                string rex = IsRoot ? "" : Header ? "[H]" : "[B]";
+                return $"{rex}{BlockCanvasManager.Instance.BlockDict[BlockGuid].name}";
+            }
+        }
+
+        public bool IsRoot;
         public bool Header;
     }
 
@@ -33,8 +42,9 @@ namespace ScratchFramework
     {
         private Dictionary<Guid, Block> m_BlockDict = new Dictionary<Guid, Block>();
         public Dictionary<Guid, Block> BlockDict => m_BlockDict;
-        
+
         public Action OnBlockDictChanged;
+
         protected override void OnInitialize()
         {
             // Move to Block ,Clear Temp Canvas
@@ -46,7 +56,7 @@ namespace ScratchFramework
 
             m_BlockDict.Clear();
             OnBlockDictChanged = null;
-            
+
             base.OnInitialize();
         }
 
@@ -58,7 +68,7 @@ namespace ScratchFramework
             {
                 block.BlockId = Guid.NewGuid();
                 m_BlockDict[block.BlockId] = block;
-                
+
                 OnBlockDictChanged?.Invoke();
             }
             else
@@ -70,14 +80,15 @@ namespace ScratchFramework
         public void RemoveBlock(Block block)
         {
             if (block.Type == BlockType.none) return;
-            
+
             if (m_BlockDict.ContainsKey(block.BlockId))
             {
                 m_BlockDict.Remove(block.BlockId);
-                
+
                 OnBlockDictChanged?.Invoke();
                 return;
             }
+
             Debug.LogError("RemoveBlock Failed!");
         }
 
@@ -100,6 +111,7 @@ namespace ScratchFramework
                     tree.Depth = deep;
                     tree.Index = index;
                     tree.Header = false;
+                    tree.IsRoot = true;
 
                     GetBlockDeep(tree, deep + 1);
                     trees.Add(tree);

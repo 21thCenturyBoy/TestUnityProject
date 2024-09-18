@@ -74,41 +74,7 @@ namespace ScratchFramework
 
             return stream.ToArray();
         }
-
-        // public bool Deserialize(MemoryStream stream, int version = -1)
-        // {
-        //     int headBytesLen = ScratchUtils.ScratchDeserializeInt(stream);
-        //
-        //     BlockHeadTreeList = new IBlockHeadData[headBytesLen];
-        //     for (int i = 0; i < headBytesLen; i++)
-        //     {
-        //         DataType headData = (DataType)ScratchUtils.ReadByte(stream);
-        //         BlockHeadTreeList[i] = BlockHeadDataFactorty.CreateBlockHeadData(headData);
-        //
-        //         int dataSize = ScratchUtils.ScratchDeserializeInt(stream);
-        //         MemoryStream dataStream = ScratchUtils.CreateMemoryStream(stream, dataSize);
-        //         stream.Position += dataSize;
-        //
-        //         BlockHeadTreeList[i].Deserialize(dataStream, version);
-        //     }
-        //
-        //     int blockBytesLen = ScratchUtils.ScratchDeserializeInt(stream);
-        //     BlockTreeList = new IBlockData[blockBytesLen];
-        //     for (int i = 0; i < blockBytesLen; i++)
-        //     {
-        //         BlockData blockData = new BlockData();
-        //         BlockTreeList[i] = blockData;
-        //
-        //         int dataSize = ScratchUtils.ScratchDeserializeInt(stream);
-        //
-        //         MemoryStream dataStream = ScratchUtils.CreateMemoryStream(stream, dataSize);
-        //         stream.Position += dataSize;
-        //
-        //         BlockTreeList[i].Deserialize(dataStream, version);
-        //     }
-        //
-        //     return true;
-        // }
+        
     }
 
     public partial class BlockData : IBlockData
@@ -145,14 +111,7 @@ namespace ScratchFramework
                 SectionTreeList[i] = sectionData;
             }
         }
-
-        public Block CreateBlock()
-        {
-            // BlockCreator.CreateBlock(this);
-            return null;
-        }
-
-
+        
         public byte[] Serialize()
         {
             OrginData.Add(this);
