@@ -362,7 +362,7 @@ namespace ScratchFramework
                     Buffer.BlockCopy(x_datas, 0, databytes, 0, size);
                     Buffer.BlockCopy(y_datas, 0, databytes, size, size);
                     Buffer.BlockCopy(z_datas, 0, databytes, (size << 1), size);
-                    return databytes;
+                    return databytes;   
                     break;
                 case SerializeMode.MessagePack:
                     break;
@@ -424,9 +424,12 @@ namespace ScratchFramework
                     byte[] databytes = new byte[size * 3];
                     Vector3 data = Vector3.zero;
 
-                    data.x = BitConverter.ToSingle(span.ToArray(), 0);
-                    data.y = BitConverter.ToSingle(span.ToArray(), size - 1);
-                    data.z = BitConverter.ToSingle(span.ToArray(), (size << 1) - 2);
+                    var SPAN_X = span.Slice(0, size);
+                    var SPAN_Y = span.Slice(size, size);
+                    var SPAN_Z = span.Slice(size << 1, size);
+                    data.x = BitConverter.ToSingle(SPAN_X);
+                    data.y = BitConverter.ToSingle(SPAN_Y);
+                    data.z = BitConverter.ToSingle(SPAN_Z);
 
                     memoryStream.Position += size * 3;
                     return data;
