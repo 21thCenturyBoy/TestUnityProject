@@ -31,6 +31,11 @@ namespace ScratchFramework.Editor
         }
 
 
+        private void OnInspectorUpdate()
+        {
+            Repaint();
+        }
+
         protected override void OnRightGUI(CustomMenuTreeViewItem _selectedItem)
         {
             _selectedItem?.CustomWindow?.ShowGUI();

@@ -18,6 +18,22 @@ namespace ScratchFramework.Editor
             public void Init()
             {
                 var asset = AssetDatabase.LoadAssetAtPath<ScratchConfig>(path);
+                
+                if (null == asset)
+                {
+                    string[] guids = AssetDatabase.FindAssets("t:" + nameof(ScratchConfig));
+                    if (guids.Length>0)
+                    {
+                        asset = AssetDatabase.LoadAssetAtPath<ScratchConfig>(AssetDatabase.GUIDToAssetPath(guids[0]));
+                        Debug.LogWarning("存在多个ScratchConfig资源，已选择第一个");
+                    }
+                    else
+                    {
+                        asset = ScriptableObject.CreateInstance<ScratchConfig>();
+                        AssetDatabase.CreateAsset(asset, path);
+                        AssetDatabase.SaveAssets();
+                    }
+                }
                 _editor = UnityEditor.Editor.CreateEditor(asset);
             }
 
