@@ -9,8 +9,26 @@ namespace ScratchFramework
     {
         public BlockHeaderItem_Operation CurrentOperation => GetComponent<BlockHeaderItem_Operation>();
 
+        public override bool IsAllowDrag()
+        {
+            bool allowDrag = base.IsAllowDrag();
+
+            if (Block.BlockFucType == FucType.Variable)
+            {
+                //返回值看看允不允许拖拽,不在Input上
+                if (Block.ParentSection != null && CurrentOperation.ContextData.ParentInput == ScratchVMDataRef<BlockHeaderParam_Data_Input>.NULLRef)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public override void OnDrag(PointerEventData eventData)
         {
+            if (!IsDraging) return;
+            
             base.OnDrag(eventData);
 
             var parentInput = CurrentOperation?.ContextData.ParentInput?.GetData();
@@ -67,6 +85,8 @@ namespace ScratchFramework
 
         public override void OnEndDrag(PointerEventData eventData)
         {
+            if (!IsDraging) return;
+            
             base.OnEndDrag(eventData);
 
             if (BlockDragManager.Instance.TargetSpot != null)

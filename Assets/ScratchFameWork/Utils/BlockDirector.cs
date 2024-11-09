@@ -28,11 +28,9 @@ namespace ScratchFramework
             block.BlockFucType = data.BlockFucType;
             block.Type = data.Type;
             block.Version = data.Version;
-
+            block.scratchType = data.ScratchType;
 
             //TODO Other Serialize Data
-
-
             switch (data.BlockFucType)
             {
                 case FucType.Undefined:
@@ -80,19 +78,23 @@ namespace ScratchFramework
                     break;
                 case BlockType.trigger:
                     CreateOuterArea(block);
+                    block.TryAddComponent<BlockDrag_Trigger>();
                     break;
                 case BlockType.simple:
                     CreateOuterArea(block);
+                    block.TryAddComponent<BlockDrag_Simple>();
                     break;
                 case BlockType.condition:
                     CreateOuterArea(block);
-
+                    block.TryAddComponent<BlockDrag_Simple>();
                     break;
                 case BlockType.loop:
                     CreateOuterArea(block);
+                    block.TryAddComponent<BlockDrag_Simple>();
                     break;
                 case BlockType.operation:
                     BlockHeaderItem_Operation HeadOperation = block.TryAddComponent<BlockHeaderItem_Operation>();
+                    block.TryAddComponent<BlockDrag_Operation>();
                     break;
                 case BlockType.define:
                     CreateOuterArea(block);
@@ -475,11 +477,18 @@ namespace ScratchFramework
                     scratchHead = scratchHead_VariableLabel;
                     // scratchHead_VariableLabel.enabled = true;
                     break;
+                case DataType.RenturnVariableLabel:
+                    prefab = ScratchConfig.Instance.Prefab_ReturnVariabelLabel;
+                    var scratchHead_RenturnVariableLabel = GameObject.Instantiate(prefab, headerTrans).AddComponent<BlockHeaderItem_RenturnVariableLabel>();
+                    scratchHead = scratchHead_RenturnVariableLabel;
+                    // scratchHead_VariableLabel.enabled = true;
+                    break;
                 case DataType.Icon:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
 
             scratchHead.SetData(headData);
 
@@ -494,40 +503,10 @@ namespace ScratchFramework
     {
         public static Block InitializeStruct(Block block)
         {
-            return block
-                .AddBlockDrag()
-                .AddUIVisible();
+            return block.AddUIVisible();
         }
 
-        private static Block AddBlockDrag(this Block block)
-        {
-            switch (block.Type)
-            {
-                case BlockType.none:
-                    break;
-                case BlockType.trigger:
-                    block.TryAddComponent<BlockDrag_Trigger>();
-                    break;
-                case BlockType.simple:
-                    block.TryAddComponent<BlockDrag_Simple>();
-                    break;
-                case BlockType.condition:
-                    block.TryAddComponent<BlockDrag_Simple>();
-                    break;
-                case BlockType.loop:
-                    block.TryAddComponent<BlockDrag_Simple>();
-                    break;
-                case BlockType.operation:
-                    block.TryAddComponent<BlockDrag_Operation>();
-                    break;
-                case BlockType.define:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
 
-            return block;
-        }
 
         private static Block AddUIVisible(this Block block)
         {
@@ -541,7 +520,6 @@ namespace ScratchFramework
                     {
                         sections[i].Body.Image.Visible = false;
                     }
-
                     break;
                 case BlockType.simple:
                     break;

@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ScratchFramework
 {
     [ExecuteAlways]
-    public class BlockSectionHeader : ScratchUIBehaviour, IScratchModifyLayout
+    public class BlockSectionHeader : ScratchUIBehaviour, IScratchModifyLayout,IScratchSectionChild
     {
         #region property
 
@@ -106,6 +107,18 @@ namespace ScratchFramework
             }
         }
 
+        public BlockHeaderItem_Operation[] GetHeaderOperation()
+        {
+            UpdateHeadSerializeData();
+
+            return AllHeadSerializeDatas.OfType<BlockHeaderItem_Operation>().ToArray();
+        }
+        public BlockHeaderItem_Input[] GetHeaderInput()
+        {
+            UpdateHeadSerializeData();
+
+            return AllHeadSerializeDatas.OfType<BlockHeaderItem_Input>().ToArray();
+        }
 
         public virtual void OnUpdateLayout()
         {
@@ -168,5 +181,7 @@ namespace ScratchFramework
             RectTrans.sizeDelta = size;
             return size;
         }
+
+        public IBlockScratch_Section GetSection() => Section;
     }
 }

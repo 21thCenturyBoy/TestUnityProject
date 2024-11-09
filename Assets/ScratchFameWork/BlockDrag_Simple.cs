@@ -10,6 +10,8 @@ namespace ScratchFramework
     {
         public override void OnDrag(PointerEventData eventData)
         {
+            if (!IsDraging) return;
+            
             base.OnDrag(eventData);
 
             BlockSpot spot = BlockCanvasManager.Instance.FindClosestSpotForBlock(this, BlockDragManager.Instance.DetectionDistance);
@@ -48,6 +50,8 @@ namespace ScratchFramework
 
         public override void OnEndDrag(PointerEventData eventData)
         {
+            if (!IsDraging) return;
+            
             base.OnEndDrag(eventData);
 
             if (BlockDragManager.Instance.TargetSpot != null)

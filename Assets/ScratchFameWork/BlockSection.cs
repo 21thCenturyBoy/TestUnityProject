@@ -108,12 +108,14 @@ namespace ScratchFramework
             return size;
         }
 
+        public int GetIndex() => transform.GetSiblingIndex();
         public IBlockSectionData GetData()
         {
             BlockSectionData data = new BlockSectionData();
-
+            
             if (Header != null)
             {
+                Header.UpdateHeadSerializeData();//理论上不为空
                 data.BlockHeadTreeList = new IBlockHeadData[Header.AllHeadSerializeDatas.Count];
                 for (int i = 0; i < Header.AllHeadSerializeDatas.Count; i++)
                 {
@@ -123,6 +125,7 @@ namespace ScratchFramework
 
             if (Body != null)
             {
+                Body.UpdateChildBlocksList();
                 data.BlockTreeRefList = new IBlockScratch_Block[Body.ChildBlocksArray.Count];
                 for (int i = 0; i < Body.ChildBlocksArray.Count; i++)
                 {

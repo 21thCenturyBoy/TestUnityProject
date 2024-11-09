@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro.SpriteAssetUtilities;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -21,6 +22,113 @@ namespace ScratchFramework
             return uo.GetComponent<T>() ?? uo.AddComponent<T>();
         }
 
+        public static string VariableKoalaBlockToString(IEngineBlockVariableBase blockBase)
+        {
+            return blockBase.GetValueToString();
+            // if (blockBase is KoalaIntValueBlock intValueBlock)
+            // {
+            //     return intValueBlock.Value.ToString();
+            // }
+            //
+            // if (blockBase is KoalaVector3ValueBlock vector3ValueBlock)
+            // {
+            //     return vector3ValueBlock.Value.ToUnityVector3().ToString();
+            // }
+            //
+            // if (blockBase is KoalaEntityValueBlock entityValueBlock)
+            // {
+            //     //TODO Entity
+            //     return "-1";
+            // }
+            // return String.Empty;
+        }
+
+        public static bool String2VariableKoalaBlock(string str, IEngineBlockVariableBase blockBase)
+        {
+            return blockBase.SetValueToString(str) != null;
+            // if (blockBase.Type == KoalaScratchType.VectorValue)
+            // {
+            //     str = str.Replace("(", "").Replace(")", ""); //将字符串中"("和")"替换为" "
+            //     string[] s = str.Split(',');
+            //
+            //     if (s.Length == 3)
+            //     {
+            //         if (blockBase is KoalaVector3ValueBlock vector3ValueBlock)
+            //         {
+            //             try
+            //             {
+            //                 vector3ValueBlock.Value = new Vector3(float.Parse(s[0]), float.Parse(s[1]), float.Parse(s[2])).ToFPVector3();
+            //                 return true;
+            //             }
+            //             catch (Exception e)
+            //             {
+            //                 Debug.LogError(e);
+            //                 return false;
+            //             }
+            //         }
+            //     }
+            // }
+            //
+            // if (blockBase.Type == KoalaScratchType.IntegerValue)
+            // {
+            //     if (int.TryParse(str, out var res))
+            //     {
+            //         if (blockBase is KoalaIntValueBlock intValueBlock)
+            //         {
+            //             intValueBlock.Value = res;
+            //             return true;
+            //         }
+            //     }
+            // }
+            //
+            // if (blockBase.Type == KoalaScratchType.EntityValue)
+            // {
+            //     if (int.TryParse(str, out var res))
+            //     {
+            //         if (blockBase is KoalaEntityValueBlock entityValueBlock)
+            //         {
+            //             //TODO Entity
+            //             // entityValueBlock.EntityGuid = res;
+            //             return true;
+            //         }
+            //     }
+            // }
+            //
+            // return false;
+        }
+
+        /// <summary>
+        /// 反序列化UI模版
+        /// </summary>
+        /// <param name="datas"></param>
+        /// <param name="parentTrans"></param>
+        /// <returns></returns>
+        public static Block DeserializeBlock(byte[] datas, RectTransform parentTrans = null)
+        {
+            MemoryStream memoryStream = CreateMemoryStream(datas);
+
+            BlockData newBlockData = new BlockData();
+            newBlockData.BlockData_Deserialize(memoryStream, ScratchConfig.Instance.Version, true);
+
+            Block newblock = null;
+
+            if (newBlockData.Type == BlockType.operation)
+            {
+                newblock = BlockCreator.CreateBlock(newBlockData, parentTrans);
+            }
+            else
+            {
+                newblock = BlockCreator.CreateBlock(newBlockData, parentTrans);
+            }
+
+            return newblock;
+        }
+
+        /// <summary>
+        /// 克隆Block
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns></returns>
         public static Block CloneBlock(Block block)
         {
             var dict = new Dictionary<int, int>();
@@ -31,14 +139,13 @@ namespace ScratchFramework
             BlockData.NewData.Clear();
 
             byte[] datas = blockData.Serialize();
+
             MemoryStream memoryStream = CreateMemoryStream(datas);
 
             BlockData newBlockData = new BlockData();
-            newBlockData.BlockData_Deserialize(memoryStream, 0, true);
-            
-            Block newblock = null;
+            newBlockData.BlockData_Deserialize(memoryStream, ScratchConfig.Instance.Version, true);
 
-            BlockData.SetReocordDeserialize(true);
+            Block newblock = null;
 
 
             if (newBlockData.Type == BlockType.operation)
@@ -49,7 +156,7 @@ namespace ScratchFramework
             {
                 newblock = BlockCreator.CreateBlock(newBlockData, block.ParentTrans);
             }
-            
+
 
             if (BlockData.OrginData.Count != BlockData.NewData.Count)
             {
@@ -68,6 +175,7 @@ namespace ScratchFramework
                         orginHeadDataIds.Add(dataId);
                     }
                 }
+
                 for (int i = 0; i < BlockData.NewData.Count; i++)
                 {
                     if (BlockData.NewData[i] is IBlockHeadData headData)
@@ -82,8 +190,8 @@ namespace ScratchFramework
                 {
                     dictionary[orginHeadDataIds[i]] = newHeadDataIds[i];
                 }
-                
-                
+
+
                 for (int i = 0; i < BlockData.NewData.Count; i++)
                 {
                     if (BlockData.NewData[i] is IScratchRefreshRef refreshRef)
@@ -93,14 +201,8 @@ namespace ScratchFramework
                 }
             }
 
-
-            // foreach (IScratchRefreshRef refreshRef in newBlockData.RefreshRefDict)
-            // {
-            //     refreshRef.RefreshRef(newBlockData.DataRefIdDict);
-            // }
-
-            BlockData.SetReocordDeserialize(false);
-
+            //TODO 
+            // KoalaScratchUtil.Instance.CopyBlockTree()
             return newblock;
         }
 
@@ -135,7 +237,8 @@ namespace ScratchFramework
 
         public static void DestroyBlock(Block block)
         {
-            //TODO Data
+            ScratchEngine.Instance.Core.DeleteBlock(block.GetEngineBlockData());
+
             GameObject.Destroy(block.gameObject);
         }
 
@@ -254,39 +357,24 @@ namespace ScratchFramework
             GL.PopMatrix();
         }
 
-        public static void ConvertSimpleBlock(GameObject obj)
+        public static Dictionary<string, byte[]> ConvertSimpleBlock(GameObject[] objs)
         {
-            obj.GetOrAddComponent<Block>();
-            obj.GetOrAddComponent<BlockLayout>();
-            obj.GetOrAddComponent<BlockDrag_Trigger>();
-
-            int childCount = obj.transform.childCount;
-
-            for (int i = 0; i < childCount; i++)
+            Dictionary<string, byte[]> dictionary = new Dictionary<string, byte[]>();
+            for (int i = 0; i < objs.Length; i++)
             {
-                var selection = obj.transform.GetChild(i);
-
-                if (selection.transform.name.Contains(Section_PefixName))
+                Block block = objs[i].GetComponent<Block>();
+                if (block != null)
                 {
-                    selection.gameObject.GetOrAddComponent<BlockSection>();
-                    int selectionChildCount = selection.transform.childCount;
+                    var data = block.GetDataRef();
+                    BlockData.OrginData.Clear();
+                    byte[] datas = data.Serialize();
+                    string fileName = objs[i].name.Replace(".", "_").Trim();
 
-                    for (int j = 0; j < selectionChildCount; j++)
-                    {
-                        var selectionChild = selection.transform.GetChild(j);
-
-                        if (selectionChild.transform.name.Contains(SectionHeader_PefixName))
-                        {
-                            selectionChild.gameObject.GetOrAddComponent<BlockSectionHeader>();
-                        }
-
-                        if (selectionChild.transform.name.Contains(SectionBody_PefixName))
-                        {
-                            selectionChild.gameObject.GetOrAddComponent<BlockSectionBody>();
-                        }
-                    }
+                    dictionary[fileName] = datas;
                 }
             }
+
+            return dictionary;
         }
     }
 }

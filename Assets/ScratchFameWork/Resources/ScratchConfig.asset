@@ -25,6 +25,7 @@ MonoBehaviour:
   Prefab_Label: {fileID: 865805305278626213, guid: 4b10d00c1c4348b4b9fef6606e1d29cd, type: 3}
   Prefab_Input: {fileID: 8177020592716962826, guid: 042ea00c5b19ea2459adbb116ed1afff, type: 3}
   Prefab_VariabelLabel: {fileID: 865805305278626213, guid: 4d162e7e189937c42835df95e38f83da, type: 3}
+  Prefab_ReturnVariabelLabel: {fileID: 865805305278626213, guid: 743da2c35dc6c3a4b819933569e0fc14, type: 3}
   BlockColor_Undefined: {r: 0.7647059, g: 0.7647059, b: 0.7647059, a: 0.85882354}
   BlockColor_Event: {r: 1, g: 0.78039217, b: 0.043137256, a: 1}
   BlockColor_Action: {r: 0.15686275, g: 0.69411767, b: 0.90588236, a: 1}
@@ -32,3 +33,21 @@ MonoBehaviour:
   BlockColor_Condition: {r: 0.627451, g: 0.44313726, b: 0.94509804, a: 1}
   BlockColor_GetValue: {r: 0.8745098, g: 0.36078432, b: 0.28627452, a: 1}
   BlockColor_Variable: {r: 0.21568628, g: 0.74509805, b: 0.3019608, a: 1}
+  Version: 0
+  TemplateDatasPath: Assets/Resources_UGC/Scratch/Prefabs/Resources/TemplateDatas
+  TemplateDatas:
+  - {fileID: 4900000, guid: 012f1fa5005b86a4d8b2b66697bb6152, type: 3}
+  - {fileID: 4900000, guid: 8f9a49c825cb4b84cbf43f935ecc78b0, type: 3}
+  - {fileID: 4900000, guid: 6a90564b754baf646809509b1cb93c91, type: 3}
+  - {fileID: 4900000, guid: bf60ecd6bfab3a641a57da6273b5dfe5, type: 3}
+  - {fileID: 4900000, guid: 6b27f74aa39b20648944f0b814f8dcc4, type: 3}
+  - {fileID: 4900000, guid: a1b24e0693f7d5f48b76e35c06d0fcf3, type: 3}
+  - {fileID: 4900000, guid: b0d884c6723ce184aa8d729f9688ef6b, type: 3}
+  - {fileID: 4900000, guid: 2ca2b070d74b4de46bac9e4150c7484b, type: 3}
+  - {fileID: 4900000, guid: ecd070063e8ea874282ae0267b6c66f4, type: 3}
+  - {fileID: 4900000, guid: 207d74b6fe2b5a34a96c69c31b4ce60d, type: 3}
+  - {fileID: 4900000, guid: aafeea07bfc9a0543bde3b73ba223131, type: 3}
+  - {fileID: 4900000, guid: 7a26f9aa913ea234a906735d7e7039ee, type: 3}
+  - {fileID: 4900000, guid: e702de09e4372704b92c519dac1f53ee, type: 3}
+  - {fileID: 4900000, guid: 1e3ae8a35e9718546ac76fdbe564ed24, type: 3}
+  - {fileID: 4900000, guid: 6dd75dc1387ae624ea3933eb5d274fc5, type: 3}

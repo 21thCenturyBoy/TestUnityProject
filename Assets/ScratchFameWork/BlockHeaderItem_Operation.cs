@@ -121,11 +121,20 @@ namespace ScratchFramework
 
     public class BlockHeaderItem_Operation : BlockHeaderItem<BlockHeaderParam_Data_Operation>
     {
-        
-        // public override IBlockHeadData CopyData()
-        // {
-        //     return DataRef();
-        // }
+        private Block m_block;
+
+        public Block OperationBlock
+        {
+            get
+            {
+                if (m_block == null)
+                {
+                    m_block = GetComponent<Block>();
+                }
+                return m_block;
+            }
+        }
+
         protected override void OnCreateContextData()
         {
         }
@@ -134,7 +143,7 @@ namespace ScratchFramework
         {
             base.OnContextDataChanged(orginData, newData);
             if (orginData != null) orginData.OperationBlock = null;
-            if (newData != null) newData.OperationBlock = GetComponent<Block>();
+            if (newData != null) newData.OperationBlock = OperationBlock;
         }
 
         public override void OnUpdateLayout()

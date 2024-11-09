@@ -37,6 +37,15 @@ namespace ScratchFramework
             get => m_visible;
         }
 
+        public bool Enable
+        {
+            set
+            {
+                if (!IsDestroying) enabled = value;
+            }
+            get => enabled;
+        }
+
         public virtual bool Initialize()
         {
             if (m_isInitialized) return false;
@@ -91,6 +100,19 @@ namespace ScratchFramework
 
             return com;
         }
+        
+        public T GetScratchComponent<T>() where T : ScratchBehaviour
+        {
+            if (IsDestroying)
+            {
+                Debug.LogWarning($"{name} OnDestroy GetScratch!");
+                return default;
+            }
+
+            T com = GetComponent<T>();
+            return com;
+        }
+        
     }
 
     public class ScratchSingleton<T> : ScratchBehaviour where T : ScratchSingleton<T>

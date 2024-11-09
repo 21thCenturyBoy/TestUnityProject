@@ -74,9 +74,9 @@ namespace ScratchFramework
                 T data = GetRefData(refreshDic[m_IntPtr]);
                 m_RefData = data;
                 m_IntPtr = refreshDic[m_IntPtr];
-
-                InVaildPtr = false;
             }
+
+            InVaildPtr = false;
         }
 
         public static bool operator ==(ScratchVMDataRef<T> left, ScratchVMDataRef<T> right)

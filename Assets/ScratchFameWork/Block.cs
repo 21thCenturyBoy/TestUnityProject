@@ -62,14 +62,56 @@ namespace ScratchFramework
             }
         }
 
-        public BlockSection ParentSection => GetParentSection();
+        private BlockDrag m_BlockDrag;
+
+        public BlockDrag BlockDrag
+        {
+            get
+            {
+                if (m_BlockDrag == null)
+                {
+                    m_BlockDrag = GetComponent<BlockDrag>();
+                }
+
+                return m_BlockDrag;
+            }
+        }
+
+        private IBlockHeaderVariableLabel m_VariableLabel;
+
+        public bool IsReturnValue { get; private set; }
+
+        public IBlockHeaderVariableLabel VariableLabel
+        {
+            get
+            {
+                if (m_VariableLabel == null)
+                {
+                    TryGetVariableLabel(out m_VariableLabel);
+                    IsReturnValue = m_VariableLabel is BlockHeaderItem_RenturnVariableLabel;
+                }
+
+                return m_VariableLabel;
+            }
+        }
+
+        public BlockSection ParentSection => GetComponentInParent<BlockSection>();
+
+        public bool IsRoot => ParentSection == null;
 
         public Guid BlockId { get; set; } = Guid.Empty;
 
-        public void Start()
+        private void Start()
         {
             Initialize();
+            
+            lastSiblingIndex = transform.GetSiblingIndex();
+            lastParent = transform.parent;
 
+            InitKoalaData();
+
+            Layout.UpdateLayout();
+            
             BlockCanvasManager.Instance.AddBlock(this);
         }
 
@@ -96,9 +138,40 @@ namespace ScratchFramework
             BlockDirector.InitializeStruct(this);
         }
 
-        BlockSection GetParentSection()
+
+        /// <summary> 尝试通过UI方式获取IBlockHeaderVariableLabel (用VariableLabel) </summary>
+        private bool TryGetVariableLabel(out IBlockHeaderVariableLabel label)
         {
-            return GetComponentInParent<BlockSection>();
+            label = null;
+            if (m_FucType == FucType.Variable)
+            {
+                label = Layout.SectionsArray[0].Header.GetComponentInChildren<IBlockHeaderVariableLabel>();
+                if (label == null) return true;
+            }
+
+            return false;
+        }
+        /// <summary> 尝试通过UI方式获取Operation的Input </summary>
+        public bool TryGetOperationInput(out BlockHeaderItem_Input input)
+        {
+            input = null;
+            if (Type  == BlockType.operation)
+            {
+                int index = transform.GetSiblingIndex();
+
+                if (ParentTrans == null) return false;
+                int len = ParentTrans.childCount;
+                index++;
+                if (index >= len) return false;
+                var tempChild = ParentTrans.GetChild(index);
+                if (tempChild == null) return false;
+                //弟弟应该是BlockHeaderItem_Input
+                input = tempChild.GetComponent<BlockHeaderItem_Input>();
+                return input != null;
+                
+            }
+            
+            return false;
         }
 
         public void SetShadowActive(bool value)
@@ -143,7 +216,7 @@ namespace ScratchFramework
             get => m_Version;
             set => m_Version = value;
         }
-        
+
         public List<BlockSection> GetChildSection()
         {
             List<BlockSection> sections = new List<BlockSection>();
@@ -160,6 +233,11 @@ namespace ScratchFramework
             return sections;
         }
 
+        void Update()
+        {
+            UpdateKoalaData();
+        }
+
         public IBlockData GetDataRef()
         {
             BlockData data = new BlockData();
@@ -172,6 +250,8 @@ namespace ScratchFramework
         protected override void OnDestroy()
         {
             base.OnDestroy();
+
+            DestoryKoalaData();
             
             BlockCanvasManager.Instance.RemoveBlock(this);
         }

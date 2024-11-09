@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Utils;
 using Object = System.Object;
 
 namespace ScratchFramework

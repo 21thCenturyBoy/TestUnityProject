@@ -47,17 +47,21 @@ namespace ScratchFramework
 
         protected override void OnInitialize()
         {
-            // Move to Block ,Clear Temp Canvas
-            var childs = TempCanvasManager.Instance.GetChildTempBlock();
-            for (int i = 0; i < childs.Length; i++)
-            {
-                childs[i].SetParent(transform);
-            }
-
-            m_BlockDict.Clear();
-            OnBlockDictChanged = null;
+            ClearCanvas();
 
             base.OnInitialize();
+        }
+
+        public void ClearCanvas()
+        {
+            var childs = GetChildTempBlock();
+            for (int i = 0; i < childs.Length; i++)
+            {
+                DestroyImmediate(childs[i].gameObject);
+            }
+            
+            m_BlockDict.Clear();
+            OnBlockDictChanged = null;
         }
 
         public void AddBlock(Block block)
@@ -69,6 +73,8 @@ namespace ScratchFramework
                 block.BlockId = Guid.NewGuid();
                 m_BlockDict[block.BlockId] = block;
 
+                ScratchResourcesManager.Instance.OnCanvasAddBlock(block);
+                
                 OnBlockDictChanged?.Invoke();
             }
             else
@@ -83,6 +89,8 @@ namespace ScratchFramework
 
             if (m_BlockDict.ContainsKey(block.BlockId))
             {
+                ScratchResourcesManager.Instance.OnCanvasRemoveBlock(block);
+                
                 m_BlockDict.Remove(block.BlockId);
 
                 OnBlockDictChanged?.Invoke();
@@ -191,7 +199,24 @@ namespace ScratchFramework
 
         public bool Clear()
         {
+        
             return true;
+        }
+
+        public Block[] GetChildTempBlock()
+        {
+            int childCount = transform.childCount;
+            List<Block> res = new List<Block>();
+            for (int i = 0; i < childCount; i++)
+            {
+                Block block = transform.GetChild(i).GetComponent<Block>();
+                if (block != null && block is not Block_GhostBlock)
+                {
+                    res.Add(block);
+                }
+            }
+
+            return res.ToArray();
         }
 
         public T GetScratchUIAtPointer<T>() where T : ScratchUIBehaviour

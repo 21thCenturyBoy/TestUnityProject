@@ -9,18 +9,45 @@ using UnityEngine.UI;
 
 namespace ScratchFramework
 {
-    [Serializable]
-    public sealed class BlockHeaderParam_Data_VariableLabel : BlockHeaderParam_Data<BlockHeaderParam_Data_VariableLabel>
+    public interface IBlockHeaderVariableLabel
     {
-        private string _dataProperty;
+        void UpdateVariablName(string name);
+        IHeaderParamVariable GetVariableData();
+    }
 
-        public string DataProperty
+    public interface IHeaderParamVariable
+    {
+        DataType DataType { get; }
+        string VariableInfo { get; set; }
+        string VariableRef { get; set; }
+    }
+
+    [Serializable]
+    public class BlockHeaderParam_Data_VariableLabel : BlockHeaderParam_Data<BlockHeaderParam_Data_VariableLabel>, IScratchRefreshRef, IHeaderParamVariable
+    {
+        private string _VariableInfo = string.Empty;
+
+        public string VariableInfo
         {
-            get => _dataProperty;
+            get => _VariableInfo;
             set
             {
-                if (value == _dataProperty) return;
-                _dataProperty = value;
+                if (value == _VariableInfo) return;
+                _VariableInfo = value;
+                OnPropertyChanged();
+            }
+        }
+
+        //变量引用信息
+        private string _VariableRef = String.Empty;
+
+        public string VariableRef
+        {
+            get => _VariableRef;
+            set
+            {
+                if (value == _VariableRef) return;
+                _VariableRef = value;
                 OnPropertyChanged();
             }
         }
@@ -29,22 +56,32 @@ namespace ScratchFramework
 
         protected override byte[] OnSerialize()
         {
-            var bytes = ScratchUtils.ScratchSerializeString(_dataProperty);
-            return bytes;
+            var stream = ScratchUtils.CreateMemoryStream();
+
+            stream.Write(ScratchUtils.ScratchSerializeString(VariableInfo));
+            stream.Write(ScratchUtils.ScratchSerializeString(VariableRef));
+
+            return stream.ToArray();
         }
 
         protected override void OnDeserialize(MemoryStream memoryStream, int version = -1)
         {
-            DataProperty = memoryStream.ScratchDeserializeString();
+            VariableInfo = memoryStream.ScratchDeserializeString();
+            VariableRef = memoryStream.ScratchDeserializeString();
         }
 
         public override string ToString()
         {
-            return $"{base.ToString()}, {nameof(DataProperty)}: {DataProperty}";
+            return $"{base.ToString()}, {nameof(VariableInfo)}: {VariableInfo}, {nameof(VariableRef)}: {VariableRef}";
+        }
+
+        public void RefreshRef(Dictionary<int, int> refreshDic)
+        {
         }
     }
 
-    public class BlockHeaderItem_VariableLabel : BlockHeaderItem<BlockHeaderParam_Data_VariableLabel>
+
+    public class BlockHeaderItem_VariableLabel : BlockHeaderItem<BlockHeaderParam_Data_VariableLabel>, IBlockHeaderVariableLabel
     {
         private TMP_Text m_LabelText;
 
@@ -63,9 +100,9 @@ namespace ScratchFramework
 
         protected override void OnCreateContextData()
         {
-            ContextData.DataProperty = LabelText.text;
+            ContextData.VariableInfo = LabelText.text;
         }
-        
+
 
         public override void OnUpdateLayout()
         {
@@ -81,8 +118,24 @@ namespace ScratchFramework
         {
             switch (e.PropertyName)
             {
-                case nameof(BlockHeaderParam_Data_VariableLabel.DataProperty):
-                    LabelText.text = ContextData.DataProperty;
+                case nameof(BlockHeaderParam_Data_VariableLabel.VariableInfo):
+                    LabelText.text = ContextData.VariableInfo;
+                    break;
+                case nameof(BlockHeaderParam_Data_VariableLabel.VariableRef):
+                    if (!string.IsNullOrEmpty(ContextData.VariableRef))
+                    {
+                        int Guid = int.Parse(ContextData.VariableRef);
+                        IEngineBlockBaseData baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(Guid);
+                        if (baseData != null && baseData.TryGetBlockVariableName(out var variableName))
+                        {
+                            ContextData.VariableInfo = variableName;
+                        }
+                    }
+                    else
+                    {
+                        LabelText.text = ContextData.VariableInfo;
+                    }
+
                     break;
                 default:
                     break;
@@ -91,7 +144,21 @@ namespace ScratchFramework
 
         public override void RefreshUI()
         {
-            LabelText.text = ContextData.DataProperty;
+            LabelText.text = ContextData.VariableInfo;
         }
+
+        protected override void OnDestroy()
+        {
+            ScratchDataManager.Instance.RemoveVariableLabelRef(this);
+
+            base.OnDestroy();
+        }
+
+        public void UpdateVariablName(string name)
+        {
+            ContextData.VariableInfo = name;
+        }
+
+        public IHeaderParamVariable GetVariableData() => ContextData;
     }
 }

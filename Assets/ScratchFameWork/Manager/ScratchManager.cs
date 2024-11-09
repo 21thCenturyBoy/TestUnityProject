@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
+
     public class ScratchManager : ScratchSingleton<ScratchManager>, IScratchManager
     {
         private Canvas m_Canvas;
@@ -41,7 +42,7 @@ namespace ScratchFramework
         }
 
         private TempCanvasManager m_TempCanvas;
-
+        private ScratchResourcesManager m_ResourcesManager;
         private void Awake()
         {
             Initialize();
@@ -49,18 +50,18 @@ namespace ScratchFramework
 
         public override bool Initialize()
         {
-            base.Initialize();
-            m_isInitialized = false;
-
-            m_TempCanvas = GetComponentInChildren<TempCanvasManager>();
-            m_TempCanvas.Initialize();
-
-            ScratchResources.Instance.LoadAllResource(LoadResourceFinish);
-
-
-            return true;
+            if (base.Initialize())
+            {
+                m_TempCanvas = GetComponentInChildren<TempCanvasManager>();
+                m_TempCanvas.Initialize();
+                
+                m_ResourcesManager = GetComponentInChildren<ScratchResourcesManager>();
+            }
+            m_ResourcesManager.Initialize();
+            m_ResourcesManager.LoadAllResource(LoadResourceFinish);
+            return Inited;
         }
-
+        
         private void LoadResourceFinish()
         {
             //ScratchDataManager
@@ -83,7 +84,10 @@ namespace ScratchFramework
             ScratchMenuManager.Instance.SetParent(transform);
             ScratchMenuManager.Instance.transform.localPosition = Vector3.zero;
             ScratchMenuManager.Instance.Initialize();
-
+            
+            //从引擎可视化数据中加载
+            ScratchEngine.Instance.Core.GenerateBlocks();
+            
             m_isInitialized = true;
         }
 

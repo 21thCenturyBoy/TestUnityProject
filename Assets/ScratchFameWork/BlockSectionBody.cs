@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ScratchFramework
 {
-    public class BlockSectionBody : ScratchUIBehaviour, IScratchModifyLayout
+    public class BlockSectionBody : ScratchUIBehaviour, IScratchModifyLayout, IScratchSectionChild
     {
         #region property
 
@@ -39,21 +39,22 @@ namespace ScratchFramework
             }
         }
 
-        private BlockSpot_SectionBody _m;
-        
-        public BlockSpot_SectionBody Spot
+        private BlockSpot_SectionBody m_SpotBody;
+
+        public BlockSpot_SectionBody SpotBody
         {
             get
             {
-                if (_m == null )
+                if (m_SpotBody == null)
                 {
-                    _m = GetComponent<BlockSpot_SectionBody>();
+                    m_SpotBody = GetComponent<BlockSpot_SectionBody>();
                 }
-                return _m;
+
+                return m_SpotBody;
             }
         }
-        
-        
+
+
         private BlockImage m_BlockImage;
 
         public BlockImage Image
@@ -88,7 +89,7 @@ namespace ScratchFramework
 
         private List<Block> m_ChildBlocksArray = new List<Block>();
         public List<Block> ChildBlocksArray => m_ChildBlocksArray;
-        
+
         public int ChildBlocksCount { get; set; }
 
         public void UpdateChildBlocksList()
@@ -158,5 +159,7 @@ namespace ScratchFramework
             RectTrans.sizeDelta = size;
             return size;
         }
+        
+        public IBlockScratch_Section GetSection() => Section;
     }
 }

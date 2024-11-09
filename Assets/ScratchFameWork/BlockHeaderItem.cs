@@ -18,7 +18,7 @@ namespace ScratchFramework
         {
             byte[] datas = OnSerialize();
             var stream = ScratchUtils.CreateMemoryStream();
-            
+
             stream.WriteByte((byte)DataType);
             stream.WriteBytes(datas);
 
@@ -40,26 +40,24 @@ namespace ScratchFramework
 
         public override string ToString()
         {
-            return base.ToString()+$"({DataType})";
+            return base.ToString() + $"({DataType})";
         }
 
         protected abstract byte[] OnSerialize();
         protected abstract void OnDeserialize(MemoryStream memoryStream, int version = -1);
-        
     }
 
     public abstract class BlockHeaderItem<T> : ScratchUIBehaviour<T>, IBlockScratch_Head where T : BlockHeaderParam_Data<T>, new()
     {
-
         public virtual IBlockHeadData CopyData()
         {
             byte[] bytesDatas = ContextData.Serialize();
-            
+
             T newData = new T();
 
             //Current Editor Version
             int currentVersion = ScratchUtils.CurrentSerializeVersion;
-            
+
             var memory = ScratchUtils.CreateMemoryStream(bytesDatas);
             newData.Deserialize(memory, currentVersion);
 
@@ -68,13 +66,21 @@ namespace ScratchFramework
 
         public IBlockHeadData DataRef()
         {
+#if UNITY_EDITOR
+            if (!UnityEditor.EditorApplication.isPlaying)
+            {
+                if (ContextData == null)
+                    ContextData = new T();
+                OnCreateContextData();
+            }
+#endif
             return ContextData;
         }
 
         public void SetData(IBlockHeadData data)
         {
             if (data is T tdata)
-            {      
+            {
                 Initialize(tdata);
             }
         }

@@ -16,6 +16,7 @@ namespace ScratchFramework
         Input,
         Operation,
         VariableLabel,
+        RenturnVariableLabel,
         Icon,
     }
 
@@ -135,8 +136,6 @@ namespace ScratchFramework
 
     public abstract class ScratchUIBehaviour<T> : ScratchUIBehaviour where T : ScratchVMData, new()
     {
-        public string TestIndo = string.Empty;
-        
         public readonly VMContextComponent<T> ContextComponent = new VMContextComponent<T>();
 
         public T ContextData
@@ -154,8 +153,6 @@ namespace ScratchFramework
                     ContextComponent.BindContext = value;
 
                     OnContextDataChanged(orginData, value);
-
-                    TestIndo = value.ToString();
                 }
             }
         }
@@ -197,7 +194,7 @@ namespace ScratchFramework
         protected override void OnDestroy()
         {
             base.OnDestroy();
-
+            
             ContextComponent.Clear();
         }
 

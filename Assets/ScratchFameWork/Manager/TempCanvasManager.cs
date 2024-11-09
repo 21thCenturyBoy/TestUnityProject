@@ -4,6 +4,29 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
+    public class TempCanvasCenter : ScratchUIBehaviour
+    {
+        public override bool Initialize()
+        {
+            TryAddComponent<RectTransform>();
+            
+            return base.Initialize();
+        }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+
+            RectTrans.anchorMin = new Vector2(0.5f, 0.5f);
+            RectTrans.anchorMax = new Vector2(0.5f,0.5f);
+            RectTrans.anchoredPosition = Vector2.zero;
+            RectTrans.sizeDelta = Vector2.zero;
+            RectTrans.pivot = new Vector2(0.5f, 0.5f);
+            RectTrans.localScale = Vector3.one;
+            RectTrans.localPosition = Vector3.zero;
+        }
+    }
+
     public class TempCanvasManager : ScratchUIBehaviour, IScratchManager
     {
         private Block_GhostBlock m_GhostBlock;
@@ -18,6 +41,10 @@ namespace ScratchFramework
         private static TempCanvasManager _instance;
 
         public static TempCanvasManager Instance => _instance;
+
+
+        private TempCanvasCenter m_CanvasCenter;
+        public TempCanvasCenter CanvasCenter => m_CanvasCenter;
 
         protected override void OnDestroy()
         {
@@ -34,9 +61,13 @@ namespace ScratchFramework
 
             m_MenuMask = transform.GetComponentInChildren<MenuMask>(true);
             m_MenuMask.Active = false;
-            
+
             m_BlockMenu = transform.GetComponentInChildren<ScratchBlockMenu>(true);
             m_BlockMenu.Active = false;
+
+            m_CanvasCenter = new GameObject(nameof(CanvasCenter)).AddComponent<TempCanvasCenter>();
+            m_CanvasCenter.SetParent(this);
+            m_CanvasCenter.Initialize();
 
             return base.Initialize();
         }

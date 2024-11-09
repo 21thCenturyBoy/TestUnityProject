@@ -10,25 +10,25 @@ namespace ScratchFramework.Editor
 {
     public partial class ScratchEditorWindow
     {
-        
-        
         public class Database : MenuTreeWindow<Database>
         {
             public override string GetMenuPath() => "Runtime/Database";
-            
-            
+
+
             public enum EditorTabType
             {
                 CanvasBlockDict,
                 ScratchDataDict,
                 HeaderItemInput,
                 ScratchUI,
+                EngineData
             }
-            
+
             private EditorGUILayoutExtensions.EditorTab tab;
             protected int TabIndex;
             private EditorTabType[] items;
             private string[] itemNames;
+
             private void ShowTab()
             {
                 if (tab == null)
@@ -44,7 +44,7 @@ namespace ScratchFramework.Editor
 
                     tab = new EditorGUILayoutExtensions.EditorTab(itemNames);
                 }
-                
+
                 if (tab.TabItems == null)
                 {
                     tab = new EditorGUILayoutExtensions.EditorTab(itemNames);
@@ -59,7 +59,7 @@ namespace ScratchFramework.Editor
 
                 EditorGUILayoutExtensions.EndSelectGrouping();
             }
-            
+
             private void ShowEditorTabType(EditorTabType type)
             {
                 switch (type)
@@ -76,11 +76,22 @@ namespace ScratchFramework.Editor
                     case EditorTabType.ScratchUI:
                         Show_ScratchUI();
                         break;
+                    case EditorTabType.EngineData:
+                        Show_EngineData();
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
             }
-            
+
+            private void Show_EngineData()
+            {
+                foreach (var input in ScratchEngine.Instance.Core.GetAllBlocks())
+                {
+                    GUILayout.Label($"[{input.Key}][{input.Value}]");
+                }
+            }
+
             private void Show_CanvasBlockDict()
             {
                 foreach (var block in BlockCanvasManager.Instance.BlockDict.Values)
@@ -88,6 +99,7 @@ namespace ScratchFramework.Editor
                     GUILayout.Label($"{block}");
                 }
             }
+
             private void Show_ScratchDataDict()
             {
                 foreach (ScratchVMData vmData in ScratchDataManager.Instance.DataDict.Values)
@@ -95,6 +107,7 @@ namespace ScratchFramework.Editor
                     GUILayout.Label($"{vmData}");
                 }
             }
+
             private void Show_HeaderItemInput()
             {
                 var inputs = GameObject.FindObjectsOfType<BlockHeaderItem_Input>();
@@ -104,6 +117,7 @@ namespace ScratchFramework.Editor
                     GUILayout.Label($"[{input.ContextData.IdPtr}][{input.ContextData.ChildOperation}]");
                 }
             }
+
             private void Show_ScratchUI()
             {
                 var ScratchUIBehaviours = GameObject.FindObjectsOfType<ScratchUIBehaviour>(true);
@@ -122,6 +136,7 @@ namespace ScratchFramework.Editor
                     }
                 }
             }
+
             public override void ShowGUI()
             {
                 if (!EditorApplication.isPlaying) return;

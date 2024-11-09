@@ -53,7 +53,6 @@ namespace ScratchFramework
     public interface IScratchData
     {
         byte[] Serialize();
-        // bool Deserialize(MemoryStream stream, int version = -1);
     }
 
     public interface IScratchRefreshRef
@@ -83,6 +82,10 @@ namespace ScratchFramework
     public interface IBlockScratch_Section : IBlockScratch
     {
         IBlockSectionData GetData();
+    }
+    public interface IScratchSectionChild
+    {
+        IBlockScratch_Section GetSection();
     }
 
     public interface IBlockScratch_Block : IBlockScratch

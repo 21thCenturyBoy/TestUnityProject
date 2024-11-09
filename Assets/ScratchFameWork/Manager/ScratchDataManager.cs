@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -16,20 +17,29 @@ namespace ScratchFramework
 
         public bool Initialize()
         {
-  
-            
+            //清除冗余数据
+            DataDict.Clear();
+            m_VariableLabelRefDict.Clear();
             return true;
         }
 
+        /// <summary>
+        /// 生成画布数据
+        /// </summary>
+        public void GenerateData()
+        {
+        }
+        
         public ScratchVMData GetDataById(int data)
         {
             if (m_IdDict.ContainsKey(data))
             {
                 if (m_Dict.ContainsKey(m_IdDict[data]))
                 {
-                   return  m_Dict[m_IdDict[data]];
+                    return m_Dict[m_IdDict[data]];
                 }
             }
+
             return null;
         }
 
@@ -56,6 +66,73 @@ namespace ScratchFramework
                 m_Dict.Remove(vmdata.Guid);
             }
         }
+
+        public IEngineBlockBaseData GetKoalaBlockBase(int guid)
+        {
+            IEngineBlockBaseData baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(guid);
+
+            return baseData;
+        }
+
+        #region VariableLabel Data
+
+        private Dictionary<Guid, IBlockHeaderVariableLabel> m_VariableLabelRefDict = new Dictionary<Guid, IBlockHeaderVariableLabel>();
+        public Dictionary<Guid, IBlockHeaderVariableLabel> VariableLabelRefDict => m_VariableLabelRefDict;
+
+        public IBlockHeaderVariableLabel[] GetVariableLabel(IEngineBlockVariableBase blockBase)
+        {
+            return m_VariableLabelRefDict.Where(item => item.Value.GetVariableData().VariableRef == blockBase.Guid.ToString())
+                .Select(item => item.Value).ToArray();
+        }
+
+        public bool IsReturnVariable(IEngineBlockBaseData blockBase)
+        {
+            if (blockBase is IEngineBlockVariableBase variableBase)
+            {
+                IBlockHeaderVariableLabel[] variableLabels = GetVariableLabel(variableBase);
+                return variableLabels[0].GetVariableData().DataType == DataType.RenturnVariableLabel;
+            }
+
+            return false;
+        }
+
+        public IHeaderParamVariable CreateVariable(IBlockHeaderVariableLabel variableLabel)
+        {
+            var data = variableLabel.GetVariableData() as ScratchVMData;
+
+            if (!m_VariableLabelRefDict.ContainsKey(data.Guid))
+            {
+                m_VariableLabelRefDict[data.Guid] = variableLabel;
+                return variableLabel.GetVariableData();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public void RemoveVariableLabelRef(IBlockHeaderVariableLabel variableLabel)
+        {
+            var data = variableLabel.GetVariableData() as ScratchVMData;
+            if (m_VariableLabelRefDict.ContainsKey(data.Guid))
+            {
+                m_VariableLabelRefDict.Remove(data.Guid);
+            }
+        }
+
+        public IHeaderParamVariable RefVariable(IBlockHeaderVariableLabel variableLabel)
+        {
+            var data = variableLabel.GetVariableData() as ScratchVMData;
+            if (!m_VariableLabelRefDict.ContainsKey(data.Guid))
+            {
+                m_VariableLabelRefDict[data.Guid] = variableLabel;
+            }
+
+            return variableLabel.GetVariableData();
+        }
+
+        #endregion
+
 
         public bool Active { get; set; }
 

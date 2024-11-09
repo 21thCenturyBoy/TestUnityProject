@@ -17,6 +17,7 @@ namespace ScratchFramework.Editor
             Database.Instance,
             ScratchBlockTreeViewWindows.Instance,
             Config.Instance,
+            Variable.Instance,
         };
 
         [MenuItem("Tools/Scratch/EditorWindow")]
@@ -30,11 +31,6 @@ namespace ScratchFramework.Editor
             Instance.Show();
         }
 
-
-        private void OnInspectorUpdate()
-        {
-            Repaint();
-        }
 
         protected override void OnRightGUI(CustomMenuTreeViewItem _selectedItem)
         {
