@@ -11,20 +11,20 @@ namespace ScratchFramework
     {
         [Header("Sprite资源引用")] 
 
-        [Header(nameof(BlockType.condition))] public Sprite Condition_EndBody;
+        [Header(nameof(BlockType.Condition))] public Sprite Condition_EndBody;
         public Sprite Condition_Header;
         public Sprite Condition_MiddleBody;
         public Sprite Condition_MiddleHeader;
         public Sprite Condition_RoundConditional;
 
-        [Header(nameof(BlockType.define))] public Sprite Define_Header;
+        [Header(nameof(BlockType.Define))] public Sprite Define_Header;
 
-        [Header(nameof(BlockType.operation))] public Sprite Operation_Header;
+        [Header(nameof(BlockType.Operation))] public Sprite Operation_Header;
 
-        [Header(nameof(BlockType.simple))] public Sprite Simple_Header;
+        [Header(nameof(BlockType.Simple))] public Sprite Simple_Header;
         public Sprite Simple_HeaderGhost;
 
-        [Header(nameof(BlockType.trigger))] public Sprite Trigger_Header;
+        [Header(nameof(BlockType.Trigger))] public Sprite Trigger_Header;
         
         [Space]
         [Header("HeaderDataItem Prefab 预制体引用")]
@@ -51,6 +51,11 @@ namespace ScratchFramework
         [Space]
         public string TemplateDatasPath = "Assets/Resources_UGC/Scratch/Prefabs/Resources/TemplateDatas";
         public List<TextAsset> TemplateDatas = new List<TextAsset>();
+        
+        
+        [Space]
+        [Header("引擎代码生成配置")] 
+        public string CsSharpPath = "Assets/Scripts/ScratchFramework/EngineCore";
         
 
         private static ScratchConfig _instance;

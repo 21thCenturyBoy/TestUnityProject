@@ -118,7 +118,7 @@ namespace ScratchFramework
             }
 
             float minHeight = 50;
-            if (Section.Block.Type == BlockType.trigger || Section.Block.Type == BlockType.define)
+            if (Section.Block.Type == BlockType.Trigger || Section.Block.Type == BlockType.Define)
             {
                 minHeight = 0;
             }
@@ -139,7 +139,7 @@ namespace ScratchFramework
 
             if (Section.transform.GetSiblingIndex() == Section.transform.parent.childCount - 2)
             {
-                if (Section.Block.Type != BlockType.trigger && Section.Block.Type != BlockType.define)
+                if (Section.Block.Type != BlockType.Trigger && Section.Block.Type != BlockType.Define)
                 {
                     height += 50;
                 }

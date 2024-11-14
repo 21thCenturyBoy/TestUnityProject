@@ -23,13 +23,6 @@ namespace ScratchFramework
             return true;
         }
 
-        /// <summary>
-        /// 生成画布数据
-        /// </summary>
-        public void GenerateData()
-        {
-        }
-        
         public ScratchVMData GetDataById(int data)
         {
             if (m_IdDict.ContainsKey(data))
@@ -151,6 +144,11 @@ namespace ScratchFramework
             m_Dict.Clear();
             m_IdDict.Clear();
             return true;
+        }
+
+        public void Save()
+        {
+            ScratchEngine.Instance.Core.SaveBlocks();
         }
     }
 }

@@ -24,7 +24,7 @@ namespace ScratchFramework
             rectTransform.anchorMin = new Vector2(0, 1);
             rectTransform.anchorMax = new Vector2(0, 1);
             rectTransform.pivot = new Vector2(0, 1);
-            
+
             block.BlockFucType = data.BlockFucType;
             block.Type = data.Type;
             block.Version = data.Version;
@@ -76,27 +76,28 @@ namespace ScratchFramework
             {
                 case BlockType.none:
                     break;
-                case BlockType.trigger:
+                case BlockType.Trigger:
                     CreateOuterArea(block);
                     block.TryAddComponent<BlockDrag_Trigger>();
                     break;
-                case BlockType.simple:
+                case BlockType.Simple:
                     CreateOuterArea(block);
                     block.TryAddComponent<BlockDrag_Simple>();
                     break;
-                case BlockType.condition:
+                case BlockType.Condition:
                     CreateOuterArea(block);
                     block.TryAddComponent<BlockDrag_Simple>();
                     break;
-                case BlockType.loop:
+                case BlockType.Loop:
                     CreateOuterArea(block);
                     block.TryAddComponent<BlockDrag_Simple>();
                     break;
-                case BlockType.operation:
+                case BlockType.Operation:
                     BlockHeaderItem_Operation HeadOperation = block.TryAddComponent<BlockHeaderItem_Operation>();
                     block.TryAddComponent<BlockDrag_Operation>();
+                    HeadOperation.ValueType = data.OperationValueType;
                     break;
-                case BlockType.define:
+                case BlockType.Define:
                     CreateOuterArea(block);
                     break;
                 default:
@@ -104,7 +105,7 @@ namespace ScratchFramework
             }
 
             layout.FixedScale();
-            
+
             block.LocalPosition = data.LocalPosition;
 
             return block;
@@ -181,8 +182,8 @@ namespace ScratchFramework
         private static BlockSectionBody CreateBody(RectTransform sectionTrans, int sectionIndex, BlockData data)
         {
             if (data.Type == BlockType.none) return null;
-            if (data.Type == BlockType.operation) return null;
-            if (data.Type == BlockType.simple) return null;
+            if (data.Type == BlockType.Operation) return null;
+            if (data.Type == BlockType.Simple) return null;
 
 
             GameObject obj = new GameObject($"{nameof(BlockSectionBody)}");
@@ -211,14 +212,14 @@ namespace ScratchFramework
             {
                 case BlockType.none:
                     break;
-                case BlockType.trigger:
+                case BlockType.Trigger:
                     verticaltalLayoutGroup.padding = new RectOffset(0, 0, -10, 0);
 
                     body.TryAddComponent<BlockSpot_SectionBody>();
                     break;
-                case BlockType.simple:
+                case BlockType.Simple:
                     break;
-                case BlockType.condition:
+                case BlockType.Condition:
                     verticaltalLayoutGroup.padding = new RectOffset(20, 0, -10, 0);
                     if (data.SectionTreeList.Length == 1)
                     {
@@ -241,15 +242,15 @@ namespace ScratchFramework
                     body.TryAddComponent<BlockSpot_SectionBody>();
 
                     break;
-                case BlockType.loop:
+                case BlockType.Loop:
                     verticaltalLayoutGroup.padding = new RectOffset(20, 0, -10, 0);
                     image.Image.sprite = ScratchConfig.Instance.Condition_EndBody;
 
                     body.TryAddComponent<BlockSpot_SectionBody>();
                     break;
-                case BlockType.operation:
+                case BlockType.Operation:
                     break;
-                case BlockType.define:
+                case BlockType.Define:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -335,17 +336,17 @@ namespace ScratchFramework
                 case BlockType.none:
                     image.Image.sprite = ScratchConfig.Instance.Simple_HeaderGhost;
                     break;
-                case BlockType.trigger:
+                case BlockType.Trigger:
                     image.Image.sprite = ScratchConfig.Instance.Trigger_Header;
 
                     header.minHeight = 105;
                     header.minWidth = 150;
 
                     break;
-                case BlockType.simple:
+                case BlockType.Simple:
                     image.Image.sprite = ScratchConfig.Instance.Simple_Header;
                     break;
-                case BlockType.condition:
+                case BlockType.Condition:
                     if (data.SectionTreeList.Length == 1)
                     {
                         image.Image.sprite = ScratchConfig.Instance.Condition_Header;
@@ -365,16 +366,16 @@ namespace ScratchFramework
                     }
 
                     break;
-                case BlockType.loop:
+                case BlockType.Loop:
                     image.Image.sprite = ScratchConfig.Instance.Condition_Header;
                     break;
-                case BlockType.operation:
+                case BlockType.Operation:
                     image.Image.sprite = ScratchConfig.Instance.Operation_Header;
 
                     header.minHeight = 50;
 
                     break;
-                case BlockType.define:
+                case BlockType.Define:
                     image.Image.sprite = ScratchConfig.Instance.Define_Header;
                     break;
                 default:
@@ -457,6 +458,8 @@ namespace ScratchFramework
                     prefab = ScratchConfig.Instance.Prefab_Label;
                     var scratchHead_Label = GameObject.Instantiate(prefab, headerTrans).AddComponent<BlockHeaderItem_Label>();
                     scratchHead = scratchHead_Label;
+                    BlockHeaderParam_Data_Label headerParamDataLabel = headData as BlockHeaderParam_Data_Label;
+                    scratchHead_Label.BlockHeaderLanguage.LanguageNameId = headerParamDataLabel.LanguageId;
                     break;
                 case DataType.Input:
                     prefab = ScratchConfig.Instance.Prefab_Input;
@@ -469,7 +472,7 @@ namespace ScratchFramework
                     Block block = CreateBlock(blockData, headerTrans);
                     var scratchHead_Operation = block.TryAddComponent<BlockHeaderItem_Operation>();
                     scratchHead = scratchHead_Operation;
-
+                    scratchHead_Operation.ValueType = headOperationData.ValueType;
                     break;
                 case DataType.VariableLabel:
                     prefab = ScratchConfig.Instance.Prefab_VariabelLabel;
@@ -489,7 +492,10 @@ namespace ScratchFramework
                     throw new ArgumentOutOfRangeException();
             }
 
-
+            if (scratchHead is IBlockLanguage blockLanguage)
+            {
+                blockLanguage.SetLanguageId(1);
+            }
             scratchHead.SetData(headData);
 
             scratchHead.RefreshUI();
@@ -507,29 +513,29 @@ namespace ScratchFramework
         }
 
 
-
         private static Block AddUIVisible(this Block block)
         {
             switch (block.Type)
             {
                 case BlockType.none:
                     break;
-                case BlockType.trigger:
+                case BlockType.Trigger:
                     var sections = block.Layout.SectionsArray;
                     for (int i = 0; i < sections.Length; i++)
                     {
                         sections[i].Body.Image.Visible = false;
                     }
+
                     break;
-                case BlockType.simple:
+                case BlockType.Simple:
                     break;
-                case BlockType.condition:
+                case BlockType.Condition:
                     break;
-                case BlockType.loop:
+                case BlockType.Loop:
                     break;
-                case BlockType.operation:
+                case BlockType.Operation:
                     break;
-                case BlockType.define:
+                case BlockType.Define:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

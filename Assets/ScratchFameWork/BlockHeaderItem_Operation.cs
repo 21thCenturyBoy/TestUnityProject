@@ -12,6 +12,7 @@ namespace ScratchFramework
     {
         private ScratchVMDataRef<BlockHeaderParam_Data_Input> _parentInput = ScratchVMDataRef<BlockHeaderParam_Data_Input>.NULLRef;
 
+        [Newtonsoft.Json.JsonIgnore]
         public ScratchVMDataRef<BlockHeaderParam_Data_Input> ParentInput
         {
             get => _parentInput;
@@ -33,9 +34,20 @@ namespace ScratchFramework
                 }
             }
         }
-
-
+        private int _dataValueType = -1;
+        public int DataValueType
+        {
+            get => _dataValueType;
+            set
+            {
+                if (value == _dataValueType) return;
+                _dataValueType = value;
+                OnPropertyChanged();
+            }
+        }
+        
         public override DataType DataType => DataType.Operation;
+        public ScratchValueType ValueType => (ScratchValueType)DataValueType;
         
         protected override byte[] OnSerialize()
         {
@@ -44,13 +56,14 @@ namespace ScratchFramework
             var bytes = ScratchUtils.ScratchSerializeInt(ParentInput.RefIdPtr);
             stream.Write(bytes);
             
+            stream.Write(ScratchUtils.ScratchSerializeInt(DataValueType));
+            
             BlockData blockData = OperationBlock.GetDataRef() as BlockData;
 
             byte[] datas = blockData.Serialize();
             stream.WriteBytes(ScratchUtils.ScratchSerializeInt(datas.Length));
             stream.WriteBytes(datas);
-
-
+            
             return stream.ToArray();
         }
 
@@ -65,7 +78,16 @@ namespace ScratchFramework
             {
                 ParentInput = ScratchVMDataRef<BlockHeaderParam_Data_Input>.CreateInVaildPtr<BlockHeaderParam_Data_Input>(DataPtr);
             }
-
+            
+            if (version >= 1)
+            {
+                DataValueType = memoryStream.ScratchDeserializeInt();
+            }
+            else
+            {
+                DataValueType = (int)ScratchValueType.Undefined;
+            }
+            
             int size = memoryStream.ScratchDeserializeInt();
 
             if (size != -1)
@@ -81,6 +103,7 @@ namespace ScratchFramework
             }
         }
 
+        [Newtonsoft.Json.JsonIgnore]
         public byte[] BlockDatas { get; protected set; }
         private BlockData m_DeserializeBlockData = null;
 
@@ -90,7 +113,7 @@ namespace ScratchFramework
         }
 
         private IBlockScratch_Block m_OperationBlock;
-
+        [Newtonsoft.Json.JsonIgnore]
         public IBlockScratch_Block OperationBlock
         {
             get
@@ -134,9 +157,12 @@ namespace ScratchFramework
                 return m_block;
             }
         }
-
+        
+        public ScratchValueType ValueType;
+        
         protected override void OnCreateContextData()
         {
+            ContextData.DataValueType = (int)ValueType;
         }
 
         protected override void OnContextDataChanged(BlockHeaderParam_Data_Operation orginData, BlockHeaderParam_Data_Operation newData)
@@ -144,10 +170,6 @@ namespace ScratchFramework
             base.OnContextDataChanged(orginData, newData);
             if (orginData != null) orginData.OperationBlock = null;
             if (newData != null) newData.OperationBlock = OperationBlock;
-        }
-
-        public override void OnUpdateLayout()
-        {
         }
 
         public override void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e)

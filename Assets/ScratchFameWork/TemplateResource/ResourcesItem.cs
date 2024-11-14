@@ -117,15 +117,19 @@ namespace ScratchFramework
 
         private void TrySetKoalaBlockBase(IEngineBlockBaseData blockBase)
         {
-            int returnValueLength = blockBase.GetReturnValueLength();
-            int[] returnValues = new int[returnValueLength];
-            if (returnValueLength != 0)
+            if (blockBase is IBlockReturnVarGuid returnVarGuid)
             {
-                for (int j = 0; j < returnValueLength; j++)
+                int returnValueLength = returnVarGuid.GetReturnValuesLength();
+                int[] returnValues = new int[returnValueLength];
+                if (returnValueLength != 0)
                 {
-                    returnValues[j] = blockBase.GetReturnValueGuid(j);
+                    for (int j = 0; j < returnValueLength; j++)
+                    {
+                        returnValues[j] = returnVarGuid.GetReturnValueGuid(j);
+                    }
                 }
             }
+
         }
 
         private void SetKoalaBlockData(Block block, IEngineBlockBaseData blockBase)

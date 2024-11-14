@@ -15,6 +15,7 @@ namespace ScratchFramework
     {
         private string _VariableInfo = string.Empty;
 
+
         public string VariableInfo
         {
             get => _VariableInfo;
@@ -39,15 +40,30 @@ namespace ScratchFramework
                 OnPropertyChanged();
             }
         }
+        
+        private int _languageId;
+
+        public int LanguageId
+        {
+            get => _languageId;
+            set
+            {
+                if (value == _languageId) return;
+                _languageId = value;
+                OnPropertyChanged();
+            }
+        }
 
         public override DataType DataType => DataType.RenturnVariableLabel;
 
+        
         protected override byte[] OnSerialize()
         {
             var stream = ScratchUtils.CreateMemoryStream();
 
             stream.Write(ScratchUtils.ScratchSerializeString(VariableInfo));
             stream.Write(ScratchUtils.ScratchSerializeString(VariableRef));
+            stream.Write(ScratchUtils.ScratchSerializeInt(LanguageId));
 
             return stream.ToArray();
         }
@@ -56,6 +72,7 @@ namespace ScratchFramework
         {
             VariableInfo = memoryStream.ScratchDeserializeString();
             VariableRef = memoryStream.ScratchDeserializeString();
+            LanguageId = memoryStream.ScratchDeserializeInt();
         }
 
         public override string ToString()
@@ -68,7 +85,7 @@ namespace ScratchFramework
         }
     }
 
-    public class BlockHeaderItem_RenturnVariableLabel : BlockHeaderItem<BlockHeaderParam_Data_RenturnVariableLabel>, IBlockHeaderVariableLabel
+    public class BlockHeaderItem_RenturnVariableLabel : BlockHeaderItem<BlockHeaderParam_Data_RenturnVariableLabel>, IBlockHeaderVariableLabel,IBlockLanguage
     {
         private TMP_Text m_LabelText;
 
@@ -84,10 +101,29 @@ namespace ScratchFramework
                 return m_LabelText;
             }
         }
+        
+        private BlockHeaderLanguage m_BlockHeaderLanguage;
 
+        public BlockHeaderLanguage BlockHeaderLanguage
+        {
+            get
+            {
+                if (m_BlockHeaderLanguage == null)
+                {
+                    m_BlockHeaderLanguage = GetComponent<BlockHeaderLanguage>();
+                }
+
+                return m_BlockHeaderLanguage;
+            }
+        }
+        
         protected override void OnCreateContextData()
         {
             ContextData.VariableInfo = LabelText.text;
+            if (BlockHeaderLanguage != null)
+            {
+                ContextData.LanguageId = BlockHeaderLanguage.LanguageNameId;
+            }
         }
 
 
@@ -112,7 +148,7 @@ namespace ScratchFramework
                     if (!string.IsNullOrEmpty(ContextData.VariableRef))
                     {
                         int Guid = int.Parse(ContextData.VariableRef);
-                        IEngineBlockBaseData baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(Guid);
+                        IEngineBlockVariableBase baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(Guid) as IEngineBlockVariableBase;
                         if (baseData != null && baseData.TryGetBlockVariableName(out var variableName))
                         {
                             ContextData.VariableInfo = variableName;
@@ -123,6 +159,8 @@ namespace ScratchFramework
                         LabelText.text = ContextData.VariableInfo;
                     }
 
+                    break;
+                case nameof(BlockHeaderParam_Data_Label.LanguageId):
                     break;
                 default:
                     break;
@@ -147,5 +185,12 @@ namespace ScratchFramework
         }
 
         public IHeaderParamVariable GetVariableData() => ContextData;
+        public void SetLanguageId(int id)
+        {
+            if (ContextData != null)
+            {
+                ContextData.LanguageId = id;
+            }
+        }
     }
 }

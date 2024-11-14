@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,109 +15,121 @@ namespace ScratchFramework
         Values = 5,
     }
 
+    /// <summary>
+    /// 这部分应该改成自动生成
+    /// </summary>
     public enum ScratchValueType : byte
     {
-        Boolean = 0,
-        Byte = 1,
-        Integer = 2,
-        FP = 3,
-        Vector2 = 4,
-        Vector3 = 5,
-        EntityRef = 6,
-        AssetRef = 7,
+        Undefined = 0,
+        Boolean = 1,
+        Byte = 2,
+        Integer = 3,
+        Float = 4,
+        Vector2 = 5,
+        Vector3 = 6,
+        EntityRef = 7,
+        AssetRef = 8,
     }
 
     /// <summary>
     /// 这部分应该改成自动生成
     /// </summary>
-    public enum ScratchBlockType
+    public enum ScratchBlockType : int
     {
-        RunTimer,
-        OnGameStarted,
-        
-        
+        __Undefined__ = 0,
+        __Event__ = 10000, //事件
         OnCollisionEnter,
         OnCollisionStay,
         OnCollisionExit,
         OnObjectCreated,
+        //TODO Event
+
+        __Action__ = 20000, //行为
         ApplyForce,
         DestroyObject,
+        //TODO Action
+
+        __Control__ = 30000, //控制
+        IfElse,
         RepeatAction,
         StartCountdown,
+        //TODO Control
+
+        __Condition__ = 40000, //条件，与或非
         CompareValues,
+        //TODO Condition
+
+        __GetValue__ = 50000, //取值
         GetCharacterSpeed,
         GetVectorMagnitude,
-        
+        //TODO GetValue
+
+        __Variable__ = 60000, //变量
         IntegerValue,
         VectorValue,
         EntityValue,
-
+        //TODO Variable
     }
 
     public interface IEngineBlockBaseData
     {
-        bool TryGetBlockVariableName(out string name);
+        public Vector3 CanvasPos { get; set; }
         public ScratchClassName ClassName { get; }
         public ScratchBlockType Type { get; }
         public int NextBlockGuid { get; set; }
-        public IEngineBlockBaseData NextBlock { get; set; }
+        [Newtonsoft.Json.JsonIgnore] public IEngineBlockBaseData NextBlock { get; set; }
         public int Guid { get; set; }
-
-        #region Operation or Variable Functions
-
-        public void SetVarsGuid(int Index, int guid);
-        public int GetVarGuid(int Index);
-        public int GetVariableLength();
-
-        #endregion
-
-        #region Return Value Functions
-
-        public virtual void SetReturnValueGuid(int Index, int guid)
-        {
-        }
-
-        public virtual int GetReturnValueGuid(int Index)
-        {
-            return 0;
-        }
-
-        public virtual int GetReturnValueLength()
-        {
-            return 0;
-        }
-
-        #endregion
     }
 
-    public interface IEngineBlockTriggerBase : IEngineBlockBaseData
+    public interface IBlockReturnVarGuid
+    {
+        public void SetReturnValueGuid(int Index, int guid);
+        public int GetReturnValueGuid(int Index);
+        public int GetReturnValuesLength();
+        public int[] GetReturnValues();
+    }
+
+    public interface IBlockVarGuid
+    {
+        public void SetInputValues(int index, string value);
+        public string GetInputValue(int index);
+        public string[] GetInputValues();
+
+        public int GetVarGuidsLength();
+        public void SetVarsGuid(int Index, int guid);
+        public int GetVarGuid(int Index);
+        public int[] GetVarGuids();
+    }
+
+    public interface IEngineBlockTriggerBase : IEngineBlockBaseData, IBlockReturnVarGuid
     {
     }
 
-    public interface IEngineBlockConditionBase : IEngineBlockBaseData
+    public interface IEngineBlockConditionBase : IEngineBlockBaseData, IBlockVarGuid
     {
         public int TrueBlockGuid { get; set; }
         public int FalseBlockGuid { get; set; }
         public int OperationGuid { get; set; }
     }
 
-    public interface IEngineBlockLoopBase : IEngineBlockBaseData
+    public interface IEngineBlockLoopBase : IEngineBlockBaseData, IBlockVarGuid
     {
         public int ChildRootGuid { get; set; }
     }
 
-    public interface IEngineBlockSimpleBase : IEngineBlockBaseData
+    public interface IEngineBlockSimpleBase : IEngineBlockBaseData, IBlockVarGuid
     {
     }
 
-    public interface IEngineBlockOperationBase : IEngineBlockBaseData
+    public interface IEngineBlockOperationBase : IEngineBlockBaseData, IBlockVarGuid
     {
         public int Variable1Guid { get; set; }
         public int Variable2Guid { get; set; }
     }
 
-    public interface IEngineBlockVariableBase : IEngineBlockBaseData
+    public interface IEngineBlockVariableBase : IEngineBlockBaseData, IBlockVarGuid
     {
+        bool TryGetBlockVariableName(out string name);
         public string VariableName { get; set; }
 
         public string GetValueToString();
@@ -125,6 +138,8 @@ namespace ScratchFramework
 
     public interface IEngineCoreInterface
     {
+        string GetEngineVersion();
+
         /// <summary>
         /// 获取所有引擎Block数据
         /// </summary>
@@ -137,13 +152,13 @@ namespace ScratchFramework
         /// <returns></returns>
         public IEngineBlockBaseData GetBlocksDataRef(int guid);
 
-        public void ChangeBlockData(Block block, Transform orginParentTrans, Transform newParentTrans);
+        public bool ChangeBlockData(Block block, Transform orginParentTrans, Transform newParentTrans);
 
         /// <summary>
         /// 修复并设置BlockData 位置
         /// </summary>
         public bool TryFixedBlockBaseDataPos(IEngineBlockBaseData blockBaseData, Vector3 pos);
-        
+
         /// <summary>
         /// 更新BlockData 位置
         /// </summary>
@@ -173,6 +188,18 @@ namespace ScratchFramework
         /// 生成Block
         /// </summary>
         /// <returns></returns>
-        public List<Block> GenerateBlocks();
+        public List<Block> GenerateBlocks(string filepath = null);
+        
+        public void SaveBlocks(string filepath = null,Action<bool> callback = null);
+
+#if UNITY_EDITOR
+
+        /// <summary>
+        /// 编辑器创建Block文件
+        /// </summary>
+        /// <param name="blockCreateName"></param>
+        /// <returns></returns>
+        public bool BlockCreateCSFile(string blockCreateName);
+#endif
     }
 }

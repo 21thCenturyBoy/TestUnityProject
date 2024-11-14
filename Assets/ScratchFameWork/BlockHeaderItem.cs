@@ -69,8 +69,7 @@ namespace ScratchFramework
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying)
             {
-                if (ContextData == null)
-                    ContextData = new T();
+                if (ContextData == null) ContextData = new T();
                 OnCreateContextData();
             }
 #endif

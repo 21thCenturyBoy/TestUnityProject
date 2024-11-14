@@ -12,7 +12,7 @@ namespace ScratchFramework
         Bit,
         MessagePack,
     }
-    
+
     public static class BlockHeadDataFactorty
     {
         public static IBlockHeadData CreateBlockHeadData(DataType datatype)
@@ -78,8 +78,10 @@ namespace ScratchFramework
         }
     }
 
+    [Serializable]
     public partial class BlockData : IBlockData
     {
+        [Newtonsoft.Json.JsonIgnore]
         public Vector3 LocalPosition { get; set; }
         public FucType BlockFucType { get; set; }
         public BlockType Type { get; set; }
@@ -88,8 +90,9 @@ namespace ScratchFramework
         public IBlockSectionData[] SectionTreeList { get; set; } = Array.Empty<IBlockSectionData>();
 
         #region 引用刷新
-
+        [Newtonsoft.Json.JsonIgnore]
         public static List<IScratchData> OrginData { get; set; } = new List<IScratchData>();
+        [Newtonsoft.Json.JsonIgnore]
         public static List<IScratchData> NewData { get; set; } = new List<IScratchData>();
 
         #endregion
@@ -98,8 +101,15 @@ namespace ScratchFramework
 
         public string Name
         {
-            get { return $"{BlockFucType} {Type} v.{Version}"; }
+            get { return $"{ScratchType} v.{Version}"; }
         }
+
+        #region 特殊Data
+        public ScratchValueType OperationValueType { get; set; } = ScratchValueType.Undefined;
+
+        #endregion
+
+        private BlockHeaderItem_Operation OperationData;
 
         public void GetData(Block block)
         {
@@ -108,6 +118,12 @@ namespace ScratchFramework
             Type = block.Type;
             ScratchType = block.scratchType;
             Version = block.Version;
+
+            if (Type == BlockType.Operation)
+            {
+                OperationData = block.GetComponent<BlockHeaderItem_Operation>();
+                OperationValueType = OperationData.ValueType;
+            }
 
             //TODO Other Serialize Data
             var sections = block.GetChildSection();
@@ -135,11 +151,7 @@ namespace ScratchFramework
 
             MemoryStream stream = ScratchUtils.CreateMemoryStream();
 
-            stream.WriteBytes(ScratchUtils.ScratchSerializeInt(Version));
-            stream.WriteByte((byte)Type);
-            stream.WriteByte((byte)BlockFucType);
-            stream.WriteBytes(ScratchUtils.ScratchSerializeInt((int)ScratchType));
-            stream.WriteBytes(ScratchUtils.ScratchSerializeVector3(LocalPosition));
+            Serialize_Base(stream);
 
             stream.WriteBytes(ScratchUtils.ScratchSerializeInt(sectionBytesList.Count));
             for (int i = 0; i < sectionBytesList.Count; i++)
@@ -151,14 +163,34 @@ namespace ScratchFramework
             return stream.ToArray();
         }
 
+        public bool Serialize_Base(MemoryStream stream)
+        {
+            stream.WriteBytes(ScratchUtils.ScratchSerializeInt(Version));
+            stream.WriteByte((byte)Type);
+            stream.WriteByte((byte)BlockFucType);
+            stream.WriteBytes(ScratchUtils.ScratchSerializeInt((int)ScratchType));
+            stream.WriteBytes(ScratchUtils.ScratchSerializeVector3(LocalPosition));
+
+            if (Type == BlockType.Operation)
+            {
+                stream.WriteByte((byte)OperationValueType);
+            }
+
+            return true;
+        }
 
         public bool Deserialize_Base(MemoryStream stream)
         {
-            Version = ScratchUtils.ScratchDeserializeInt(stream);
+            Version = stream.ScratchDeserializeInt();
             Type = (BlockType)ScratchUtils.ReadByte(stream);
             BlockFucType = (FucType)ScratchUtils.ReadByte(stream);
-            ScratchType = (ScratchBlockType)ScratchUtils.ScratchDeserializeInt(stream);
-            LocalPosition = ScratchUtils.ScratchDeserializeVector3(stream);
+            ScratchType = (ScratchBlockType)stream.ScratchDeserializeInt();
+            LocalPosition = stream.ScratchDeserializeVector3();
+
+            if (Type == BlockType.Operation)
+            {
+                OperationValueType = (ScratchValueType)ScratchUtils.ReadByte(stream);
+            }
 
             return true;
         }
@@ -181,7 +213,7 @@ namespace ScratchFramework
 
                 stream.Position += dataSectionSize;
 
-                if (SectionData_Deserialize(sectionData, dataSectionStream, Version))
+                if (SectionData_Deserialize(sectionData, dataSectionStream, version))
                 {
                     SectionTreeList[i] = sectionData;
                 }
@@ -265,7 +297,7 @@ namespace ScratchFramework
         }
 
         public static ref T GetArrayRef<T>(T[] items, int index) => ref items[index];
-        
+
 
         public static byte[] ScratchSerializeInt(int data)
         {

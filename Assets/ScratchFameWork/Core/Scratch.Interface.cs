@@ -79,6 +79,10 @@ namespace ScratchFramework
         void RefreshUI();
     }
 
+    public interface IBlockLanguage
+    {
+        void SetLanguageId(int id);
+    }
     public interface IBlockScratch_Section : IBlockScratch
     {
         IBlockSectionData GetData();

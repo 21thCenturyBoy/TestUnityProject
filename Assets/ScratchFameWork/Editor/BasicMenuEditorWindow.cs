@@ -9,8 +9,7 @@ namespace ScratchFramework.Editor
     [Serializable]
     public abstract class BasicMenuEditorWindow : EditorWindow
     {
-        [SerializeField]
-        ResizableArea resizableArea = new ResizableArea();
+        [SerializeField] ResizableArea resizableArea = new ResizableArea();
         protected Rect resizableAreaRect = new Rect(0, 0, 150, 150);
 
         string searchText;
@@ -21,26 +20,19 @@ namespace ScratchFramework.Editor
         Rect rightRect;
         Vector2 rightScroll;
 
-        protected virtual float LeftMinWidth
+        public virtual float LeftMinWidth
         {
-            get
-            {
-                return 50;
-            }
+            get { return 50; }
         }
-        protected virtual float RightMinWidth
+
+        public virtual float RightMinWidth
         {
-            get
-            {
-                return 500;
-            }
+            get { return 500; }
         }
-        protected Rect RightRect
+
+        public Rect RightRect
         {
-            get
-            {
-                return rightRect;
-            }
+            get { return rightRect; }
         }
 
         protected virtual void OnEnable()
@@ -98,12 +90,15 @@ namespace ScratchFramework.Editor
                 OnRightGUI(menuTreeView.Find(selection[0]) as CustomMenuTreeViewItem);
                 GUILayout.EndScrollView();
             }
+
             GUILayout.EndArea();
         }
 
         protected abstract CustomMenuTreeView BuildMenuTree(TreeViewState _treeViewState);
 
-        protected virtual void OnRightGUI(CustomMenuTreeViewItem _selectedItem) { }
+        protected virtual void OnRightGUI(CustomMenuTreeViewItem _selectedItem)
+        {
+        }
     }
 
     public class CustomMenuTreeView : CustomTreeView
@@ -156,14 +151,17 @@ namespace ScratchFramework.Editor
         {
             base.RowGUI(args);
             CustomMenuTreeViewItem item = args.item as CustomMenuTreeViewItem;
-			if(item != null)
-				item.itemDrawer?.Invoke(args.rowRect, item);
+            if (item != null)
+                item.itemDrawer?.Invoke(args.rowRect, item);
         }
     }
 
     public class CustomMenuTreeViewItem : CustomTreeViewItem
     {
         public Action<Rect, CustomMenuTreeViewItem> itemDrawer;
-        public CustomMenuTreeViewItem() : base() { }
+
+        public CustomMenuTreeViewItem() : base()
+        {
+        }
     }
 }

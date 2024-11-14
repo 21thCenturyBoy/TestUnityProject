@@ -112,7 +112,7 @@ namespace ScratchFramework
 
             Block newblock = null;
 
-            if (newBlockData.Type == BlockType.operation)
+            if (newBlockData.Type == BlockType.Operation)
             {
                 newblock = BlockCreator.CreateBlock(newBlockData, parentTrans);
             }
@@ -148,7 +148,7 @@ namespace ScratchFramework
             Block newblock = null;
 
 
-            if (newBlockData.Type == BlockType.operation)
+            if (newBlockData.Type == BlockType.Operation)
             {
                 newblock = BlockCreator.CreateBlock(newBlockData, BlockCanvasManager.Instance.RectTrans);
             }

@@ -95,13 +95,16 @@ namespace ScratchFramework
             if (parentBase == null) return false;
             if (blockData is IEngineBlockVariableBase)
             {
-                int len = parentBase.GetVariableLength();
-                for (int i = 0; i < len; i++)
+                if (parentBase is IBlockVarGuid parentVar)
                 {
-                    if (parentBase.GetVarGuid(i) == blockData.Guid)
+                    int len = parentVar.GetVarGuidsLength();
+                    for (int i = 0; i < len; i++)
                     {
-                        index = i;
-                        return true;
+                        if (parentVar.GetVarGuid(i) == blockData.Guid)
+                        {
+                            index = i;
+                            return true;
+                        }
                     }
                 }
             }

@@ -8,6 +8,12 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
+	"last_search.756173B0" = ""
+	"OpenInspectorPreview.756173B0" = "0"
+	"currentGroup.756173B0" = "asset"
+	"last_search.053608A6" = "p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" prefab:any"
+	"OpenInspectorPreview.053608A6" = "0"
+	"currentGroup.053608A6" = "asset"
 }
 providers = {
 	archetype = {
@@ -69,11 +75,31 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
+	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" prefab:any"
+	"p: dir=\"Assets/ScratchFameWork/Resources/BlockPrefab\" prefab:any"
+	"p: dir=\"Assets/ScratchFameWork/Resources/BlockPrefab\""
+	"p: dir=\"Assets/ScratchFameWork/Resources/BlockPrefab\" t:Block"
+	"p: dir=\"Assets/ScratchFameWork/ResourcesDatas\" t:Block"
+	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" t:Block"
+	"p: t:Block dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\""
+	"p: dir=\"Assets/ScratchFameWork/Resources\" t:Block"
+	"p: dir=\"Assets/ScratchFameWork/Resources/\" t:prefab"
+	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" t:prefab"
+	""
+	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" "
+	"p: dir=\"Assets/ScratchFameWork/Resources/\" "
+	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateResource\" "
+	"p: dir=\"Assets/ScratchFameWork/Resources\" "
+	"p: dir=\"Assets/ScratchFameWork\" "
+	"p: dir=\"A\" "
+	"p: dir=\"Resources\" "
+	"p: dir=\"TemplateDatas\" "
+	"p: dir=\"TemplateDatas\" t =prefab"
 ]
 searchItemFavorites = [
 ]
 savedSearchesSortOrder = 0
-showSavedSearchPanel = false
+showSavedSearchPanel = true
 hideTabs = false
 expandedQueries = [
 ]

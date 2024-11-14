@@ -133,5 +133,11 @@ namespace ScratchFramework
             ScratchMenuManager.Instance.Clear();
             return true;
         }
+        
+        public void Save()
+        {
+            ScratchDataManager.Instance.Save();
+        }
+        
     }
 }

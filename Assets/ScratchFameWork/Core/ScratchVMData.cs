@@ -8,7 +8,11 @@ namespace ScratchFramework
 {
     public partial class ScratchVMData : INotifyPropertyChanged
     {
-        [NonSerialized] protected readonly Guid m_guid = Guid.Empty;
+        [Newtonsoft.Json.JsonIgnore]
+        [NonSerialized] 
+        protected readonly Guid m_guid = Guid.Empty;
+        
+        [Newtonsoft.Json.JsonIgnore]
         public Guid Guid => m_guid;
 
         public const int UnallocatedId = 0;

@@ -18,6 +18,10 @@ namespace ScratchFramework.Editor
             public void Init()
             {
                 var asset = AssetDatabase.LoadAssetAtPath<ScratchConfig>(path);
+                if (asset == null)
+                {
+                    asset = Resources.Load<ScratchConfig>(nameof(ScratchConfig));
+                }
                 _editor = UnityEditor.Editor.CreateEditor(asset);
             }
 

@@ -21,12 +21,12 @@ namespace ScratchFramework
     public enum BlockType : byte
     {
         none,
-        trigger,
-        simple,
-        condition,
-        loop,
-        operation,
-        define,
+        Trigger,
+        Simple,
+        Condition,
+        Loop,
+        Operation,
+        Define,
     }
 
     /// <summary>Block基类 </summary>
@@ -155,7 +155,7 @@ namespace ScratchFramework
         public bool TryGetOperationInput(out BlockHeaderItem_Input input)
         {
             input = null;
-            if (Type  == BlockType.operation)
+            if (Type  == BlockType.Operation)
             {
                 int index = transform.GetSiblingIndex();
 
@@ -176,7 +176,7 @@ namespace ScratchFramework
 
         public void SetShadowActive(bool value)
         {
-            if (Type != BlockType.operation)
+            if (Type != BlockType.Operation)
             {
                 foreach (var section in Layout.SectionsArray)
                 {

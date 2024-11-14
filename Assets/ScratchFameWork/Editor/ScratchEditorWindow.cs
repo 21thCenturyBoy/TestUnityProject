@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ScratchFramework.Editor;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -12,25 +11,36 @@ namespace ScratchFramework.Editor
         private static ScratchEditorWindow m_Instance;
         public static ScratchEditorWindow Instance => m_Instance;
 
+        private static SerializedObject serializedObject;
+
         public static List<IMenuTreeWindow> ScratchEditorMenuList = new List<IMenuTreeWindow>()
         {
             Database.Instance,
             ScratchBlockTreeViewWindows.Instance,
             Config.Instance,
             Variable.Instance,
+            BlockBrowser.Instance,
         };
 
         [MenuItem("Tools/Scratch/EditorWindow")]
-        public static void window()
+        public static void OpenWindow()
         {
             if (m_Instance == null)
             {
                 m_Instance = GetWindow<ScratchEditorWindow>();
-            }
 
+            }
             Instance.Show();
+            serializedObject = new SerializedObject(m_Instance);
         }
 
+        private void OnInspectorUpdate()
+        {
+            if (m_Instance != this)
+            {
+                OpenWindow();
+            }
+        }
 
         protected override void OnRightGUI(CustomMenuTreeViewItem _selectedItem)
         {

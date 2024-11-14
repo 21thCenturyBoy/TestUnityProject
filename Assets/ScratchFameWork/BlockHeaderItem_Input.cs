@@ -26,7 +26,21 @@ namespace ScratchFramework
                 OnPropertyChanged();
             }
         }
+        
+        private int _languageId;
 
+        public int LanguageId
+        {
+            get => _languageId;
+            set
+            {
+                if (value == _languageId) return;
+                _languageId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
         public ScratchVMDataRef<BlockHeaderParam_Data_Operation> ChildOperation
         {
             get => _childOperation;
@@ -65,12 +79,11 @@ namespace ScratchFramework
         protected override byte[] OnSerialize()
         {
             var stream = ScratchUtils.CreateMemoryStream();
-
-            var bytes = ScratchUtils.ScratchSerializeString(DataProperty);
-            stream.Write(bytes);
-            bytes = ScratchUtils.ScratchSerializeInt(ChildOperation.RefIdPtr);
-            stream.Write(bytes);
-
+            
+            stream.Write( ScratchUtils.ScratchSerializeString(DataProperty));
+            stream.Write(ScratchUtils.ScratchSerializeInt(ChildOperation.RefIdPtr));
+            stream.Write(ScratchUtils.ScratchSerializeInt(LanguageId));
+            
             return stream.ToArray();
         }
 
@@ -87,6 +100,7 @@ namespace ScratchFramework
             {
                 ChildOperation = ScratchVMDataRef<BlockHeaderParam_Data_Operation>.CreateInVaildPtr<BlockHeaderParam_Data_Operation>(DataPtr);
             }
+            LanguageId = memoryStream.ScratchDeserializeInt();
         }
 
         public void RefreshRef(Dictionary<int, int> refreshDic)
@@ -111,9 +125,14 @@ namespace ScratchFramework
         {
             return $"{base.ToString()}, {nameof(DataProperty)}: {DataProperty}, {nameof(ChildOperation)}: {ChildOperation}";
         }
+
+        public void SetLanguageId(int languageId)
+        {
+        }
+        
     }
 
-    public class BlockHeaderItem_Input : BlockHeaderItem<BlockHeaderParam_Data_Input>
+    public class BlockHeaderItem_Input : BlockHeaderItem<BlockHeaderParam_Data_Input>,IBlockLanguage
     {
         private TMP_InputField m_InputField;
 
@@ -129,11 +148,30 @@ namespace ScratchFramework
                 return m_InputField;
             }
         }
+        private BlockHeaderLanguage m_BlockHeaderLanguage;
 
+        public BlockHeaderLanguage BlockHeaderLanguage
+        {
+            get
+            {
+                if (m_BlockHeaderLanguage == null)
+                {
+                    m_BlockHeaderLanguage = GetComponent<BlockHeaderLanguage>();
+                }
+
+                return m_BlockHeaderLanguage;
+            }
+        }
+        
         protected override void OnCreateContextData()
         {
             ContextData.DataProperty = InputField.text;
             ContextData.InputBlock = this;
+            
+            if (BlockHeaderLanguage != null)
+            {
+                ContextData.LanguageId = BlockHeaderLanguage.LanguageNameId;
+            }
         }
 
         public override void ContextDataOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -146,6 +184,8 @@ namespace ScratchFramework
                 case nameof(BlockHeaderParam_Data_Input.ChildOperation):
                     Active = ContextData.ChildOperation == ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
                     break;
+                case nameof(BlockHeaderParam_Data_Label.LanguageId):
+                    break;
                 default:
                     break;
             }
@@ -156,5 +196,14 @@ namespace ScratchFramework
             InputField.SetTextWithoutNotify(ContextData.DataProperty);
             Active = ContextData.ChildOperation == ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
         }
+
+        public void SetLanguageId(int id)
+        {
+            if (ContextData != null)
+            {
+                ContextData.LanguageId = id;
+            }
+        }
     }
+    
 }
