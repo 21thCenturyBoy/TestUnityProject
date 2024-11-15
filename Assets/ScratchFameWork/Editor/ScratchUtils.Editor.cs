@@ -236,8 +236,8 @@ namespace ScratchFramework
                 stringBuilder.AppendLine($"\t\tpublic ScratchClassName ClassName => ScratchClassName.{blockDatas[i].Type};");
                 stringBuilder.AppendLine($"\t\tpublic ScratchBlockType Type => ScratchBlockType.{blockDatas[i].ScratchType};");
                 
-                stringBuilder.AppendLine($"\t\tprivate Vector3 m_CanvasPos = Vector3.zero;");
-                stringBuilder.AppendLine($"\t\tpublic Vector3 CanvasPos");
+                stringBuilder.AppendLine($"\t\tprivate BVector3 m_CanvasPos = BVector3.zero;");
+                stringBuilder.AppendLine($"\t\tpublic BVector3 CanvasPos");
                 stringBuilder.AppendLine("\t\t{");
                 stringBuilder.AppendLine("\t\t\tget => m_CanvasPos;");
                 stringBuilder.AppendLine("\t\t\tset");
@@ -246,7 +246,7 @@ namespace ScratchFramework
                 stringBuilder.AppendLine("\t\t\tm_CanvasPos = value;");
                 stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
-                stringBuilder.AppendLine("\t\tpartial void SetCanvasPos(ref Vector3 newData);");
+                stringBuilder.AppendLine("\t\tpartial void SetCanvasPos(ref BVector3 newData);");
                 
                 stringBuilder.AppendLine($"\t\tprivate int m_NextBlockGuid = -1;");
                 stringBuilder.AppendLine($"\t\tpublic int NextBlockGuid");

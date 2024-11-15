@@ -71,9 +71,43 @@ namespace ScratchFramework
         //TODO Variable
     }
 
+    [Serializable]
+    public struct BVector3
+    {
+        public static readonly BVector3 zero = new BVector3(Vector3.zero);
+        public float x;
+        public float y;
+        public float z;
+
+        public BVector3(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public BVector3(Vector3 d)
+        {
+            x = d.x;
+            y = d.y;
+            z = d.z;
+        }
+
+        public static implicit operator Vector3(BVector3 v)
+        {
+            return new Vector3(v.x, v.y, v.z);
+        }
+
+        //  User-defined conversion from double to Digit
+        public static implicit operator BVector3(Vector3 v)
+        {
+            return new BVector3 { x = v.x, y = v.y, z = v.z };
+        }
+    }
+
     public interface IEngineBlockBaseData
     {
-        public Vector3 CanvasPos { get; set; }
+        public BVector3 CanvasPos { get; set; }
         public ScratchClassName ClassName { get; }
         public ScratchBlockType Type { get; }
         public int NextBlockGuid { get; set; }
@@ -188,9 +222,9 @@ namespace ScratchFramework
         /// 生成Block
         /// </summary>
         /// <returns></returns>
-        public List<Block> GenerateBlocks(string filepath = null);
-        
-        public void SaveBlocks(string filepath = null,Action<bool> callback = null);
+        public void GenerateBlocks(string filepath = null, Action<List<Block>> callback = null);
+
+        public void SaveBlocks(string filepath = null, Action<bool> callback = null);
 
 #if UNITY_EDITOR
 

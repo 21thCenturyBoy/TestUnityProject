@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -35,11 +37,19 @@ namespace ScratchFramework
 
         public bool TryFixedBlockBaseDataPos(IEngineBlockBaseData blockBaseData, Vector3 pos)
         {
+            if (m_blocks.ContainsKey(blockBaseData.Guid))
+            {
+                m_blocks[blockBaseData.Guid].CanvasPos = pos;
+            }
             return true;
         }
 
         public bool UpdateDataPos(IEngineBlockBaseData blockBaseData, Vector3 pos)
         {
+            if (m_blocks.ContainsKey(blockBaseData.Guid))
+            {
+                m_blocks[blockBaseData.Guid].CanvasPos = pos;
+            }
             return true;
         }
 
@@ -55,18 +65,17 @@ namespace ScratchFramework
             IEngineBlockBaseData block = null;
             block = scratchType.CreateBlockData();
 
-            // if (AllBlocks == null) AllBlocks = new Dictionary<int, KoalaBlockBase>();
-            // if (isAdd)
-            // {
-            //     block.Guid = Guid.NewGuid().GetHashCode();
-            //     while (AllBlocks.ContainsKey(block.Guid))
-            //     {
-            //         block.Guid = Guid.NewGuid().GetHashCode();
-            //     }
-            //
-            //     AllBlocks.Add(block.Guid, block);
-            // }
-            //
+            if (isAdd)
+            {
+                block.Guid = Guid.NewGuid().GetHashCode();
+                while (m_blocks.ContainsKey(block.Guid))
+                {
+                    block.Guid = Guid.NewGuid().GetHashCode();
+                }
+
+                m_blocks.Add(block.Guid, block);
+            }
+
             return block;
         }
 
@@ -87,71 +96,181 @@ namespace ScratchFramework
             return null;
         }
 
-        #region 生成预支存储数据
+        private readonly string tempJsonfileUrl = "file://" + tempJsonfilePath;
 
-        public List<Block> GenerateBlocks(string fileName = null)
+        public AudioSource au; //用于播放音频的AudioSource
+
+        IEnumerator GetJsonFile(string pathUrl, Action<Stream> callback = null)
+        {
+            WWW www = new WWW(pathUrl);
+            yield return www;
+
+            if (www.isDone)
+            {
+                if (www.bytes != null)
+                {
+                    var stream = new MemoryStream(www.bytes);
+                    callback?.Invoke(stream);
+                }
+            }
+
+            yield break;
+        }
+
+        public void GenerateBlocks(string filepath = null, Action<List<Block>> callback = null)
         {
             List<Block> blocks = new List<Block>();
             List<IEngineBlockBaseData> blockDatas = null;
 
-            TextAsset textAsset = null;
-            if (string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrEmpty(filepath))
             {
-                textAsset = Resources.Load<TextAsset>("TempCanvas/TestCanvas");
+                ScratchEngine.Instance.StartCoroutine(GetJsonFile(tempJsonfileUrl, (stream) =>
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        var json = reader.ReadToEnd();
+                        try
+                        {
+                            JsonSerializerSettings settings = new JsonSerializerSettings();
+                            settings.TypeNameHandling = TypeNameHandling.All;
+                            blockDatas = JsonConvert.DeserializeObject<List<IEngineBlockBaseData>>(json, settings);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e.ToString());
+                        }
+
+                        if (blockDatas == null)
+                        {
+                            blockDatas = new List<IEngineBlockBaseData>();
+                        }
+
+                        for (int i = 0; i < blockDatas.Count; i++)
+                        {
+                            m_blocks[blockDatas[i].Guid] = blockDatas[i];
+                        }
+      
+                        for (int i = 0; i < blockDatas.Count; i++)
+                        {
+                            var rootGuid = blockDatas[i].Guid;
+                            Debug.LogError(rootGuid);
+                            var blockUI = PaintBlockInfo(rootGuid, blockDatas[i].CanvasPos);
+
+                            if (blockUI != null) blocks.Add(blockUI);
+                        }
+
+                        //Fixed UI数据 Operation绑定关系
+                        for (int i = 0; i < blocks.Count; i++)
+                        {
+                            var childBlocks = blocks[i].GetComponentsInChildren<Block>();
+                            for (int j = 0; j < childBlocks.Length; j++)
+                            {
+                                var childBlock = childBlocks[j];
+                                if (childBlock.Type == BlockType.Operation)
+                                {
+                                    //检查一下 Input赋值
+                                    if (childBlock.TryGetOperationInput(out var input))
+                                    {
+                                        var itemOperation = childBlock.GetScratchComponent<BlockHeaderItem_Operation>();
+                                        if (!itemOperation.Inited) itemOperation.Initialize();
+                                        if (!input.Inited) input.Initialize();
+                                        input.ContextData.ChildOperation = itemOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
+                                    }
+                                }
+                            }
+                        }
+
+                        callback?.Invoke(blocks);
+                    }
+                }));
             }
             else
             {
-                textAsset = Resources.Load<TextAsset>(fileName);
-            }
-            try
-            {
-                blockDatas = JsonConvert.DeserializeObject<List<IEngineBlockBaseData>>(textAsset.text);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.ToString());
-            }
-
-            if (blockDatas == null)
-            {
-                blockDatas = new List<IEngineBlockBaseData>();
-            }
-
-            for (int i = 0; i < blockDatas.Count; i++)
-            {
-                var rootGuid = blockDatas[i].Guid;
-                var blockUI = PaintBlockInfo(rootGuid, blockDatas[i].CanvasPos);
-
-                if (blockUI != null) blocks.Add(blockUI);
-            }
-
-            //Fixed UI数据 Operation绑定关系
-            for (int i = 0; i < blocks.Count; i++)
-            {
-                var childBlocks = blocks[i].GetComponentsInChildren<Block>();
-                for (int j = 0; j < childBlocks.Length; j++)
+                ScratchEngine.Instance.StartCoroutine(GetJsonFile(filepath, (stream) =>
                 {
-                    var childBlock = childBlocks[j];
-                    if (childBlock.Type == BlockType.Operation)
+                    using (var reader = new StreamReader(stream))
                     {
-                        //检查一下 Input赋值
-                        if (childBlock.TryGetOperationInput(out var input))
+                        var json = reader.ReadToEnd();
+                        try
                         {
-                            var itemOperation = childBlock.GetScratchComponent<BlockHeaderItem_Operation>();
-                            if (!itemOperation.Inited) itemOperation.Initialize();
-                            if (!input.Inited) input.Initialize();
-                            input.ContextData.ChildOperation = itemOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
+                            JsonSerializerSettings settings = new JsonSerializerSettings();
+                            settings.TypeNameHandling = TypeNameHandling.All;
+                            blockDatas = JsonConvert.DeserializeObject<List<IEngineBlockBaseData>>(json, settings);
                         }
-                    }
-                }
-            }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e.ToString());
+                        }
 
-            return blocks;
+                        if (blockDatas == null)
+                        {
+                            blockDatas = new List<IEngineBlockBaseData>();
+                        }
+
+                        for (int i = 0; i < blockDatas.Count; i++)
+                        {
+                            var rootGuid = blockDatas[i].Guid;
+                            var blockUI = PaintBlockInfo(rootGuid, blockDatas[i].CanvasPos);
+
+                            if (blockUI != null) blocks.Add(blockUI);
+                        }
+
+                        //Fixed UI数据 Operation绑定关系
+                        for (int i = 0; i < blocks.Count; i++)
+                        {
+                            var childBlocks = blocks[i].GetComponentsInChildren<Block>();
+                            for (int j = 0; j < childBlocks.Length; j++)
+                            {
+                                var childBlock = childBlocks[j];
+                                if (childBlock.Type == BlockType.Operation)
+                                {
+                                    //检查一下 Input赋值
+                                    if (childBlock.TryGetOperationInput(out var input))
+                                    {
+                                        var itemOperation = childBlock.GetScratchComponent<BlockHeaderItem_Operation>();
+                                        if (!itemOperation.Inited) itemOperation.Initialize();
+                                        if (!input.Inited) input.Initialize();
+                                        input.ContextData.ChildOperation = itemOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
+                                    }
+                                }
+                            }
+                        }
+
+                        callback?.Invoke(blocks);
+                    }
+                }));
+            }
         }
+
+        #region 生成预支存储数据
+
+        private static readonly string tempJsonfilePath = Application.streamingAssetsPath + "/TempCanvas/TestCanvas.json";
 
         public void SaveBlocks(string filepath = null, Action<bool> callback = null)
         {
+            if (string.IsNullOrEmpty(filepath))
+            {
+                filepath = tempJsonfilePath;
+            }
 
+            if (File.Exists(filepath)) File.Delete(filepath);
+            FileStream stream = new FileStream(filepath, FileMode.CreateNew);
+            using (stream)
+            {
+                List<IEngineBlockBaseData> blockDatas = new List<IEngineBlockBaseData>();
+                foreach (var block in m_blocks)
+                {
+                    blockDatas.Add(block.Value);
+                }
+
+                JsonSerializerSettings settings = new JsonSerializerSettings();
+                settings.TypeNameHandling = TypeNameHandling.All;
+                settings.Formatting = Formatting.Indented;
+
+                var json = JsonConvert.SerializeObject(blockDatas, settings);
+                var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+                stream.Write(bytes, 0, bytes.Length);
+            }
         }
 
 #if UNITY_EDITOR
@@ -203,7 +322,6 @@ namespace ScratchFramework
                     blockUI.SetParent(parentTrans, lastPosIndex);
                 }
             }
-
 
             switch (node.ClassName)
             {

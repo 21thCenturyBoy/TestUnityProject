@@ -59,8 +59,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Simple;
 		public ScratchBlockType Type => ScratchBlockType.ApplyForce;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -69,7 +69,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -168,8 +168,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Operation;
 		public ScratchBlockType Type => ScratchBlockType.CompareValues;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -178,7 +178,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -299,8 +299,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Simple;
 		public ScratchBlockType Type => ScratchBlockType.DestroyObject;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -309,7 +309,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -408,8 +408,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Operation;
 		public ScratchBlockType Type => ScratchBlockType.EntityValue;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -418,7 +418,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -539,8 +539,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Operation;
 		public ScratchBlockType Type => ScratchBlockType.GetCharacterSpeed;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -549,7 +549,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -670,8 +670,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Operation;
 		public ScratchBlockType Type => ScratchBlockType.GetVectorMagnitude;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -680,7 +680,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -801,8 +801,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Condition;
 		public ScratchBlockType Type => ScratchBlockType.IfElse;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -811,7 +811,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -943,8 +943,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Operation;
 		public ScratchBlockType Type => ScratchBlockType.IntegerValue;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -953,7 +953,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -1074,8 +1074,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Trigger;
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionEnter;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -1084,7 +1084,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -1221,8 +1221,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Trigger;
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionExit;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -1231,7 +1231,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -1368,8 +1368,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Trigger;
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionStay;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -1378,7 +1378,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -1515,8 +1515,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Trigger;
 		public ScratchBlockType Type => ScratchBlockType.OnObjectCreated;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -1525,7 +1525,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -1624,8 +1624,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Loop;
 		public ScratchBlockType Type => ScratchBlockType.RepeatAction;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -1634,7 +1634,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -1744,8 +1744,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Loop;
 		public ScratchBlockType Type => ScratchBlockType.StartCountdown;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -1754,7 +1754,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
@@ -1864,8 +1864,8 @@ namespace ScratchFramework
 	{
 		public ScratchClassName ClassName => ScratchClassName.Operation;
 		public ScratchBlockType Type => ScratchBlockType.VectorValue;
-		private Vector3 m_CanvasPos = Vector3.zero;
-		public Vector3 CanvasPos
+		private BVector3 m_CanvasPos = BVector3.zero;
+		public BVector3 CanvasPos
 		{
 			get => m_CanvasPos;
 			set
@@ -1874,7 +1874,7 @@ namespace ScratchFramework
 			m_CanvasPos = value;
 			}
 		}
-		partial void SetCanvasPos(ref Vector3 newData);
+		partial void SetCanvasPos(ref BVector3 newData);
 		private int m_NextBlockGuid = -1;
 		public int NextBlockGuid
 		{
