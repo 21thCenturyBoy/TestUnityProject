@@ -24,28 +24,21 @@ namespace ScratchFramework
 
         public static string VariableKoalaBlockToString(IEngineBlockVariableBase blockBase)
         {
-            return blockBase.GetValueToString();
-            // if (blockBase is KoalaIntValueBlock intValueBlock)
-            // {
-            //     return intValueBlock.Value.ToString();
-            // }
-            //
-            // if (blockBase is KoalaVector3ValueBlock vector3ValueBlock)
-            // {
-            //     return vector3ValueBlock.Value.ToUnityVector3().ToString();
-            // }
-            //
-            // if (blockBase is KoalaEntityValueBlock entityValueBlock)
-            // {
-            //     //TODO Entity
-            //     return "-1";
-            // }
-            // return String.Empty;
+            if ( ScratchEngine.Instance.Core.VariableValue2String(blockBase,out var strRes) )
+            {
+                return strRes;
+            }
+            else
+            {
+                return string.Empty;
+            }
+            
         }
 
         public static bool String2VariableKoalaBlock(string str, IEngineBlockVariableBase blockBase)
         {
-            return blockBase.SetValueToString(str) != null;
+            return ScratchEngine.Instance.Core.String2VariableValueTo(blockBase, str);
+            
             // if (blockBase.Type == KoalaScratchType.VectorValue)
             // {
             //     str = str.Replace("(", "").Replace(")", ""); //将字符串中"("和")"替换为" "

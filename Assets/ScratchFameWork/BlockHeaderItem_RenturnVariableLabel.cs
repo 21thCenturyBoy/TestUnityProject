@@ -40,7 +40,7 @@ namespace ScratchFramework
                 OnPropertyChanged();
             }
         }
-        
+
         private int _languageId;
 
         public int LanguageId
@@ -56,7 +56,7 @@ namespace ScratchFramework
 
         public override DataType DataType => DataType.RenturnVariableLabel;
 
-        
+
         protected override byte[] OnSerialize()
         {
             var stream = ScratchUtils.CreateMemoryStream();
@@ -85,7 +85,7 @@ namespace ScratchFramework
         }
     }
 
-    public class BlockHeaderItem_RenturnVariableLabel : BlockHeaderItem<BlockHeaderParam_Data_RenturnVariableLabel>, IBlockHeaderVariableLabel,IBlockLanguage
+    public class BlockHeaderItem_RenturnVariableLabel : BlockHeaderItem<BlockHeaderParam_Data_RenturnVariableLabel>, IBlockHeaderVariableLabel, IBlockLanguage
     {
         private TMP_Text m_LabelText;
 
@@ -101,7 +101,7 @@ namespace ScratchFramework
                 return m_LabelText;
             }
         }
-        
+
         private BlockHeaderLanguage m_BlockHeaderLanguage;
 
         public BlockHeaderLanguage BlockHeaderLanguage
@@ -116,7 +116,7 @@ namespace ScratchFramework
                 return m_BlockHeaderLanguage;
             }
         }
-        
+
         protected override void OnCreateContextData()
         {
             ContextData.VariableInfo = LabelText.text;
@@ -149,9 +149,9 @@ namespace ScratchFramework
                     {
                         int Guid = int.Parse(ContextData.VariableRef);
                         IEngineBlockVariableBase baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(Guid) as IEngineBlockVariableBase;
-                        if (baseData != null && baseData.TryGetBlockVariableName(out var variableName))
+                        if (baseData != null)
                         {
-                            ContextData.VariableInfo = variableName;
+                            ContextData.VariableInfo = baseData.VariableName;
                         }
                     }
                     else
@@ -185,6 +185,7 @@ namespace ScratchFramework
         }
 
         public IHeaderParamVariable GetVariableData() => ContextData;
+
         public void SetLanguageId(int id)
         {
             if (ContextData != null)

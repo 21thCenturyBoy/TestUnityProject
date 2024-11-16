@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Unity.VisualScripting;
 
 namespace ScratchFramework
 {
@@ -24,6 +25,12 @@ namespace ScratchFramework
 
             AssetDatabase.Refresh();
 
+            RefreshGenerateCode();
+        }
+
+        [MenuItem("Assets/Scratch/RefreshGenerateCode", false, 80)]
+        public static void RefreshGenerateCode()
+        {
             var datas = AssetDatabase.FindAssets("t:TextAsset", new[] { ScratchConfig.Instance.TemplateDatasPath });
 
             ScratchConfig.Instance.TemplateDatas.Clear();
@@ -97,36 +104,29 @@ namespace ScratchFramework
             AssetDatabase.Refresh();
         }
 
-
-        private static string GetInterfaceName(BlockType type)
+        private static string GetInterfaceName(FucType type)
         {
-            string name = string.Empty;
             switch (type)
             {
-                case BlockType.none:
+                case FucType.Undefined:
                     break;
-                case BlockType.Trigger:
-                    return " : " + nameof(IEngineBlockTriggerBase);
-                    break;
-                case BlockType.Simple:
-                    return " : " + nameof(IEngineBlockSimpleBase);
-                    break;
-                case BlockType.Condition:
-                    return " : " + nameof(IEngineBlockConditionBase);
-                    break;
-                case BlockType.Loop:
-                    return " : " + nameof(IEngineBlockLoopBase);
-                    break;
-                case BlockType.Operation:
-                    return " : " + nameof(IEngineBlockOperationBase);
-                    break;
-                case BlockType.Define:
-                    break;
+                case FucType.Event:
+                    return nameof(IEngineBlockTriggerBase);
+                case FucType.Action:
+                    return nameof(IEngineBlockSimpleBase);
+                case FucType.Control:
+                    return nameof(IEngineBlockConditionBase);
+                case FucType.Condition:
+                    return nameof(IEngineBlockConditionBase);
+                case FucType.GetValue:
+                    return nameof(IEngineBlockOperationBase);
+                case FucType.Variable:
+                    return nameof(IEngineBlockVariableBase);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
 
-            return name;
+            return string.Empty;
         }
 
         private static void GetInputValuesLen(BlockData blockData, ref List<ScratchValueType> inputs, ref List<ScratchValueType> returns)
@@ -147,6 +147,7 @@ namespace ScratchFramework
                         case DataType.Label:
                             break;
                         case DataType.Input:
+                            inputs.Add(ScratchValueType.Undefined);
                             break;
                         case DataType.Operation:
                             BlockHeaderParam_Data_Operation headOperationData = headData as BlockHeaderParam_Data_Operation;
@@ -165,29 +166,30 @@ namespace ScratchFramework
             }
         }
 
-        private static void GetInterfaceProperty(ref StringBuilder stringBuilder, BlockType type)
+        private static void GetInterfaceProperty(ref StringBuilder stringBuilder, FucType type, BlockData blockData)
         {
             Type engineBlockType = null;
             switch (type)
             {
-                case BlockType.none:
+                case FucType.Undefined:
                     break;
-                case BlockType.Trigger:
+                case FucType.Event:
                     engineBlockType = typeof(IEngineBlockTriggerBase);
                     break;
-                case BlockType.Simple:
+                case FucType.Action:
                     engineBlockType = typeof(IEngineBlockSimpleBase);
                     break;
-                case BlockType.Condition:
+                case FucType.Control:
                     engineBlockType = typeof(IEngineBlockConditionBase);
                     break;
-                case BlockType.Loop:
-                    engineBlockType = typeof(IEngineBlockLoopBase);
+                case FucType.Condition:
+                    engineBlockType = typeof(IEngineBlockConditionBase);
                     break;
-                case BlockType.Operation:
+                case FucType.GetValue:
                     engineBlockType = typeof(IEngineBlockOperationBase);
                     break;
-                case BlockType.Define:
+                case FucType.Variable:
+                    engineBlockType = typeof(IEngineBlockVariableBase);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -198,21 +200,39 @@ namespace ScratchFramework
             var properties = engineBlockType.GetProperties();
             for (int i = 0; i < properties.Length; i++)
             {
-                stringBuilder.AppendLine($"\t\tprivate {properties[i].PropertyType.Name} m_{properties[i].Name} = -1;");
-                stringBuilder.AppendLine($"\t\tpublic {properties[i].PropertyType.Name} {properties[i].Name}");
+                var targetType = properties[i].PropertyType;
+
+                string defalutVaue = targetType.IsValueType ? Activator.CreateInstance(properties[i].PropertyType).ToString() : "null";
+                if (targetType.IsEnum)
+                {
+                    defalutVaue = targetType.Name + "." + defalutVaue;
+                }
+
+                if (properties[i].GetAttribute<BlockGuidRefAttribute>() != null)
+                {
+                    defalutVaue = "-1";
+                }
+
+                if (type == FucType.Variable && blockData.OperationValueType != ScratchValueType.Undefined && targetType == typeof(ScratchValueType))
+                {
+                    defalutVaue = $"ScratchValueType.{blockData.OperationValueType}";
+                }
+
+                stringBuilder.AppendLine($"\t\tprivate {properties[i].PropertyType.FullName} m_{properties[i].Name} = {defalutVaue};");
+                stringBuilder.AppendLine($"\t\tpublic {properties[i].PropertyType.FullName} {properties[i].Name}");
                 stringBuilder.AppendLine("\t\t{");
                 stringBuilder.AppendLine($"\t\t\tget => m_{properties[i].Name};");
                 if (properties[i].SetMethod != null)
                 {
                     stringBuilder.AppendLine("\t\t\tset");
                     stringBuilder.AppendLine("\t\t\t{");
-                    stringBuilder.AppendLine($"\t\t\tSet{properties[i].Name}(ref value);");
-                    stringBuilder.AppendLine($"\t\t\tm_{properties[i].Name} = value;");
+                    stringBuilder.AppendLine($"\t\t\t\tSet{properties[i].Name}(ref value);");
+                    stringBuilder.AppendLine($"\t\t\t\tm_{properties[i].Name} = value;");
                     stringBuilder.AppendLine("\t\t\t}");
                 }
 
                 stringBuilder.AppendLine("\t\t}");
-                stringBuilder.AppendLine($"\t\tpartial void Set{properties[i].Name}(ref {properties[i].PropertyType.Name} newData);");
+                stringBuilder.AppendLine($"\t\tpartial void Set{properties[i].Name}(ref {properties[i].PropertyType.FullName} newData);");
             }
 
             return;
@@ -222,7 +242,7 @@ namespace ScratchFramework
         {
             stringBuilder.AppendLine($"\t\t/// <summary> {summary} </summary>");
         }
-
+        
         public static void ScratchBlockClass(ref StringBuilder stringBuilder, List<BlockData> blockDatas)
         {
             List<ScratchValueType> inputs = new List<ScratchValueType>();
@@ -231,31 +251,34 @@ namespace ScratchFramework
             {
                 GetInputValuesLen(blockDatas[i], ref inputs, ref returns);
 
-                stringBuilder.AppendLine($"\tpublic partial class BlockLogic_{blockDatas[i].ScratchType} {GetInterfaceName(blockDatas[i].Type)}");
+                string interfaceInfos = string.IsNullOrEmpty(GetInterfaceName(blockDatas[i].BlockFucType)) ? string.Empty : ": " + GetInterfaceName(blockDatas[i].BlockFucType);
+                stringBuilder.AppendLine($"\tpublic partial class BlockLogic_{blockDatas[i].ScratchType} {interfaceInfos}");
                 stringBuilder.AppendLine("\t{");
-                stringBuilder.AppendLine($"\t\tpublic ScratchClassName ClassName => ScratchClassName.{blockDatas[i].Type};");
+
+          
+                stringBuilder.AppendLine($"\t\tpublic FucType ClassName => FucType.{blockDatas[i].BlockFucType};");
                 stringBuilder.AppendLine($"\t\tpublic ScratchBlockType Type => ScratchBlockType.{blockDatas[i].ScratchType};");
-                
+
                 stringBuilder.AppendLine($"\t\tprivate BVector3 m_CanvasPos = BVector3.zero;");
                 stringBuilder.AppendLine($"\t\tpublic BVector3 CanvasPos");
                 stringBuilder.AppendLine("\t\t{");
                 stringBuilder.AppendLine("\t\t\tget => m_CanvasPos;");
                 stringBuilder.AppendLine("\t\t\tset");
                 stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\tSetCanvasPos(ref value);");
-                stringBuilder.AppendLine("\t\t\tm_CanvasPos = value;");
+                stringBuilder.AppendLine("\t\t\t\tSetCanvasPos(ref value);");
+                stringBuilder.AppendLine("\t\t\t\tm_CanvasPos = value;");
                 stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
                 stringBuilder.AppendLine("\t\tpartial void SetCanvasPos(ref BVector3 newData);");
-                
+
                 stringBuilder.AppendLine($"\t\tprivate int m_NextBlockGuid = -1;");
                 stringBuilder.AppendLine($"\t\tpublic int NextBlockGuid");
                 stringBuilder.AppendLine("\t\t{");
                 stringBuilder.AppendLine("\t\t\tget => m_NextBlockGuid;");
                 stringBuilder.AppendLine("\t\t\tset");
                 stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\tSetNextBlockGuid(ref value);");
-                stringBuilder.AppendLine("\t\t\tm_NextBlockGuid = value;");
+                stringBuilder.AppendLine("\t\t\t\tSetNextBlockGuid(ref value);");
+                stringBuilder.AppendLine("\t\t\t\tm_NextBlockGuid = value;");
                 stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
                 stringBuilder.AppendLine("\t\tpartial void SetNextBlockGuid(ref int newData);");
@@ -266,8 +289,8 @@ namespace ScratchFramework
                 stringBuilder.AppendLine("\t\t\tget => m_NextBlock;");
                 stringBuilder.AppendLine("\t\t\tset");
                 stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\tSetNextBlock(ref value);");
-                stringBuilder.AppendLine("\t\t\tm_NextBlock = value;");
+                stringBuilder.AppendLine("\t\t\t\tSetNextBlock(ref value);");
+                stringBuilder.AppendLine("\t\t\t\tm_NextBlock = value;");
                 stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
                 stringBuilder.AppendLine("\t\tpartial void SetNextBlock(ref IEngineBlockBaseData newData);");
@@ -278,13 +301,13 @@ namespace ScratchFramework
                 stringBuilder.AppendLine("\t\t\tget => m_Guid;");
                 stringBuilder.AppendLine("\t\t\tset");
                 stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\tSetGuid(ref value);");
-                stringBuilder.AppendLine("\t\t\tm_Guid = value;");
+                stringBuilder.AppendLine("\t\t\t\tSetGuid(ref value);");
+                stringBuilder.AppendLine("\t\t\t\tm_Guid = value;");
                 stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
                 stringBuilder.AppendLine("\t\tpartial void SetGuid(ref int newData);");
 
-                GetInterfaceProperty(ref stringBuilder, blockDatas[i].Type);
+                GetInterfaceProperty(ref stringBuilder, blockDatas[i].BlockFucType, blockDatas[i]);
 
 
                 stringBuilder.AppendLine("\t\t#region IBlockVarGuid");
@@ -300,8 +323,8 @@ namespace ScratchFramework
                     stringBuilder.AppendLine("\t\t\tget => m_InputValue_" + j + ";");
                     stringBuilder.AppendLine("\t\t\tset");
                     stringBuilder.AppendLine("\t\t\t{");
-                    stringBuilder.AppendLine("\t\t\tSetInputValue_" + j + "(ref value);");
-                    stringBuilder.AppendLine("\t\t\tm_InputValue_" + j + " = value;");
+                    stringBuilder.AppendLine("\t\t\t\tSetInputValue_" + j + "(ref value);");
+                    stringBuilder.AppendLine("\t\t\t\tm_InputValue_" + j + " = value;");
                     stringBuilder.AppendLine("\t\t\t}");
                     stringBuilder.AppendLine("\t\t}");
 
@@ -311,29 +334,39 @@ namespace ScratchFramework
 
                 stringBuilder.AppendLine($"\t\tpublic void {nameof(IBlockVarGuid.SetInputValues)}(int index, string value)");
                 stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tswitch(index)");
-                stringBuilder.AppendLine("\t\t\t{");
-                for (int j = 0; j < inputs.Count; j++)
+
+                if (inputs.Count != 0)
                 {
-                    stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                    stringBuilder.AppendLine("\t\t\t\t\tInputValue_" + j + " = value;");
-                    stringBuilder.AppendLine("\t\t\t\t\tbreak;");
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < inputs.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\tInputValue_" + j + " = value;");
+                        stringBuilder.AppendLine("\t\t\t\t\tbreak;");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
                 }
 
-                stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
 
                 stringBuilder.AppendLine($"\t\tpublic string {nameof(IBlockVarGuid.GetInputValue)}(int index)");
                 stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tswitch(index)");
-                stringBuilder.AppendLine("\t\t\t{");
-                for (int j = 0; j < inputs.Count; j++)
+
+                if (inputs.Count != 0)
                 {
-                    stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                    stringBuilder.AppendLine("\t\t\t\t\treturn InputValue_" + j + ";");
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < inputs.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\treturn InputValue_" + j + ";");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
                 }
 
-                stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t\treturn string.Empty;");
                 stringBuilder.AppendLine("\t\t}");
 
@@ -360,8 +393,8 @@ namespace ScratchFramework
                     stringBuilder.AppendLine("\t\t\tget => m_VarGuid_" + j + ";");
                     stringBuilder.AppendLine("\t\t\tset");
                     stringBuilder.AppendLine("\t\t\t{");
-                    stringBuilder.AppendLine("\t\t\tSetVarGuid_" + j + "(ref value);");
-                    stringBuilder.AppendLine("\t\t\tm_VarGuid_" + j + " = value;");
+                    stringBuilder.AppendLine("\t\t\t\tSetVarGuid_" + j + "(ref value);");
+                    stringBuilder.AppendLine("\t\t\t\tm_VarGuid_" + j + " = value;");
                     stringBuilder.AppendLine("\t\t\t}");
                     stringBuilder.AppendLine("\t\t}");
 
@@ -372,29 +405,39 @@ namespace ScratchFramework
                 stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockVarGuid.GetVarGuidsLength)}()=> {inputs.Count};");
                 stringBuilder.AppendLine($"\t\tpublic void {nameof(IBlockVarGuid.SetVarsGuid)}(int index, int value)");
                 stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tswitch(index)");
-                stringBuilder.AppendLine("\t\t\t{");
-                for (int j = 0; j < inputs.Count; j++)
+
+                if (inputs.Count != 0)
                 {
-                    stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                    stringBuilder.AppendLine("\t\t\t\t\tVarGuid_" + j + " = value;");
-                    stringBuilder.AppendLine("\t\t\t\t\tbreak;");
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < inputs.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\tVarGuid_" + j + " = value;");
+                        stringBuilder.AppendLine("\t\t\t\t\tbreak;");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
                 }
 
-                stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
 
                 stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockVarGuid.GetVarGuid)}(int index)");
                 stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tswitch(index)");
-                stringBuilder.AppendLine("\t\t\t{");
-                for (int j = 0; j < inputs.Count; j++)
+
+                if (inputs.Count != 0)
                 {
-                    stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                    stringBuilder.AppendLine("\t\t\t\t\treturn VarGuid_" + j + ";");
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < inputs.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\treturn VarGuid_" + j + ";");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
                 }
 
-                stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t\treturn -1;");
                 stringBuilder.AppendLine("\t\t}");
 
@@ -426,8 +469,8 @@ namespace ScratchFramework
                     stringBuilder.AppendLine("\t\t\tget => m_ReturnVarGuid_" + j + ";");
                     stringBuilder.AppendLine("\t\t\tset");
                     stringBuilder.AppendLine("\t\t\t{");
-                    stringBuilder.AppendLine("\t\t\tSetReturnVarGuid_" + j + "(ref value);");
-                    stringBuilder.AppendLine("\t\t\tm_ReturnVarGuid_" + j + " = value;");
+                    stringBuilder.AppendLine("\t\t\t\tSetReturnVarGuid_" + j + "(ref value);");
+                    stringBuilder.AppendLine("\t\t\t\tm_ReturnVarGuid_" + j + " = value;");
                     stringBuilder.AppendLine("\t\t\t}");
                     stringBuilder.AppendLine("\t\t}");
 
@@ -438,29 +481,38 @@ namespace ScratchFramework
                 stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockReturnVarGuid.GetReturnValuesLength)}()=> {returns.Count};");
                 stringBuilder.AppendLine($"\t\tpublic void {nameof(IBlockReturnVarGuid.SetReturnValueGuid)}(int index, int value)");
                 stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tswitch(index)");
-                stringBuilder.AppendLine("\t\t\t{");
-                for (int j = 0; j < returns.Count; j++)
+                if (returns.Count != 0)
                 {
-                    stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                    stringBuilder.AppendLine("\t\t\t\t\tReturnVarGuid_" + j + " = value;");
-                    stringBuilder.AppendLine("\t\t\t\t\tbreak;");
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < returns.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\tReturnVarGuid_" + j + " = value;");
+                        stringBuilder.AppendLine("\t\t\t\t\tbreak;");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
                 }
 
-                stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
 
                 stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockReturnVarGuid.GetReturnValueGuid)}(int index)");
                 stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tswitch(index)");
-                stringBuilder.AppendLine("\t\t\t{");
-                for (int j = 0; j < returns.Count; j++)
+                if (returns.Count != 0)
                 {
-                    stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                    stringBuilder.AppendLine("\t\t\t\t\treturn ReturnVarGuid_" + j + ";");
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < returns.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\treturn ReturnVarGuid_" + j + ";");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
                 }
 
-                stringBuilder.AppendLine("\t\t\t}");
+
                 stringBuilder.AppendLine("\t\t\treturn -1;");
                 stringBuilder.AppendLine("\t\t}");
 

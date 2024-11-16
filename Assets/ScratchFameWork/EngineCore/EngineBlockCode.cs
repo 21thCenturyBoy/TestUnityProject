@@ -55,9 +55,9 @@ namespace ScratchFramework
 			 return null;
 		}
 	}
-	public partial class BlockLogic_ApplyForce  : IEngineBlockSimpleBase
+	public partial class BlockLogic_ApplyForce : IEngineBlockSimpleBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Simple;
+		public FucType ClassName => FucType.Action;
 		public ScratchBlockType Type => ScratchBlockType.ApplyForce;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -65,8 +65,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -76,8 +76,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -87,8 +87,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -98,47 +98,115 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
+		private string m_InputValue_1 = string.Empty;
+		public string InputValue_1
+		{
+			get => m_InputValue_1;
+			set
+			{
+				SetInputValue_1(ref value);
+				m_InputValue_1 = value;
+			}
+		}
+		partial void SetInputValue_1(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
+				case 1:
+					InputValue_1 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
+				case 1:
+					return InputValue_1;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[2];
+			values[0] = InputValue_0;
+			values[1] = InputValue_1;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		private int m_VarGuid_1 = -1;
+		public int VarGuid_1
+		{
+			get => m_VarGuid_1;
+			set
+			{
+				SetVarGuid_1(ref value);
+				m_VarGuid_1 = value;
+			}
+		}
+		partial void SetVarGuid_1(ref int newData);
+		public int GetVarGuidsLength()=> 2;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
+				case 1:
+					VarGuid_1 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
+				case 1:
+					return VarGuid_1;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[2];
+			values[0] = VarGuid_0;
+			values[1] = VarGuid_1;
 			return values;
 		}
 		#endregion
@@ -146,15 +214,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -164,9 +226,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_CompareValues  : IEngineBlockOperationBase
+	public partial class BlockLogic_CompareValues : IEngineBlockConditionBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Operation;
+		public FucType ClassName => FucType.Condition;
 		public ScratchBlockType Type => ScratchBlockType.CompareValues;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -174,8 +236,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -185,8 +247,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -196,8 +258,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -207,69 +269,148 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_Variable1Guid = -1;
-		public Int32 Variable1Guid
+		private System.Int32 m_TrueBlockGuid = -1;
+		public System.Int32 TrueBlockGuid
 		{
-			get => m_Variable1Guid;
+			get => m_TrueBlockGuid;
 			set
 			{
-			SetVariable1Guid(ref value);
-			m_Variable1Guid = value;
+				SetTrueBlockGuid(ref value);
+				m_TrueBlockGuid = value;
 			}
 		}
-		partial void SetVariable1Guid(ref Int32 newData);
-		private Int32 m_Variable2Guid = -1;
-		public Int32 Variable2Guid
+		partial void SetTrueBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_FalseBlockGuid = -1;
+		public System.Int32 FalseBlockGuid
 		{
-			get => m_Variable2Guid;
+			get => m_FalseBlockGuid;
 			set
 			{
-			SetVariable2Guid(ref value);
-			m_Variable2Guid = value;
+				SetFalseBlockGuid(ref value);
+				m_FalseBlockGuid = value;
 			}
 		}
-		partial void SetVariable2Guid(ref Int32 newData);
+		partial void SetFalseBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_OperationGuid = -1;
+		public System.Int32 OperationGuid
+		{
+			get => m_OperationGuid;
+			set
+			{
+				SetOperationGuid(ref value);
+				m_OperationGuid = value;
+			}
+		}
+		partial void SetOperationGuid(ref System.Int32 newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
+		private string m_InputValue_1 = string.Empty;
+		public string InputValue_1
+		{
+			get => m_InputValue_1;
+			set
+			{
+				SetInputValue_1(ref value);
+				m_InputValue_1 = value;
+			}
+		}
+		partial void SetInputValue_1(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
+				case 1:
+					InputValue_1 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
+				case 1:
+					return InputValue_1;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[2];
+			values[0] = InputValue_0;
+			values[1] = InputValue_1;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		private int m_VarGuid_1 = -1;
+		public int VarGuid_1
+		{
+			get => m_VarGuid_1;
+			set
+			{
+				SetVarGuid_1(ref value);
+				m_VarGuid_1 = value;
+			}
+		}
+		partial void SetVarGuid_1(ref int newData);
+		public int GetVarGuidsLength()=> 2;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
+				case 1:
+					VarGuid_1 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
+				case 1:
+					return VarGuid_1;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[2];
+			values[0] = VarGuid_0;
+			values[1] = VarGuid_1;
 			return values;
 		}
 		#endregion
@@ -277,15 +418,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -295,9 +430,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_DestroyObject  : IEngineBlockSimpleBase
+	public partial class BlockLogic_DestroyObject : IEngineBlockSimpleBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Simple;
+		public FucType ClassName => FucType.Action;
 		public ScratchBlockType Type => ScratchBlockType.DestroyObject;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -305,8 +440,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -316,8 +451,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -327,8 +462,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -338,47 +473,81 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[1];
+			values[0] = InputValue_0;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		public int GetVarGuidsLength()=> 1;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[1];
+			values[0] = VarGuid_0;
 			return values;
 		}
 		#endregion
@@ -386,15 +555,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -404,9 +567,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_EntityValue  : IEngineBlockOperationBase
+	public partial class BlockLogic_EntityValue : IEngineBlockVariableBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Operation;
+		public FucType ClassName => FucType.Variable;
 		public ScratchBlockType Type => ScratchBlockType.EntityValue;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -414,8 +577,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -425,8 +588,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -436,8 +599,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -447,45 +610,45 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_Variable1Guid = -1;
-		public Int32 Variable1Guid
+		private ScratchFramework.ScratchValueType m_ValueType = ScratchValueType.EntityRef;
+		public ScratchFramework.ScratchValueType ValueType
 		{
-			get => m_Variable1Guid;
+			get => m_ValueType;
+		}
+		partial void SetValueType(ref ScratchFramework.ScratchValueType newData);
+		private System.String m_VariableName = null;
+		public System.String VariableName
+		{
+			get => m_VariableName;
 			set
 			{
-			SetVariable1Guid(ref value);
-			m_Variable1Guid = value;
+				SetVariableName(ref value);
+				m_VariableName = value;
 			}
 		}
-		partial void SetVariable1Guid(ref Int32 newData);
-		private Int32 m_Variable2Guid = -1;
-		public Int32 Variable2Guid
+		partial void SetVariableName(ref System.String newData);
+		private System.Object m_VariableValue = null;
+		public System.Object VariableValue
 		{
-			get => m_Variable2Guid;
+			get => m_VariableValue;
 			set
 			{
-			SetVariable2Guid(ref value);
-			m_Variable2Guid = value;
+				SetVariableValue(ref value);
+				m_VariableValue = value;
 			}
 		}
-		partial void SetVariable2Guid(ref Int32 newData);
+		partial void SetVariableValue(ref System.Object newData);
 		#region IBlockVarGuid
 		public void SetInputValues(int index, string value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public string GetInputValue(int index)
 		{
-			switch(index)
-			{
-			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
@@ -496,15 +659,9 @@ namespace ScratchFramework
 		public int GetVarGuidsLength()=> 0;
 		public void SetVarsGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetVarGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetVarGuids()
@@ -517,15 +674,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -535,9 +686,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_GetCharacterSpeed  : IEngineBlockOperationBase
+	public partial class BlockLogic_GetCharacterSpeed : IEngineBlockOperationBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Operation;
+		public FucType ClassName => FucType.GetValue;
 		public ScratchBlockType Type => ScratchBlockType.GetCharacterSpeed;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -545,8 +696,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -556,8 +707,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -567,8 +718,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -578,69 +729,103 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_Variable1Guid = -1;
-		public Int32 Variable1Guid
+		private System.Int32 m_Variable1Guid = -1;
+		public System.Int32 Variable1Guid
 		{
 			get => m_Variable1Guid;
 			set
 			{
-			SetVariable1Guid(ref value);
-			m_Variable1Guid = value;
+				SetVariable1Guid(ref value);
+				m_Variable1Guid = value;
 			}
 		}
-		partial void SetVariable1Guid(ref Int32 newData);
-		private Int32 m_Variable2Guid = -1;
-		public Int32 Variable2Guid
+		partial void SetVariable1Guid(ref System.Int32 newData);
+		private System.Int32 m_Variable2Guid = -1;
+		public System.Int32 Variable2Guid
 		{
 			get => m_Variable2Guid;
 			set
 			{
-			SetVariable2Guid(ref value);
-			m_Variable2Guid = value;
+				SetVariable2Guid(ref value);
+				m_Variable2Guid = value;
 			}
 		}
-		partial void SetVariable2Guid(ref Int32 newData);
+		partial void SetVariable2Guid(ref System.Int32 newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[1];
+			values[0] = InputValue_0;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		public int GetVarGuidsLength()=> 1;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[1];
+			values[0] = VarGuid_0;
 			return values;
 		}
 		#endregion
@@ -648,15 +833,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -666,9 +845,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_GetVectorMagnitude  : IEngineBlockOperationBase
+	public partial class BlockLogic_GetVectorMagnitude : IEngineBlockOperationBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Operation;
+		public FucType ClassName => FucType.GetValue;
 		public ScratchBlockType Type => ScratchBlockType.GetVectorMagnitude;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -676,8 +855,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -687,8 +866,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -698,8 +877,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -709,69 +888,103 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_Variable1Guid = -1;
-		public Int32 Variable1Guid
+		private System.Int32 m_Variable1Guid = -1;
+		public System.Int32 Variable1Guid
 		{
 			get => m_Variable1Guid;
 			set
 			{
-			SetVariable1Guid(ref value);
-			m_Variable1Guid = value;
+				SetVariable1Guid(ref value);
+				m_Variable1Guid = value;
 			}
 		}
-		partial void SetVariable1Guid(ref Int32 newData);
-		private Int32 m_Variable2Guid = -1;
-		public Int32 Variable2Guid
+		partial void SetVariable1Guid(ref System.Int32 newData);
+		private System.Int32 m_Variable2Guid = -1;
+		public System.Int32 Variable2Guid
 		{
 			get => m_Variable2Guid;
 			set
 			{
-			SetVariable2Guid(ref value);
-			m_Variable2Guid = value;
+				SetVariable2Guid(ref value);
+				m_Variable2Guid = value;
 			}
 		}
-		partial void SetVariable2Guid(ref Int32 newData);
+		partial void SetVariable2Guid(ref System.Int32 newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[1];
+			values[0] = InputValue_0;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		public int GetVarGuidsLength()=> 1;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[1];
+			values[0] = VarGuid_0;
 			return values;
 		}
 		#endregion
@@ -779,15 +992,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -797,9 +1004,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_IfElse  : IEngineBlockConditionBase
+	public partial class BlockLogic_IfElse : IEngineBlockConditionBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Condition;
+		public FucType ClassName => FucType.Control;
 		public ScratchBlockType Type => ScratchBlockType.IfElse;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -807,8 +1014,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -818,8 +1025,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -829,8 +1036,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -840,80 +1047,114 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_TrueBlockGuid = -1;
-		public Int32 TrueBlockGuid
+		private System.Int32 m_TrueBlockGuid = -1;
+		public System.Int32 TrueBlockGuid
 		{
 			get => m_TrueBlockGuid;
 			set
 			{
-			SetTrueBlockGuid(ref value);
-			m_TrueBlockGuid = value;
+				SetTrueBlockGuid(ref value);
+				m_TrueBlockGuid = value;
 			}
 		}
-		partial void SetTrueBlockGuid(ref Int32 newData);
-		private Int32 m_FalseBlockGuid = -1;
-		public Int32 FalseBlockGuid
+		partial void SetTrueBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_FalseBlockGuid = -1;
+		public System.Int32 FalseBlockGuid
 		{
 			get => m_FalseBlockGuid;
 			set
 			{
-			SetFalseBlockGuid(ref value);
-			m_FalseBlockGuid = value;
+				SetFalseBlockGuid(ref value);
+				m_FalseBlockGuid = value;
 			}
 		}
-		partial void SetFalseBlockGuid(ref Int32 newData);
-		private Int32 m_OperationGuid = -1;
-		public Int32 OperationGuid
+		partial void SetFalseBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_OperationGuid = -1;
+		public System.Int32 OperationGuid
 		{
 			get => m_OperationGuid;
 			set
 			{
-			SetOperationGuid(ref value);
-			m_OperationGuid = value;
+				SetOperationGuid(ref value);
+				m_OperationGuid = value;
 			}
 		}
-		partial void SetOperationGuid(ref Int32 newData);
+		partial void SetOperationGuid(ref System.Int32 newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[1];
+			values[0] = InputValue_0;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		public int GetVarGuidsLength()=> 1;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[1];
+			values[0] = VarGuid_0;
 			return values;
 		}
 		#endregion
@@ -921,15 +1162,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -939,9 +1174,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_IntegerValue  : IEngineBlockOperationBase
+	public partial class BlockLogic_IntegerValue : IEngineBlockVariableBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Operation;
+		public FucType ClassName => FucType.Variable;
 		public ScratchBlockType Type => ScratchBlockType.IntegerValue;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -949,8 +1184,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -960,8 +1195,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -971,8 +1206,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -982,45 +1217,45 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_Variable1Guid = -1;
-		public Int32 Variable1Guid
+		private ScratchFramework.ScratchValueType m_ValueType = ScratchValueType.Integer;
+		public ScratchFramework.ScratchValueType ValueType
 		{
-			get => m_Variable1Guid;
+			get => m_ValueType;
+		}
+		partial void SetValueType(ref ScratchFramework.ScratchValueType newData);
+		private System.String m_VariableName = null;
+		public System.String VariableName
+		{
+			get => m_VariableName;
 			set
 			{
-			SetVariable1Guid(ref value);
-			m_Variable1Guid = value;
+				SetVariableName(ref value);
+				m_VariableName = value;
 			}
 		}
-		partial void SetVariable1Guid(ref Int32 newData);
-		private Int32 m_Variable2Guid = -1;
-		public Int32 Variable2Guid
+		partial void SetVariableName(ref System.String newData);
+		private System.Object m_VariableValue = null;
+		public System.Object VariableValue
 		{
-			get => m_Variable2Guid;
+			get => m_VariableValue;
 			set
 			{
-			SetVariable2Guid(ref value);
-			m_Variable2Guid = value;
+				SetVariableValue(ref value);
+				m_VariableValue = value;
 			}
 		}
-		partial void SetVariable2Guid(ref Int32 newData);
+		partial void SetVariableValue(ref System.Object newData);
 		#region IBlockVarGuid
 		public void SetInputValues(int index, string value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public string GetInputValue(int index)
 		{
-			switch(index)
-			{
-			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
@@ -1031,15 +1266,9 @@ namespace ScratchFramework
 		public int GetVarGuidsLength()=> 0;
 		public void SetVarsGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetVarGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetVarGuids()
@@ -1052,15 +1281,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -1070,9 +1293,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_OnCollisionEnter  : IEngineBlockTriggerBase
+	public partial class BlockLogic_OnCollisionEnter : IEngineBlockTriggerBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Trigger;
+		public FucType ClassName => FucType.Event;
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionEnter;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -1080,8 +1303,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -1091,8 +1314,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -1102,8 +1325,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -1113,23 +1336,17 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
 		#region IBlockVarGuid
 		public void SetInputValues(int index, string value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public string GetInputValue(int index)
 		{
-			switch(index)
-			{
-			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
@@ -1140,15 +1357,9 @@ namespace ScratchFramework
 		public int GetVarGuidsLength()=> 0;
 		public void SetVarsGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetVarGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetVarGuids()
@@ -1165,8 +1376,8 @@ namespace ScratchFramework
 			get => m_ReturnVarGuid_0;
 			set
 			{
-			SetReturnVarGuid_0(ref value);
-			m_ReturnVarGuid_0 = value;
+				SetReturnVarGuid_0(ref value);
+				m_ReturnVarGuid_0 = value;
 			}
 		}
 		/// <summary> EntityRef_0 </summary>
@@ -1178,8 +1389,8 @@ namespace ScratchFramework
 			get => m_ReturnVarGuid_1;
 			set
 			{
-			SetReturnVarGuid_1(ref value);
-			m_ReturnVarGuid_1 = value;
+				SetReturnVarGuid_1(ref value);
+				m_ReturnVarGuid_1 = value;
 			}
 		}
 		/// <summary> EntityRef_1 </summary>
@@ -1217,9 +1428,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_OnCollisionExit  : IEngineBlockTriggerBase
+	public partial class BlockLogic_OnCollisionExit : IEngineBlockTriggerBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Trigger;
+		public FucType ClassName => FucType.Event;
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionExit;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -1227,8 +1438,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -1238,8 +1449,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -1249,8 +1460,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -1260,23 +1471,17 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
 		#region IBlockVarGuid
 		public void SetInputValues(int index, string value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public string GetInputValue(int index)
 		{
-			switch(index)
-			{
-			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
@@ -1287,15 +1492,9 @@ namespace ScratchFramework
 		public int GetVarGuidsLength()=> 0;
 		public void SetVarsGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetVarGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetVarGuids()
@@ -1312,8 +1511,8 @@ namespace ScratchFramework
 			get => m_ReturnVarGuid_0;
 			set
 			{
-			SetReturnVarGuid_0(ref value);
-			m_ReturnVarGuid_0 = value;
+				SetReturnVarGuid_0(ref value);
+				m_ReturnVarGuid_0 = value;
 			}
 		}
 		/// <summary> EntityRef_0 </summary>
@@ -1325,8 +1524,8 @@ namespace ScratchFramework
 			get => m_ReturnVarGuid_1;
 			set
 			{
-			SetReturnVarGuid_1(ref value);
-			m_ReturnVarGuid_1 = value;
+				SetReturnVarGuid_1(ref value);
+				m_ReturnVarGuid_1 = value;
 			}
 		}
 		/// <summary> EntityRef_1 </summary>
@@ -1364,9 +1563,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_OnCollisionStay  : IEngineBlockTriggerBase
+	public partial class BlockLogic_OnCollisionStay : IEngineBlockTriggerBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Trigger;
+		public FucType ClassName => FucType.Event;
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionStay;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -1374,8 +1573,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -1385,8 +1584,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -1396,8 +1595,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -1407,23 +1606,17 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
 		#region IBlockVarGuid
 		public void SetInputValues(int index, string value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public string GetInputValue(int index)
 		{
-			switch(index)
-			{
-			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
@@ -1434,15 +1627,9 @@ namespace ScratchFramework
 		public int GetVarGuidsLength()=> 0;
 		public void SetVarsGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetVarGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetVarGuids()
@@ -1459,8 +1646,8 @@ namespace ScratchFramework
 			get => m_ReturnVarGuid_0;
 			set
 			{
-			SetReturnVarGuid_0(ref value);
-			m_ReturnVarGuid_0 = value;
+				SetReturnVarGuid_0(ref value);
+				m_ReturnVarGuid_0 = value;
 			}
 		}
 		/// <summary> EntityRef_0 </summary>
@@ -1472,8 +1659,8 @@ namespace ScratchFramework
 			get => m_ReturnVarGuid_1;
 			set
 			{
-			SetReturnVarGuid_1(ref value);
-			m_ReturnVarGuid_1 = value;
+				SetReturnVarGuid_1(ref value);
+				m_ReturnVarGuid_1 = value;
 			}
 		}
 		/// <summary> EntityRef_1 </summary>
@@ -1511,9 +1698,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_OnObjectCreated  : IEngineBlockTriggerBase
+	public partial class BlockLogic_OnObjectCreated : IEngineBlockTriggerBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Trigger;
+		public FucType ClassName => FucType.Event;
 		public ScratchBlockType Type => ScratchBlockType.OnObjectCreated;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -1521,8 +1708,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -1532,8 +1719,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -1543,8 +1730,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -1554,23 +1741,17 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
 		#region IBlockVarGuid
 		public void SetInputValues(int index, string value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public string GetInputValue(int index)
 		{
-			switch(index)
-			{
-			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
@@ -1581,15 +1762,9 @@ namespace ScratchFramework
 		public int GetVarGuidsLength()=> 0;
 		public void SetVarsGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetVarGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetVarGuids()
@@ -1602,15 +1777,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -1620,9 +1789,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_RepeatAction  : IEngineBlockLoopBase
+	public partial class BlockLogic_RepeatAction : IEngineBlockConditionBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Loop;
+		public FucType ClassName => FucType.Control;
 		public ScratchBlockType Type => ScratchBlockType.RepeatAction;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -1630,8 +1799,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -1641,8 +1810,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -1652,8 +1821,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -1663,58 +1832,114 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_ChildRootGuid = -1;
-		public Int32 ChildRootGuid
+		private System.Int32 m_TrueBlockGuid = -1;
+		public System.Int32 TrueBlockGuid
 		{
-			get => m_ChildRootGuid;
+			get => m_TrueBlockGuid;
 			set
 			{
-			SetChildRootGuid(ref value);
-			m_ChildRootGuid = value;
+				SetTrueBlockGuid(ref value);
+				m_TrueBlockGuid = value;
 			}
 		}
-		partial void SetChildRootGuid(ref Int32 newData);
+		partial void SetTrueBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_FalseBlockGuid = -1;
+		public System.Int32 FalseBlockGuid
+		{
+			get => m_FalseBlockGuid;
+			set
+			{
+				SetFalseBlockGuid(ref value);
+				m_FalseBlockGuid = value;
+			}
+		}
+		partial void SetFalseBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_OperationGuid = -1;
+		public System.Int32 OperationGuid
+		{
+			get => m_OperationGuid;
+			set
+			{
+				SetOperationGuid(ref value);
+				m_OperationGuid = value;
+			}
+		}
+		partial void SetOperationGuid(ref System.Int32 newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[1];
+			values[0] = InputValue_0;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		public int GetVarGuidsLength()=> 1;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[1];
+			values[0] = VarGuid_0;
 			return values;
 		}
 		#endregion
@@ -1722,15 +1947,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -1740,9 +1959,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_StartCountdown  : IEngineBlockLoopBase
+	public partial class BlockLogic_StartCountdown : IEngineBlockConditionBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Loop;
+		public FucType ClassName => FucType.Control;
 		public ScratchBlockType Type => ScratchBlockType.StartCountdown;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -1750,8 +1969,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -1761,8 +1980,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -1772,8 +1991,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -1783,58 +2002,114 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_ChildRootGuid = -1;
-		public Int32 ChildRootGuid
+		private System.Int32 m_TrueBlockGuid = -1;
+		public System.Int32 TrueBlockGuid
 		{
-			get => m_ChildRootGuid;
+			get => m_TrueBlockGuid;
 			set
 			{
-			SetChildRootGuid(ref value);
-			m_ChildRootGuid = value;
+				SetTrueBlockGuid(ref value);
+				m_TrueBlockGuid = value;
 			}
 		}
-		partial void SetChildRootGuid(ref Int32 newData);
+		partial void SetTrueBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_FalseBlockGuid = -1;
+		public System.Int32 FalseBlockGuid
+		{
+			get => m_FalseBlockGuid;
+			set
+			{
+				SetFalseBlockGuid(ref value);
+				m_FalseBlockGuid = value;
+			}
+		}
+		partial void SetFalseBlockGuid(ref System.Int32 newData);
+		private System.Int32 m_OperationGuid = -1;
+		public System.Int32 OperationGuid
+		{
+			get => m_OperationGuid;
+			set
+			{
+				SetOperationGuid(ref value);
+				m_OperationGuid = value;
+			}
+		}
+		partial void SetOperationGuid(ref System.Int32 newData);
 		#region IBlockVarGuid
+		private string m_InputValue_0 = string.Empty;
+		public string InputValue_0
+		{
+			get => m_InputValue_0;
+			set
+			{
+				SetInputValue_0(ref value);
+				m_InputValue_0 = value;
+			}
+		}
+		partial void SetInputValue_0(ref string newData);
 		public void SetInputValues(int index, string value)
 		{
 			switch(index)
 			{
+				case 0:
+					InputValue_0 = value;
+					break;
 			}
 		}
 		public string GetInputValue(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return InputValue_0;
 			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
 		{
-			string[] values = new string[0];
+			string[] values = new string[1];
+			values[0] = InputValue_0;
 			return values;
 		}
-		public int GetVarGuidsLength()=> 0;
+		private int m_VarGuid_0 = -1;
+		public int VarGuid_0
+		{
+			get => m_VarGuid_0;
+			set
+			{
+				SetVarGuid_0(ref value);
+				m_VarGuid_0 = value;
+			}
+		}
+		partial void SetVarGuid_0(ref int newData);
+		public int GetVarGuidsLength()=> 1;
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
 			{
+				case 0:
+					VarGuid_0 = value;
+					break;
 			}
 		}
 		public int GetVarGuid(int index)
 		{
 			switch(index)
 			{
+				case 0:
+					return VarGuid_0;
 			}
 			return -1;
 		}
 		public int[] GetVarGuids()
 		{
-			int[] values = new int[0];
+			int[] values = new int[1];
+			values[0] = VarGuid_0;
 			return values;
 		}
 		#endregion
@@ -1842,15 +2117,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()
@@ -1860,9 +2129,9 @@ namespace ScratchFramework
 		}
 		#endregion
 	}
-	public partial class BlockLogic_VectorValue  : IEngineBlockOperationBase
+	public partial class BlockLogic_VectorValue : IEngineBlockVariableBase
 	{
-		public ScratchClassName ClassName => ScratchClassName.Operation;
+		public FucType ClassName => FucType.Variable;
 		public ScratchBlockType Type => ScratchBlockType.VectorValue;
 		private BVector3 m_CanvasPos = BVector3.zero;
 		public BVector3 CanvasPos
@@ -1870,8 +2139,8 @@ namespace ScratchFramework
 			get => m_CanvasPos;
 			set
 			{
-			SetCanvasPos(ref value);
-			m_CanvasPos = value;
+				SetCanvasPos(ref value);
+				m_CanvasPos = value;
 			}
 		}
 		partial void SetCanvasPos(ref BVector3 newData);
@@ -1881,8 +2150,8 @@ namespace ScratchFramework
 			get => m_NextBlockGuid;
 			set
 			{
-			SetNextBlockGuid(ref value);
-			m_NextBlockGuid = value;
+				SetNextBlockGuid(ref value);
+				m_NextBlockGuid = value;
 			}
 		}
 		partial void SetNextBlockGuid(ref int newData);
@@ -1892,8 +2161,8 @@ namespace ScratchFramework
 			get => m_NextBlock;
 			set
 			{
-			SetNextBlock(ref value);
-			m_NextBlock = value;
+				SetNextBlock(ref value);
+				m_NextBlock = value;
 			}
 		}
 		partial void SetNextBlock(ref IEngineBlockBaseData newData);
@@ -1903,45 +2172,45 @@ namespace ScratchFramework
 			get => m_Guid;
 			set
 			{
-			SetGuid(ref value);
-			m_Guid = value;
+				SetGuid(ref value);
+				m_Guid = value;
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private Int32 m_Variable1Guid = -1;
-		public Int32 Variable1Guid
+		private ScratchFramework.ScratchValueType m_ValueType = ScratchValueType.Vector3;
+		public ScratchFramework.ScratchValueType ValueType
 		{
-			get => m_Variable1Guid;
+			get => m_ValueType;
+		}
+		partial void SetValueType(ref ScratchFramework.ScratchValueType newData);
+		private System.String m_VariableName = null;
+		public System.String VariableName
+		{
+			get => m_VariableName;
 			set
 			{
-			SetVariable1Guid(ref value);
-			m_Variable1Guid = value;
+				SetVariableName(ref value);
+				m_VariableName = value;
 			}
 		}
-		partial void SetVariable1Guid(ref Int32 newData);
-		private Int32 m_Variable2Guid = -1;
-		public Int32 Variable2Guid
+		partial void SetVariableName(ref System.String newData);
+		private System.Object m_VariableValue = null;
+		public System.Object VariableValue
 		{
-			get => m_Variable2Guid;
+			get => m_VariableValue;
 			set
 			{
-			SetVariable2Guid(ref value);
-			m_Variable2Guid = value;
+				SetVariableValue(ref value);
+				m_VariableValue = value;
 			}
 		}
-		partial void SetVariable2Guid(ref Int32 newData);
+		partial void SetVariableValue(ref System.Object newData);
 		#region IBlockVarGuid
 		public void SetInputValues(int index, string value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public string GetInputValue(int index)
 		{
-			switch(index)
-			{
-			}
 			return string.Empty;
 		}
 		public string[] GetInputValues()
@@ -1952,15 +2221,9 @@ namespace ScratchFramework
 		public int GetVarGuidsLength()=> 0;
 		public void SetVarsGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetVarGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetVarGuids()
@@ -1973,15 +2236,9 @@ namespace ScratchFramework
 		public int GetReturnValuesLength()=> 0;
 		public void SetReturnValueGuid(int index, int value)
 		{
-			switch(index)
-			{
-			}
 		}
 		public int GetReturnValueGuid(int index)
 		{
-			switch(index)
-			{
-			}
 			return -1;
 		}
 		public int[] GetReturnValues()

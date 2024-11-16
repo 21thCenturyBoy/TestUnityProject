@@ -5,14 +5,10 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
-    public enum ScratchClassName : byte
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class BlockGuidRefAttribute : System.Attribute
     {
-        Trigger = 0,
-        Simple = 1,
-        Loop = 2,
-        Condition = 3,
-        Operation = 4,
-        Values = 5,
+        public BlockGuidRefAttribute() { }
     }
 
     /// <summary>
@@ -108,7 +104,7 @@ namespace ScratchFramework
     public interface IEngineBlockBaseData
     {
         public BVector3 CanvasPos { get; set; }
-        public ScratchClassName ClassName { get; }
+        public FucType ClassName { get; }
         public ScratchBlockType Type { get; }
         public int NextBlockGuid { get; set; }
         [Newtonsoft.Json.JsonIgnore] public IEngineBlockBaseData NextBlock { get; set; }
@@ -141,13 +137,14 @@ namespace ScratchFramework
 
     public interface IEngineBlockConditionBase : IEngineBlockBaseData, IBlockVarGuid
     {
-        public int TrueBlockGuid { get; set; }
-        public int FalseBlockGuid { get; set; }
-        public int OperationGuid { get; set; }
+        [BlockGuidRef] public int TrueBlockGuid { get; set; }
+        [BlockGuidRef] public int FalseBlockGuid { get; set; }
+        [BlockGuidRef] public int OperationGuid { get; set; }
     }
 
     public interface IEngineBlockLoopBase : IEngineBlockBaseData, IBlockVarGuid
     {
+        [BlockGuidRef]
         public int ChildRootGuid { get; set; }
     }
 
@@ -157,17 +154,17 @@ namespace ScratchFramework
 
     public interface IEngineBlockOperationBase : IEngineBlockBaseData, IBlockVarGuid
     {
+        [BlockGuidRef]
         public int Variable1Guid { get; set; }
+        [BlockGuidRef]
         public int Variable2Guid { get; set; }
     }
 
     public interface IEngineBlockVariableBase : IEngineBlockBaseData, IBlockVarGuid
     {
-        bool TryGetBlockVariableName(out string name);
+        public ScratchValueType ValueType { get; }
         public string VariableName { get; set; }
-
-        public string GetValueToString();
-        public object SetValueToString(string value);
+        public object VariableValue { get; set; }
     }
 
     public interface IEngineCoreInterface
@@ -225,6 +222,20 @@ namespace ScratchFramework
         public void GenerateBlocks(string filepath = null, Action<List<Block>> callback = null);
 
         public void SaveBlocks(string filepath = null, Action<bool> callback = null);
+
+        /// <summary>
+        /// 变量值转字符串
+        /// </summary>
+        /// <param name="blockBase"></param>
+        /// <param name="value"></param>
+        public bool VariableValue2String(IEngineBlockVariableBase blockBase, out string value);
+
+        /// <summary>
+        /// 字符串转变量值
+        /// </summary>
+        /// <param name="blockBase"></param>
+        /// <param name="value"></param>
+        public bool String2VariableValueTo(IEngineBlockVariableBase blockBase, string value);
 
 #if UNITY_EDITOR
 

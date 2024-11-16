@@ -126,9 +126,9 @@ namespace ScratchFramework
                     {
                         int Guid = int.Parse(ContextData.VariableRef);
                         IEngineBlockVariableBase baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(Guid) as IEngineBlockVariableBase;
-                        if (baseData != null && baseData.TryGetBlockVariableName(out var variableName))
+                        if (baseData != null)
                         {
-                            ContextData.VariableInfo = variableName;
+                            ContextData.VariableInfo = baseData.VariableName;
                         }
                     }
                     else

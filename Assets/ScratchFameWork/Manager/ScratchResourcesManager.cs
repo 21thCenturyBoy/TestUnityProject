@@ -125,7 +125,6 @@ namespace ScratchFramework
         {
             if (block.BlockFucType == FucType.Variable)
             {
-         
             }
         }
 
@@ -144,13 +143,15 @@ namespace ScratchFramework
             }
 
             //-----获取Koala数据层-----
-            IEngineBlockVariableBase blockdata = block.GetEngineBlockData() as IEngineBlockVariableBase;
-            
+            var logicdata = block.GetEngineBlockData();
+            IEngineBlockVariableBase blockdata = logicdata as IEngineBlockVariableBase;
+
             if (blockdata == null)
             {
                 Debug.LogError($"不应该类型:{block.scratchType}");
                 return null;
             }
+
             //创建变量名
             if (string.IsNullOrEmpty(blockdata.VariableName))
             {

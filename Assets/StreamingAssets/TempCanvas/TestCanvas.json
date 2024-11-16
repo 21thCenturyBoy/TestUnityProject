@@ -2,17 +2,20 @@
   "$type": "System.Collections.Generic.List`1[[ScratchFramework.IEngineBlockBaseData, Assembly-CSharp]], mscorlib",
   "$values": [
     {
-      "$type": "ScratchFramework.BlockLogic_ApplyForce, Assembly-CSharp",
-      "ClassName": 1,
-      "Type": 20001,
+      "$type": "ScratchFramework.BlockLogic_IntegerValue, Assembly-CSharp",
+      "ClassName": 6,
+      "Type": 60001,
       "CanvasPos": {
         "$type": "ScratchFramework.BVector3, Assembly-CSharp",
-        "x": 721.6276,
-        "y": 717.702148,
+        "x": 707.852234,
+        "y": 724.4676,
         "z": 0.0
       },
       "NextBlockGuid": -1,
-      "Guid": 1196885695
+      "Guid": 252216130,
+      "ValueType": 3,
+      "VariableName": "[int]252216130",
+      "VariableValue": null
     }
   ]
 }

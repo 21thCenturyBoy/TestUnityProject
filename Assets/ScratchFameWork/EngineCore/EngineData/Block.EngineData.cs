@@ -54,8 +54,7 @@ namespace ScratchFramework
         public void InitKoalaData()
         {
             if (Type == BlockType.none) return;
-
-
+            
             if (GetEngineBlockData() == null)
             {
                 SetKoalaBlock(ScratchEngine.Instance.Core.CreateBlock(scratchType));
