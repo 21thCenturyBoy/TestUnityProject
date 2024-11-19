@@ -31,7 +31,7 @@ namespace ScratchFramework
             return true;
         }
 
-        private bool m_IsDraging = false;
+        protected bool m_IsDraging = false;
         public bool IsDraging => m_IsDraging;
 
         #region Pointer Click Drag lifecycle

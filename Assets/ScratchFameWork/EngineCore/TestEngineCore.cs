@@ -46,14 +46,13 @@ namespace ScratchFramework
                     Block oldParentBlock = oldParentSection.Block;
                     IEngineBlockBaseData oldParentBlockBase = oldParentSection.Block.GetEngineBlockData();
 
-                    switch (oldParentBlockBase.ClassName) //Old Parent Block
+                    switch (oldParentBlockBase.BlockType)
                     {
-                        case FucType.Event:
+                        case BlockType.none:
+                            break;
+                        case BlockType.Trigger:
                         {
-                            //Header 理论上不存在清理数据，因为全是返回值
-
-                            //Body
-                            if (oldParentBlockBase.NextBlock.Guid == engineBlockData.Guid)
+                            if (oldParentBlock.GetEngineBlockData().NextBlockGuid == engineBlockData.Guid)
                             {
                                 var preBlock = FindPreBlock(oldParentBlockBase.Guid, engineBlockData.Guid);
                                 if (preBlock != null)
@@ -61,60 +60,72 @@ namespace ScratchFramework
                                     preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
                                 }
                             }
-                        }
+
                             break;
-                        case FucType.Condition:
+                        }
+                        case BlockType.Simple:
+                        {
+                            var parentSimple = oldParentBlockBase as IEngineBlockSimpleBase;
+
+                            if (FindVarIndex(block, parentSimple, out var index))
+                            {
+                                parentSimple.SetVarsGuid(index, ScratchUtils.InvalidGuid);
+                                break;
+                            }
+
+                            break;
+                        }
+
+                        case BlockType.Condition:
                         {
                             var parentCondition = oldParentBlockBase as IEngineBlockConditionBase;
 
-                            //0 Header
-                            if (FindVarIndex(block, parentCondition, out var index))
+                            if (engineBlockData.BlockType == BlockType.Operation)
                             {
-                                //Header上的变量
-                                parentCondition.SetVarsGuid(index, -1);
-                                break;
+                                int operation_Index = parentCondition.Branch_OperationGuids.FindIndex(engineBlockData.Guid);
+                                if (operation_Index != -1)
+                                {
+                                    parentCondition.Branch_OperationGuids[operation_Index] = ScratchUtils.InvalidGuid;
+                                }
+                                else
+                                {
+                                    Debug.LogError($"奇怪的操作：为甚么不在Branch_OperationGuids里面？{engineBlockData.Guid}");
+                                }
+                            }
+                            else
+                            {
+                                int branch_Index = parentCondition.Branch_BlockGuids.FindIndex(engineBlockData.Guid);
+                                if (branch_Index != -1)
+                                {
+                                    parentCondition.Branch_BlockGuids[branch_Index] = engineBlockData.NextBlockGuid;
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < parentCondition.Branch_BlockGuids.Length; i++)
+                                    {
+                                        int branch_root = parentCondition.Branch_BlockGuids[i];
+                                        var preBlock = FindPreBlock(branch_root, engineBlockData.Guid);
+                                        if (preBlock != null)
+                                        {
+                                            preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
+                                            break;
+                                        }
+                                    }
+                                }
                             }
 
-                            //True 分支
-                            if (parentCondition.TrueBlockGuid == engineBlockData.Guid)
-                            {
-                                parentCondition.TrueBlockGuid = engineBlockData.NextBlockGuid;
-                            }
-
-                            var preBlock = FindPreBlock(parentCondition.TrueBlockGuid, engineBlockData.Guid);
-                            if (preBlock != null)
-                            {
-                                preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
-                                break;
-                            }
-
-                            //False 分支
-                            if (parentCondition.FalseBlockGuid == engineBlockData.Guid)
-                            {
-                                parentCondition.FalseBlockGuid = engineBlockData.NextBlockGuid;
-                            }
-
-                            preBlock = FindPreBlock(parentCondition.FalseBlockGuid, engineBlockData.Guid);
-                            if (preBlock != null)
-                            {
-                                preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
-                                break;
-                            }
-                        }
                             break;
-                        case FucType.Control:
+                        }
+                        case BlockType.Loop:
                         {
                             var parentLoop = oldParentBlockBase as IEngineBlockLoopBase;
 
-                            //0 Header
                             if (FindVarIndex(block, parentLoop, out var index))
                             {
-                                //Header上的变量
-                                parentLoop.SetVarsGuid(index, -1);
+                                parentLoop.SetVarsGuid(index, ScratchUtils.InvalidGuid);
                                 break;
                             }
 
-                            //0 Body
                             if (parentLoop.ChildRootGuid == engineBlockData.Guid)
                             {
                                 parentLoop.ChildRootGuid = engineBlockData.NextBlockGuid;
@@ -127,52 +138,37 @@ namespace ScratchFramework
                                 preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
                                 break;
                             }
-                        }
-                            break;
-                        case FucType.Action:
-                        {
-                            var parentSimple = oldParentBlockBase as IEngineBlockSimpleBase;
 
-                            //0 Header
-                            if (FindVarIndex(block, parentSimple, out var index))
-                            {
-                                //Header上的变量
-                                parentSimple.SetVarsGuid(index, -1);
-                                break;
-                            }
-                        }
                             break;
-                        case FucType.GetValue:
+                        }
+                        case BlockType.Operation:
                         {
                             var parentOperation = oldParentBlockBase as IEngineBlockOperationBase;
 
-                            //Var 1
-                            if (parentOperation.Variable1Guid == engineBlockData.Guid)
+                            int length = parentOperation.GetVarGuidsLength();
+                            bool result = false;
+                            for (int i = 0; i < length; i++)
                             {
-                                parentOperation.Variable1Guid = -1;
+                                if (parentOperation.GetVarGuid(i) == engineBlockData.Guid)
+                                {
+                                    parentOperation.SetVarsGuid(i, ScratchUtils.InvalidGuid);
+                                    result = true;
+                                    break;
+                                }
                             }
-                            //Var 2
-                            else
-                            {
-                                parentOperation.Variable2Guid = -1;
-                            }
-                        }
-                            break;
-                        case FucType.Variable:
-                        {
-                            var parentValues = oldParentBlockBase as IEngineBlockVariableBase;
 
-                            //0 Header
-                            if (FindVarIndex(block, parentValues, out var index))
+                            if (!result)
                             {
-                                //Header上的变量
-                                parentValues.SetVarsGuid(index, -1);
+                                Debug.LogError("奇怪的操作：为甚么不在GetVarGuids里面？");
                                 break;
                             }
+
+                            break;
                         }
+                        case BlockType.Define:
                             break;
                         default:
-                            break;
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             }
@@ -185,104 +181,136 @@ namespace ScratchFramework
                 var parentBlock = parentSection.Block;
                 var ParentBlockBase = parentBlock.GetEngineBlockData();
 
-                Debug.Log(block.transform.name + " Parent changed to: " + (block.transform.parent != null ? block.transform.parent.name : "null") + " parentType:" + parentBlock.Type + " SiblingIndex: " + (block.transform.GetSiblingIndex()));
+                //Debug.Log(block.transform.name + " Parent changed to: " + (block.transform.parent != null ? block.transform.parent.name : "null") + " parentType:" + parentBlock.Type + " SiblingIndex: " + (block.transform.GetSiblingIndex()));
 
-                switch (ParentBlockBase.ClassName)
+                switch (ParentBlockBase.BlockType)
                 {
-                    case FucType.Event:
+                    case BlockType.none:
+                        break;
+                    case BlockType.Trigger:
                     {
                         var parentTrigger = ParentBlockBase as IEngineBlockTriggerBase;
-
-                        if (IsOnBody(block, out var body, out var bodyindex))
+                        if (engineBlockData.BlockType == BlockType.Operation)
                         {
-                            var siblingIndex = bodyindex;
-                            if (siblingIndex == 0)
+                            if (IsOnHeader(block, out var header, out var headindex))
                             {
-                                engineBlockData.NextBlockGuid = ParentBlockBase.NextBlockGuid;
-                                ParentBlockBase.NextBlockGuid = engineBlockData.Guid;
-                            }
-                            else
-                            {
-                                if (GetPreBlock(block, out var preblock, out var preblockIndex))
+                                if (block.VariableLabel != null)
                                 {
-                                    engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
-                                    preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
-                                }
-                                else
-                                {
-                                    engineBlockData.NextBlockGuid = ParentBlockBase.NextBlockGuid;
-                                    ParentBlockBase.NextBlockGuid = engineBlockData.Guid;
-                                }
-                            }
-                        }
-
-                        if (IsOnHeader(block, out var header, out var headindex))
-                        {
-                            if (block.VariableLabel != null)
-                            {
-                                if (block.IsReturnValue)
-                                {
-                                    var sections = parentBlock.GetChildSection();
-                                    var headerOperations = sections[0].Header.GetHeaderOperation();
-                                    int variableLen = parentTrigger.GetReturnValuesLength();
-                                    if (variableLen != headerOperations.Length)
+                                    if (block.IsReturnValue)
                                     {
-                                        Debug.LogError("UI结构和数据结构对不上！:" + ParentBlockBase.Type);
-                                        return false;
-                                    }
-
-                                    for (int i = 0; i < headerOperations.Length; i++)
-                                    {
-                                        if (headerOperations[i].OperationBlock == block)
+                                        var sections = parentBlock.GetChildSection();
+                                        var headerOperations = sections[0].Header.GetHeaderOperation();
+                                        int variableLen = parentTrigger.GetReturnValuesLength();
+                                        if (variableLen != headerOperations.Length)
                                         {
-                                            parentTrigger.SetReturnValueGuid(i, engineBlockData.Guid);
+                                            Debug.LogError("UI结构和数据结构对不上！:" + ParentBlockBase.Type);
+                                            return false;
+                                        }
+
+                                        for (int i = 0; i < headerOperations.Length; i++)
+                                        {
+                                            if (headerOperations[i].OperationBlock == block)
+                                            {
+                                                parentTrigger.SetReturnValueGuid(i, engineBlockData.Guid);
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
+                        else
+                        {
+                            if (IsOnBody(block, out var body, out var bodyindex))
+                            {
+                                var siblingIndex = bodyindex;
+                                if (siblingIndex == 0)
+                                {
+                                    engineBlockData.NextBlockGuid = ParentBlockBase.NextBlockGuid;
+                                    ParentBlockBase.NextBlockGuid = engineBlockData.Guid;
+                                }
+                                else
+                                {
+                                    if (GetPreBlock(block, out var preblock, out var preblockIndex))
+                                    {
+                                        engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
+                                        preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
+                                    }
+                                    else
+                                    {
+                                        engineBlockData.NextBlockGuid = ParentBlockBase.NextBlockGuid;
+                                        ParentBlockBase.NextBlockGuid = engineBlockData.Guid;
+                                    }
+                                }
+                            }
+                        }
+
                         break;
-                    case FucType.Condition:
+                    }
+                    case BlockType.Simple:
+                    {
+                        var parentSimple = ParentBlockBase as IEngineBlockSimpleBase;
+                        if (engineBlockData.BlockType == BlockType.Operation)
+                        {
+                            if (IsOnHeader(block, out var header, out var headindex))
+                            {
+                                var headerInputs = header.GetHeaderInput();
+                                int variableLen = parentSimple.GetVarGuidsLength();
+                                if (variableLen != headerInputs.Length)
+                                {
+                                    Debug.LogError("UI结构和数据结构对不上！:" + parentSimple.Type);
+                                    return false;
+                                }
+
+                                for (int i = 0; i < variableLen; i++)
+                                {
+                                    if (GetOperationBlock(block, headerInputs[i], out var operation))
+                                    {
+                                        if (operation.OperationBlock == block)
+                                        {
+                                            parentSimple.SetVarsGuid(i, engineBlockData.Guid);
+                                            //koalaBlock.NextBlockGuid = parentSimple.Guid; //operation执行后返回condition
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case BlockType.Condition:
                     {
                         var parentCondition = ParentBlockBase as IEngineBlockConditionBase;
-
-                        if (IsOnHeader(block, out var header, out var headindex))
+                        int sectionIndex = parentSection.RectTrans.GetSiblingIndex();
+                        if (engineBlockData.BlockType == BlockType.Operation)
                         {
-                            var headerInputs = header.GetHeaderInput();
-                            int variableLen = parentCondition.GetVarGuidsLength();
-                            if (variableLen != headerInputs.Length)
+                            var operations = parentCondition.Branch_OperationGuids;
+                            if (sectionIndex >= operations.Length)
                             {
                                 Debug.LogError("UI结构和数据结构对不上！:" + parentCondition.Type);
                                 return false;
                             }
 
-                            for (int i = 0; i < variableLen; i++)
-                            {
-                                if (GetOperationBlock(block, headerInputs[i], out var operation))
-                                {
-                                    if (operation.OperationBlock == block)
-                                    {
-                                        parentCondition.SetVarsGuid(i, engineBlockData.Guid);
-                                        //koalaBlock.NextBlockGuid = parentCondition.Guid; //operation执行后返回condition
-                                    }
-                                }
-                            }
+                            operations[sectionIndex] = engineBlockData.Guid;
                         }
-
-                        if (IsOnBody(block, out var body, out var bodyindex))
+                        else
                         {
-                            //Body Index
-                            int bodyBlockSectionIndex = parentSection.RectTrans.GetSiblingIndex();
-
-                            //0 Body 
-                            if (bodyBlockSectionIndex == 0)
+                            if (IsOnBody(block, out var body, out var bodyindex))
                             {
+                                //Body Index
+                                var branchs = parentCondition.Branch_BlockGuids;
+                                if (sectionIndex >= branchs.Length)
+                                {
+                                    Debug.LogError("UI结构和数据结构对不上！:" + parentCondition.Type);
+                                    return false;
+                                }
+
                                 var siblingIndex = block.RectTrans.GetSiblingIndex();
+
                                 if (siblingIndex == 0)
                                 {
-                                    engineBlockData.NextBlockGuid = parentCondition.TrueBlockGuid;
-                                    parentCondition.TrueBlockGuid = engineBlockData.Guid;
+                                    engineBlockData.NextBlockGuid = branchs[sectionIndex];
+                                    branchs[sectionIndex] = engineBlockData.Guid;
                                 }
                                 else
                                 {
@@ -293,182 +321,105 @@ namespace ScratchFramework
                                     }
                                     else
                                     {
-                                        engineBlockData.NextBlockGuid = parentCondition.TrueBlockGuid;
-                                        parentCondition.TrueBlockGuid = engineBlockData.Guid;
-                                    }
-                                }
-                            }
-
-                            //1 Body 
-                            if (bodyBlockSectionIndex == 1)
-                            {
-                                var siblingIndex = block.RectTrans.GetSiblingIndex();
-                                if (siblingIndex == 0)
-                                {
-                                    engineBlockData.NextBlockGuid = parentCondition.FalseBlockGuid;
-                                    parentCondition.FalseBlockGuid = engineBlockData.Guid;
-                                }
-                                else
-                                {
-                                    if (GetPreBlock(block, out var preblock, out var preblockIndex))
-                                    {
-                                        engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
-                                        preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
-                                    }
-                                    else
-                                    {
-                                        engineBlockData.NextBlockGuid = parentCondition.FalseBlockGuid;
-                                        parentCondition.FalseBlockGuid = engineBlockData.Guid;
+                                        engineBlockData.NextBlockGuid = branchs[sectionIndex];
+                                        branchs[sectionIndex] = engineBlockData.Guid;
                                     }
                                 }
                             }
                         }
-                    }
+
                         break;
-                    case FucType.Control:
+                    }
+
+                    case BlockType.Loop:
                     {
                         var parentLoop = ParentBlockBase as IEngineBlockLoopBase;
-
-                        if (IsOnHeader(block, out var header, out var headindex))
+                        if (engineBlockData.BlockType == BlockType.Operation)
                         {
-                            var headerInputs = header.GetHeaderInput();
-                            int variableLen = parentLoop.GetVarGuidsLength();
-                            if (variableLen != headerInputs.Length)
+                            if (IsOnHeader(block, out var header, out var headindex))
                             {
-                                Debug.LogError("UI结构和数据结构对不上！:" + parentLoop.Type);
-                                return false;
-                            }
-
-                            for (int i = 0; i < variableLen; i++)
-                            {
-                                if (GetOperationBlock(block, headerInputs[i], out var operation))
+                                var headerInputs = header.GetHeaderInput();
+                                int variableLen = parentLoop.GetVarGuidsLength();
+                                if (variableLen != headerInputs.Length)
                                 {
-                                    if (operation.OperationBlock == block)
+                                    Debug.LogError("UI结构和数据结构对不上！:" + parentLoop.Type);
+                                    return false;
+                                }
+
+                                for (int i = 0; i < variableLen; i++)
+                                {
+                                    if (GetOperationBlock(block, headerInputs[i], out var operation))
                                     {
-                                        parentLoop.SetVarsGuid(i, engineBlockData.Guid);
-                                        //koalaBlock.NextBlockGuid = parentLoop.Guid; //operation执行后返回condition
+                                        if (operation.OperationBlock == block)
+                                        {
+                                            parentLoop.SetVarsGuid(i, engineBlockData.Guid);
+                                            //koalaBlock.NextBlockGuid = parentLoop.Guid; //operation执行后返回condition
+                                        }
                                     }
                                 }
                             }
                         }
-
-                        if (IsOnBody(block, out var body, out var bodyindex))
+                        else
                         {
-                            //Body
-                            var siblingIndex = block.RectTrans.GetSiblingIndex();
-                            if (siblingIndex == 0)
+                            if (IsOnBody(block, out var body, out var bodyindex))
                             {
-                                engineBlockData.NextBlockGuid = parentLoop.ChildRootGuid;
-                                parentLoop.ChildRootGuid = engineBlockData.Guid;
-                            }
-                            else
-                            {
-                                if (GetPreBlock(block, out var preblock, out var preblockIndex))
-                                {
-                                    engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
-                                    preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
-                                }
-                                else
+                                //Body
+                                var siblingIndex = block.RectTrans.GetSiblingIndex();
+                                if (siblingIndex == 0)
                                 {
                                     engineBlockData.NextBlockGuid = parentLoop.ChildRootGuid;
                                     parentLoop.ChildRootGuid = engineBlockData.Guid;
                                 }
-                            }
-                        }
-                    }
-                        break;
-                    case FucType.Action:
-                    {
-                        var parentSimple = ParentBlockBase as IEngineBlockSimpleBase;
-
-                        if (IsOnHeader(block, out var header, out var headindex))
-                        {
-                            var headerInputs = header.GetHeaderInput();
-                            int variableLen = parentSimple.GetVarGuidsLength();
-                            if (variableLen != headerInputs.Length)
-                            {
-                                Debug.LogError("UI结构和数据结构对不上！:" + parentSimple.Type);
-                                return false;
-                            }
-
-                            for (int i = 0; i < variableLen; i++)
-                            {
-                                if (GetOperationBlock(block, headerInputs[i], out var operation))
+                                else
                                 {
-                                    if (operation.OperationBlock == block)
+                                    if (GetPreBlock(block, out var preblock, out var preblockIndex))
                                     {
-                                        parentSimple.SetVarsGuid(i, engineBlockData.Guid);
-                                        //koalaBlock.NextBlockGuid = parentSimple.Guid; //operation执行后返回condition
+                                        engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
+                                        preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
+                                    }
+                                    else
+                                    {
+                                        engineBlockData.NextBlockGuid = parentLoop.ChildRootGuid;
+                                        parentLoop.ChildRootGuid = engineBlockData.Guid;
                                     }
                                 }
                             }
                         }
-                    }
+
                         break;
-                    case FucType.GetValue:
+                    }
+                    case BlockType.Operation:
                     {
                         var parentOperation = ParentBlockBase as IEngineBlockOperationBase;
                         if (IsOnHeader(block, out var header, out var headindex))
                         {
                             var headerInputs = header.GetHeaderInput();
-                            if (2 != headerInputs.Length)
+
+                            int length = parentOperation.GetVarGuidsLength();
+                            if (length != headerInputs.Length)
                             {
                                 Debug.LogError("UI结构和数据结构对不上！:" + parentOperation.Type);
                                 return false;
                             }
 
-                            //variable1
-                            if (GetOperationBlock(block, headerInputs[0], out var variable1operation))
+                            for (int i = 0; i < length; i++)
                             {
-                                if (variable1operation.OperationBlock == block)
+                                if (GetOperationBlock(block, headerInputs[i], out var variableoperation))
                                 {
-                                    parentOperation.SetVarsGuid(0, engineBlockData.Guid);
-                                    //koalaBlock.NextBlockGuid = parentOperation.Guid; //operation执行后返回condition
-                                }
-                            }
-
-                            //variable2
-                            if (GetOperationBlock(block, headerInputs[1], out var variable2operation))
-                            {
-                                if (variable2operation.OperationBlock == block)
-                                {
-                                    parentOperation.SetVarsGuid(1, engineBlockData.Guid);
-                                    //koalaBlock.NextBlockGuid = parentOperation.Guid; //operation执行后返回condition
-                                }
-                            }
-                        }
-                    }
-                        break;
-                    case FucType.Variable:
-                    {
-                        var parentVariable = ParentBlockBase as IEngineBlockVariableBase;
-                        if (IsOnHeader(block, out var header, out var headindex))
-                        {
-                            var headerInputs = header.GetHeaderInput();
-                            int variableLen = parentVariable.GetVarGuidsLength();
-                            if (variableLen != headerInputs.Length)
-                            {
-                                Debug.LogError("UI结构和数据结构对不上！:" + parentVariable.Type);
-                                return false;
-                            }
-
-                            for (int i = 0; i < variableLen; i++)
-                            {
-                                if (GetOperationBlock(block, headerInputs[i], out var operation))
-                                {
-                                    if (operation.OperationBlock == block)
+                                    if (variableoperation.OperationBlock == block)
                                     {
-                                        parentVariable.SetVarsGuid(i, engineBlockData.Guid);
-                                        //koalaBlock.NextBlockGuid = parentVariable.Guid; //operation执行后返回condition
+                                        parentOperation.SetVarsGuid(i, engineBlockData.Guid);
                                     }
                                 }
                             }
                         }
-                    }
 
                         break;
-
-                    default: throw new ArgumentOutOfRangeException();
+                    }
+                    case BlockType.Define:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
 
@@ -524,7 +475,7 @@ namespace ScratchFramework
             if (isAdd)
             {
                 // Debug.LogError(scratchType);
-                block.Guid = Guid.NewGuid().GetHashCode();
+                block.Guid = ScratchUtils.CreateGuid();
                 while (m_blocks.ContainsKey(block.Guid))
                 {
                     block.Guid = Guid.NewGuid().GetHashCode();
@@ -675,6 +626,82 @@ namespace ScratchFramework
             yield break;
         }
 
+        private bool TryDeserializeBlockDatas(Stream stream)
+        {
+            Dictionary<int, IEngineBlockBaseData> allBlockDatas = new Dictionary<int, IEngineBlockBaseData>();
+
+            List<Block> blocks = new List<Block>();
+            List<IEngineBlockBaseData> blockDatas = null;
+            using (var reader = new StreamReader(stream))
+            {
+                var json = reader.ReadToEnd();
+                try
+                {
+                    JsonSerializerSettings settings = new JsonSerializerSettings();
+                    settings.TypeNameHandling = TypeNameHandling.All;
+                    settings.Converters = new List<JsonConverter> { new GuidListConverter() };
+                    blockDatas = JsonConvert.DeserializeObject<List<IEngineBlockBaseData>>(json, settings);
+
+                    if (blockDatas != null)
+                    {
+                        for (int i = 0; i < blockDatas.Count; i++)
+                        {
+                            allBlockDatas[blockDatas[i].Guid] = blockDatas[i];
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e.ToString());
+                    return false;
+                }
+
+                if (blockDatas == null)
+                {
+                    blockDatas = new List<IEngineBlockBaseData>();
+                }
+
+                m_blocks = allBlockDatas;
+
+                for (int i = 0; i < blockDatas.Count; i++)
+                {
+                    var block = blockDatas[i];
+                    if (block.IsRoot)
+                    {
+                        var blockview = DrawNode(block, BlockCanvasManager.Instance.RectTrans, -1);
+                        blockview.transform.position = blockDatas[i].CanvasPos;
+                        if (blockview != null)
+                        {
+                            blocks.Add(blockview);
+                        }
+                    }
+                }
+
+                //Fixed UI数据 Operation绑定关系
+                for (int i = 0; i < blocks.Count; i++)
+                {
+                    var childBlocks = blocks[i].GetComponentsInChildren<Block>();
+                    for (int j = 0; j < childBlocks.Length; j++)
+                    {
+                        var childBlock = childBlocks[j];
+                        if (childBlock.Type == BlockType.Operation)
+                        {
+                            //检查一下 Input赋值
+                            if (childBlock.TryGetOperationInput(out var input))
+                            {
+                                var itemOperation = childBlock.GetScratchComponent<BlockHeaderItem_Operation>();
+                                if (!itemOperation.Inited) itemOperation.Initialize();
+                                if (!input.Inited) input.Initialize();
+                                input.ContextData.ChildOperation = itemOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
         public void GenerateBlocks(string filepath = null, Action<List<Block>> callback = null)
         {
             List<Block> blocks = new List<Block>();
@@ -682,120 +709,11 @@ namespace ScratchFramework
 
             if (string.IsNullOrEmpty(filepath))
             {
-                ScratchEngine.Instance.StartCoroutine(GetJsonFile(tempJsonfileUrl, (stream) =>
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        var json = reader.ReadToEnd();
-                        try
-                        {
-                            JsonSerializerSettings settings = new JsonSerializerSettings();
-                            settings.TypeNameHandling = TypeNameHandling.All;
-                            blockDatas = JsonConvert.DeserializeObject<List<IEngineBlockBaseData>>(json, settings);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError(e.ToString());
-                        }
-
-                        if (blockDatas == null)
-                        {
-                            blockDatas = new List<IEngineBlockBaseData>();
-                        }
-
-                        for (int i = 0; i < blockDatas.Count; i++)
-                        {
-                            m_blocks[blockDatas[i].Guid] = blockDatas[i];
-                        }
-
-                        for (int i = 0; i < blockDatas.Count; i++)
-                        {
-                            var rootGuid = blockDatas[i].Guid;
-                            var blockUI = PaintBlockInfo(rootGuid, blockDatas[i].CanvasPos);
-
-                            if (blockUI != null) blocks.Add(blockUI);
-                        }
-
-                        //Fixed UI数据 Operation绑定关系
-                        for (int i = 0; i < blocks.Count; i++)
-                        {
-                            var childBlocks = blocks[i].GetComponentsInChildren<Block>();
-                            for (int j = 0; j < childBlocks.Length; j++)
-                            {
-                                var childBlock = childBlocks[j];
-                                if (childBlock.Type == BlockType.Operation)
-                                {
-                                    //检查一下 Input赋值
-                                    if (childBlock.TryGetOperationInput(out var input))
-                                    {
-                                        var itemOperation = childBlock.GetScratchComponent<BlockHeaderItem_Operation>();
-                                        if (!itemOperation.Inited) itemOperation.Initialize();
-                                        if (!input.Inited) input.Initialize();
-                                        input.ContextData.ChildOperation = itemOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
-                                    }
-                                }
-                            }
-                        }
-
-                        callback?.Invoke(blocks);
-                    }
-                }));
+                ScratchEngine.Instance.StartCoroutine(GetJsonFile(tempJsonfileUrl, (stream) => { TryDeserializeBlockDatas(stream); }));
             }
             else
             {
-                ScratchEngine.Instance.StartCoroutine(GetJsonFile(filepath, (stream) =>
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        var json = reader.ReadToEnd();
-                        try
-                        {
-                            JsonSerializerSettings settings = new JsonSerializerSettings();
-                            settings.TypeNameHandling = TypeNameHandling.All;
-                            blockDatas = JsonConvert.DeserializeObject<List<IEngineBlockBaseData>>(json, settings);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError(e.ToString());
-                        }
-
-                        if (blockDatas == null)
-                        {
-                            blockDatas = new List<IEngineBlockBaseData>();
-                        }
-
-                        for (int i = 0; i < blockDatas.Count; i++)
-                        {
-                            var rootGuid = blockDatas[i].Guid;
-                            var blockUI = PaintBlockInfo(rootGuid, blockDatas[i].CanvasPos);
-
-                            if (blockUI != null) blocks.Add(blockUI);
-                        }
-
-                        //Fixed UI数据 Operation绑定关系
-                        for (int i = 0; i < blocks.Count; i++)
-                        {
-                            var childBlocks = blocks[i].GetComponentsInChildren<Block>();
-                            for (int j = 0; j < childBlocks.Length; j++)
-                            {
-                                var childBlock = childBlocks[j];
-                                if (childBlock.Type == BlockType.Operation)
-                                {
-                                    //检查一下 Input赋值
-                                    if (childBlock.TryGetOperationInput(out var input))
-                                    {
-                                        var itemOperation = childBlock.GetScratchComponent<BlockHeaderItem_Operation>();
-                                        if (!itemOperation.Inited) itemOperation.Initialize();
-                                        if (!input.Inited) input.Initialize();
-                                        input.ContextData.ChildOperation = itemOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
-                                    }
-                                }
-                            }
-                        }
-
-                        callback?.Invoke(blocks);
-                    }
-                }));
+                ScratchEngine.Instance.StartCoroutine(GetJsonFile(filepath, (stream) => { TryDeserializeBlockDatas(stream); }));
             }
         }
 
@@ -822,6 +740,7 @@ namespace ScratchFramework
 
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.TypeNameHandling = TypeNameHandling.All;
+                settings.Converters = new List<JsonConverter> { new GuidListConverter() };
                 settings.Formatting = Formatting.Indented;
 
                 var json = JsonConvert.SerializeObject(blockDatas, settings);
@@ -1002,25 +921,10 @@ namespace ScratchFramework
 
 #endif
 
-        HashSet<int> check = new HashSet<int>();
-
-        private Block PaintBlockInfo(int guid, Vector3 pos)
-        {
-            var block = GetBlocksDataRef(guid);
-            if (block == null) return null;
-            check.Clear();
-
-            var blockview = DrawNode(block, BlockCanvasManager.Instance.RectTrans, -1);
-            blockview.transform.position = pos;
-
-            return blockview.GetComponent<Block>();
-        }
 
         private Block DrawNode(IEngineBlockBaseData node, Transform parentTrans, int index = -1)
         {
             if (node == null) return null;
-            if (check.Contains(node.Guid) && node.ClassName != FucType.Variable) return null;
-            if (!check.Contains(node.Guid)) check.Add(node.Guid);
 
             var ResourceItem = ScratchResourcesManager.Instance.TemplateResourcesDict[node.Type];
             Block blockUI = ResourceItem.CreateBlock(node);
@@ -1043,17 +947,18 @@ namespace ScratchFramework
                 }
             }
 
-            switch (node.ClassName)
-            {
-                case FucType.Event: //Event
-                {
-                    var section0 = blockUI.GetChildSection()[0];
+            var sections = blockUI.GetChildSection();
 
+            switch (node.BlockType)
+            {
+                case BlockType.none:
+                    break;
+                case BlockType.Trigger:
+                {
                     var _node = node as IEngineBlockTriggerBase;
-                    //0 Header 
-                    if (section0.Header != null)
+                    if (sections[0].Header != null)
                     {
-                        var headerOperations = section0.Header.GetHeaderOperation();
+                        var headerOperations = sections[0].Header.GetHeaderOperation();
                         int variableLen = _node.GetReturnValuesLength();
                         if (variableLen != headerOperations.Length)
                         {
@@ -1072,19 +977,17 @@ namespace ScratchFramework
                         }
                     }
 
-                    //0 Body 
-                    if (section0.Body != null)
+                    if (sections[0].Body != null)
                     {
-                        var childBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), section0.Body.RectTrans);
+                        var childBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), sections[0].Body.RectTrans);
                     }
-                }
-                    break;
-                case FucType.Condition: //if else
-                {
-                    var sections = blockUI.GetChildSection();
 
-                    var _node = node as IEngineBlockConditionBase;
-                    //0 Header 
+                    break;
+                }
+                case BlockType.Simple:
+                {
+                    var _node = node as IEngineBlockSimpleBase;
+
                     if (sections[0].Header != null)
                     {
                         var headerInputs = sections[0].Header.GetHeaderInput();
@@ -1101,124 +1004,109 @@ namespace ScratchFramework
                         }
                     }
 
-                    //0 Body 
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), parentTrans);
+                    break;
+                }
+                case BlockType.Loop:
+                {
+                    var _node = node as IEngineBlockLoopBase;
+
+                    if (sections[0].Header != null)
+                    {
+                        var headerInputs = sections[0].Header.GetHeaderInput();
+                        int variableLen = _node.GetVarGuidsLength();
+                        if (variableLen != headerInputs.Length)
+                        {
+                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                            return null;
+                        }
+
+                        for (int i = 0; i < variableLen; i++)
+                        {
+                            var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), sections[0].Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
+                        }
+                    }
+
                     if (sections[0].Body != null)
                     {
-                        var childTrueBlock = DrawNode(GetBlocksDataRef(_node.TrueBlockGuid), sections[0].Body.RectTrans);
+                        var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), sections[0].Body.RectTrans);
                     }
 
-                    //1 Body 
-                    if (sections[1].Body != null)
-                    {
-                        var childFalseBlock = DrawNode(GetBlocksDataRef(_node.FalseBlockGuid), sections[1].Body.RectTrans);
-                    }
-
-                    //Next Guid
                     var nextBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), parentTrans);
-                }
                     break;
-                case FucType.Control: //Reapeat Timer
+                }
+                case BlockType.Condition:
                 {
-                    var section0 = blockUI.GetChildSection()[0];
+                    var _node = node as IEngineBlockConditionBase;
 
-                    var _node = node as IEngineBlockLoopBase;
-                    //0 Header 
-                    if (section0.Header != null)
+                    int branchcount = _node.Branch_BlockGuids.Length;
+
+                    for (int i = 0; i < branchcount; i++)
                     {
-                        var headerInputs = section0.Header.GetHeaderInput();
-                        int variableLen = _node.GetVarGuidsLength();
-                        if (variableLen != headerInputs.Length)
+                        var section = sections[i];
+                        if (section.Header != null)
                         {
-                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
-                            return null;
-                        }
+                            if (i == branchcount - 1) continue; //End 
 
-                        for (int i = 0; i < variableLen; i++)
-                        {
-                            var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), section0.Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
+                            var headerInputs = section.Header.GetHeaderInput();
+                            if (headerInputs.Length != 1)
+                            {
+                                Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                                return null;
+                            }
+
+                            var operationBlock = DrawNode(GetBlocksDataRef(_node.Branch_OperationGuids[i]), section.Header.RectTrans, headerInputs[0].RectTrans.GetSiblingIndex());
                         }
                     }
 
-                    //0 Body 
-                    if (section0.Body != null)
+                    for (int i = 0; i < branchcount; i++)
                     {
-                        var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), section0.Body.RectTrans);
+                        var section = sections[i];
+                        if (section.Body != null)
+                        {
+                            var branchBlock = DrawNode(GetBlocksDataRef(_node.Branch_BlockGuids[i]), section.Body.RectTrans);
+                        }
                     }
 
-                    //Next Guid
                     var nextBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), parentTrans);
-                }
                     break;
-                case FucType.Action: //Controls KoalaStartCountdownBlock？？？？、Actions KoalaApplyForceBlock
+                }
+                case BlockType.Operation:
                 {
-                    var section0 = blockUI.GetChildSection()[0];
-
-                    var _node = node as IEngineBlockSimpleBase;
-                    //0 Header 
-                    if (section0.Header != null)
+                    if (node.FucType == FucType.GetValue || node.FucType == FucType.Condition)
                     {
-                        var headerInputs = section0.Header.GetHeaderInput();
-                        int variableLen = _node.GetVarGuidsLength();
-                        if (variableLen != headerInputs.Length)
-                        {
-                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
-                            return null;
-                        }
+                        var _node = node as IEngineBlockOperationBase;
 
-                        for (int i = 0; i < variableLen; i++)
+                        if (sections[0].Header != null)
                         {
-                            var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), section0.Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
+                            var headerInputs = sections[0].Header.GetHeaderInput();
+
+                            int variableLen = _node.GetVarGuidsLength();
+                            if (variableLen != headerInputs.Length)
+                            {
+                                Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                                return null;
+                            }
+
+                            for (int i = 0; i < variableLen; i++)
+                            {
+                                var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), sections[0].Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
+                            }
                         }
                     }
-
-                    //Next Guid
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), parentTrans);
-                }
-                    break;
-                case FucType.GetValue:
-                {
-                    var section0 = blockUI.GetChildSection()[0];
-
-                    var _node = node as IEngineBlockOperationBase;
-                    //0 Header 
-                    if (section0.Header != null)
+                    else if (node.FucType == FucType.Variable)
                     {
-                        var headerInputs = section0.Header.GetHeaderInput();
-
-                        if (2 != headerInputs.Length)
-                        {
-                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
-                            return null;
-                        }
-
-                        var variable1Block = DrawNode(GetBlocksDataRef(_node.Variable1Guid), section0.Header.RectTrans, headerInputs[0].RectTrans.GetSiblingIndex());
-                        var variable2Block = DrawNode(GetBlocksDataRef(_node.Variable2Guid), section0.Header.RectTrans, headerInputs[1].RectTrans.GetSiblingIndex());
+                        var _node = node as IEngineBlockVariableBase;
                     }
-                }
-                    break;
-                case FucType.Variable:
-                {
-                    var section0 = blockUI.GetChildSection()[0];
 
-                    var _node = node as IEngineBlockVariableBase;
-                    //0 Header 
-                    if (section0.Header != null)
-                    {
-                        var headerInputs = section0.Header.GetHeaderInput();
-                        int variableLen = _node.GetVarGuidsLength();
-                        if (variableLen != headerInputs.Length)
-                        {
-                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
-                            return null;
-                        }
 
-                        for (int i = 0; i < variableLen; i++)
-                        {
-                            var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), section0.Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
-                        }
-                    }
-                }
                     break;
+                }
+
+                case BlockType.Define:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             return blockUI;

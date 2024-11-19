@@ -42,8 +42,9 @@ namespace ScratchFramework
                 return;
             }
 
-            Debug.LogWarning("数据进去:" + koalaBlockBase.Guid + koalaBlockBase.Type);
+            // Debug.LogWarning("数据进去:" + koalaBlockBase.Guid + koalaBlockBase.Type);
             blockData = koalaBlockBase;
+            
         }
 
         public IEngineBlockBaseData GetEngineBlockData()
@@ -54,7 +55,7 @@ namespace ScratchFramework
         public void InitKoalaData()
         {
             if (Type == BlockType.none) return;
-            
+
             if (GetEngineBlockData() == null)
             {
                 SetKoalaBlock(ScratchEngine.Instance.Core.CreateBlock(scratchType));
@@ -68,17 +69,12 @@ namespace ScratchFramework
             if (transform.parent != lastParent)
             {
                 TransformParentChanged();
-                var tag = GetComponentInParent<IScratchSectionChild>();
-                if (tag == null) FixedUIPosData();
             }
             // 检查兄弟索引变化
             else if (transform.GetSiblingIndex() != lastSiblingIndex)
             {
                 OnSiblingIndexChanged();
             }
-
-            //UI数据
-            ScratchEngine.Instance.Core.UpdateDataPos(blockData, transform.position);
         }
 
 
@@ -201,8 +197,16 @@ namespace ScratchFramework
         public void FixedUIPosData()
         {
             if (!transform.IsChildOf(BlockCanvasManager.Instance.RectTrans)) return;
+            blockData.IsRoot = GetComponentInParent<IScratchSectionChild>() == null;
 
-            ScratchEngine.Instance.Core.TryFixedBlockBaseDataPos(blockData, transform.position);
+            if (blockData.IsRoot)
+            {
+                ScratchEngine.Instance.Core.TryFixedBlockBaseDataPos(blockData, transform.position);
+            }
+            else
+            {
+                ScratchEngine.Instance.Core.TryFixedBlockBaseDataPos(blockData, Vector3.zero);
+            }
         }
 
 

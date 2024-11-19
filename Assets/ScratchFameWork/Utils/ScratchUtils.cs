@@ -22,9 +22,29 @@ namespace ScratchFramework
             return uo.GetComponent<T>() ?? uo.AddComponent<T>();
         }
 
+        public const int InvalidGuid = 0;
+
+        public static int CreateGuid()
+        {
+            return CreateGuid(out var guid);
+        }
+
+        public static int CreateGuid(out Guid guid)
+        {
+            guid = Guid.NewGuid();
+            int hashCode = guid.GetHashCode();
+            while (hashCode == InvalidGuid)
+            {
+                guid = Guid.NewGuid();
+                hashCode = guid.GetHashCode();
+            }
+
+            return hashCode;
+        }
+
         public static string VariableKoalaBlockToString(IEngineBlockVariableBase blockBase)
         {
-            if ( ScratchEngine.Instance.Core.VariableValue2String(blockBase,out var strRes) )
+            if (ScratchEngine.Instance.Core.VariableValue2String(blockBase, out var strRes))
             {
                 return strRes;
             }
@@ -32,62 +52,49 @@ namespace ScratchFramework
             {
                 return string.Empty;
             }
-            
         }
 
         public static bool String2VariableKoalaBlock(string str, IEngineBlockVariableBase blockBase)
         {
             return ScratchEngine.Instance.Core.String2VariableValueTo(blockBase, str);
-            
-            // if (blockBase.Type == KoalaScratchType.VectorValue)
-            // {
-            //     str = str.Replace("(", "").Replace(")", ""); //将字符串中"("和")"替换为" "
-            //     string[] s = str.Split(',');
-            //
-            //     if (s.Length == 3)
-            //     {
-            //         if (blockBase is KoalaVector3ValueBlock vector3ValueBlock)
-            //         {
-            //             try
-            //             {
-            //                 vector3ValueBlock.Value = new Vector3(float.Parse(s[0]), float.Parse(s[1]), float.Parse(s[2])).ToFPVector3();
-            //                 return true;
-            //             }
-            //             catch (Exception e)
-            //             {
-            //                 Debug.LogError(e);
-            //                 return false;
-            //             }
-            //         }
-            //     }
-            // }
-            //
-            // if (blockBase.Type == KoalaScratchType.IntegerValue)
-            // {
-            //     if (int.TryParse(str, out var res))
-            //     {
-            //         if (blockBase is KoalaIntValueBlock intValueBlock)
-            //         {
-            //             intValueBlock.Value = res;
-            //             return true;
-            //         }
-            //     }
-            // }
-            //
-            // if (blockBase.Type == KoalaScratchType.EntityValue)
-            // {
-            //     if (int.TryParse(str, out var res))
-            //     {
-            //         if (blockBase is KoalaEntityValueBlock entityValueBlock)
-            //         {
-            //             //TODO Entity
-            //             // entityValueBlock.EntityGuid = res;
-            //             return true;
-            //         }
-            //     }
-            // }
-            //
-            // return false;
+        }
+
+        public static void CreateVariableName(IEngineBlockVariableBase blockdata, IHeaderParamVariable variableData)
+        {
+            //创建变量名
+            if (string.IsNullOrEmpty(blockdata.VariableName))
+            {
+                if (variableData is BlockHeaderParam_Data_VariableLabel variable)
+                {
+                    string variableRef = blockdata.Guid.ToString();
+                    switch (blockdata.Type)
+                    {
+                        case ScratchBlockType.IntegerValue:
+                            blockdata.VariableName = $"[int]{variableRef}";
+                            break;
+                        case ScratchBlockType.VectorValue:
+                            blockdata.VariableName = $"[Vector3]{variableRef}";
+                            break;
+                        case ScratchBlockType.EntityValue:
+                            blockdata.VariableName = $"[Entity]{variableRef}";
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                else if (variableData is BlockHeaderParam_Data_RenturnVariableLabel returnVariable)
+                {
+                    blockdata.VariableName = $"[Entity]{returnVariable.VariableInfo}";
+                }
+            }
+
+            //绑定数据
+            variableData.VariableRef = blockdata.Guid.ToString();
+        }
+
+        public static void RefreshVariableName(IEngineBlockVariableBase blockdata, IHeaderParamVariable variableData)
+        {
+            variableData.VariableRef = blockdata.Guid.ToString();
         }
 
         /// <summary>
@@ -105,14 +112,7 @@ namespace ScratchFramework
 
             Block newblock = null;
 
-            if (newBlockData.Type == BlockType.Operation)
-            {
-                newblock = BlockCreator.CreateBlock(newBlockData, parentTrans);
-            }
-            else
-            {
-                newblock = BlockCreator.CreateBlock(newBlockData, parentTrans);
-            }
+            newblock = BlockCreator.CreateBlock(newBlockData, parentTrans);
 
             return newblock;
         }

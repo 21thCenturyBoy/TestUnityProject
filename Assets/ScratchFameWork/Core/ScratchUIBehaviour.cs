@@ -64,6 +64,12 @@ namespace ScratchFramework
             get => RectTrans.localPosition;
             set => RectTrans.localPosition = value;
         }
+        
+        public Vector3 LocalEulerAngles
+        {
+            get => RectTrans.localEulerAngles;
+            set => RectTrans.localEulerAngles = value;
+        }
 
         public Vector3 ScreenPos => ScratchUtils.WorldPos2ScreenPos(Position);
 

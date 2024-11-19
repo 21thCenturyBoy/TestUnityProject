@@ -104,29 +104,58 @@ namespace ScratchFramework
             AssetDatabase.Refresh();
         }
 
-        private static string GetInterfaceName(FucType type)
+        public static Type GetInterfaceType(BlockData blockData)
         {
-            switch (type)
+            Type engineBlockType = null;
+            switch (blockData.Type)
             {
-                case FucType.Undefined:
+                case BlockType.none:
                     break;
-                case FucType.Event:
-                    return nameof(IEngineBlockTriggerBase);
-                case FucType.Action:
-                    return nameof(IEngineBlockSimpleBase);
-                case FucType.Control:
-                    return nameof(IEngineBlockConditionBase);
-                case FucType.Condition:
-                    return nameof(IEngineBlockConditionBase);
-                case FucType.GetValue:
-                    return nameof(IEngineBlockOperationBase);
-                case FucType.Variable:
-                    return nameof(IEngineBlockVariableBase);
+                case BlockType.Trigger:
+                    engineBlockType = typeof(IEngineBlockTriggerBase);
+                    break;
+                case BlockType.Simple:
+                    engineBlockType = typeof(IEngineBlockSimpleBase);
+                    break;
+                case BlockType.Condition:
+                    engineBlockType = typeof(IEngineBlockConditionBase);
+                    break;
+                case BlockType.Loop:
+                    engineBlockType = typeof(IEngineBlockLoopBase);
+                    break;
+                case BlockType.Operation:
+                    if (blockData.BlockFucType == FucType.Condition)
+                    {
+                        engineBlockType = typeof(IEngineBlockOperationBase);
+                    }
+                    if (blockData.BlockFucType == FucType.GetValue)
+                    {
+                        engineBlockType = typeof(IEngineBlockOperationBase);
+                    }
+                    else if (blockData.BlockFucType == FucType.Variable)
+                    {
+                        engineBlockType = typeof(IEngineBlockVariableBase);
+                    }
+                    break;
+                case BlockType.Define:
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    throw new ArgumentOutOfRangeException();
             }
+            return engineBlockType;
+        }
 
-            return string.Empty;
+        private static string GetInterfaceName(BlockData blockData)
+        {
+            Type engineBlockType = GetInterfaceType(blockData);
+            if (engineBlockType == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return engineBlockType.Name;
+            }
         }
 
         private static void GetInputValuesLen(BlockData blockData, ref List<ScratchValueType> inputs, ref List<ScratchValueType> returns)
@@ -166,37 +195,18 @@ namespace ScratchFramework
             }
         }
 
-        private static void GetInterfaceProperty(ref StringBuilder stringBuilder, FucType type, BlockData blockData)
+        private static void GetInterfaceProperty(ref StringBuilder stringBuilder, BlockData blockData)
         {
-            Type engineBlockType = null;
-            switch (type)
-            {
-                case FucType.Undefined:
-                    break;
-                case FucType.Event:
-                    engineBlockType = typeof(IEngineBlockTriggerBase);
-                    break;
-                case FucType.Action:
-                    engineBlockType = typeof(IEngineBlockSimpleBase);
-                    break;
-                case FucType.Control:
-                    engineBlockType = typeof(IEngineBlockConditionBase);
-                    break;
-                case FucType.Condition:
-                    engineBlockType = typeof(IEngineBlockConditionBase);
-                    break;
-                case FucType.GetValue:
-                    engineBlockType = typeof(IEngineBlockOperationBase);
-                    break;
-                case FucType.Variable:
-                    engineBlockType = typeof(IEngineBlockVariableBase);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-
+            Type engineBlockType = GetInterfaceType(blockData);
+            
             if (engineBlockType == null) return;
-
+            
+            if (blockData.Type == BlockType.Condition)
+            {
+                stringBuilder.AppendLine(string.Format($"\t\tpublic GuidList {nameof(IEngineBlockConditionBase.Branch_OperationGuids)} {{0}}{{1}});", "{ get; set; } = GuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length - 1));
+                stringBuilder.AppendLine(string.Format($"\t\tpublic GuidList {nameof(IEngineBlockConditionBase.Branch_BlockGuids)} {{0}}{{1}});", "{ get; set; } = GuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length)); 
+            }
+            
             var properties = engineBlockType.GetProperties();
             for (int i = 0; i < properties.Length; i++)
             {
@@ -210,10 +220,10 @@ namespace ScratchFramework
 
                 if (properties[i].GetAttribute<BlockGuidRefAttribute>() != null)
                 {
-                    defalutVaue = "-1";
+                    defalutVaue = ScratchUtils.InvalidGuid.ToString();
                 }
 
-                if (type == FucType.Variable && blockData.OperationValueType != ScratchValueType.Undefined && targetType == typeof(ScratchValueType))
+                if (blockData.BlockFucType == FucType.Variable && blockData.OperationValueType != ScratchValueType.Undefined && targetType == typeof(ScratchValueType))
                 {
                     defalutVaue = $"ScratchValueType.{blockData.OperationValueType}";
                 }
@@ -235,6 +245,7 @@ namespace ScratchFramework
                 stringBuilder.AppendLine($"\t\tpartial void Set{properties[i].Name}(ref {properties[i].PropertyType.FullName} newData);");
             }
 
+
             return;
         }
 
@@ -242,7 +253,7 @@ namespace ScratchFramework
         {
             stringBuilder.AppendLine($"\t\t/// <summary> {summary} </summary>");
         }
-        
+
         public static void ScratchBlockClass(ref StringBuilder stringBuilder, List<BlockData> blockDatas)
         {
             List<ScratchValueType> inputs = new List<ScratchValueType>();
@@ -251,27 +262,19 @@ namespace ScratchFramework
             {
                 GetInputValuesLen(blockDatas[i], ref inputs, ref returns);
 
-                string interfaceInfos = string.IsNullOrEmpty(GetInterfaceName(blockDatas[i].BlockFucType)) ? string.Empty : ": " + GetInterfaceName(blockDatas[i].BlockFucType);
+                string interfaceInfos = string.IsNullOrEmpty(GetInterfaceName(blockDatas[i])) ? string.Empty : ": " + GetInterfaceName(blockDatas[i]);
                 stringBuilder.AppendLine($"\tpublic partial class BlockLogic_{blockDatas[i].ScratchType} {interfaceInfos}");
                 stringBuilder.AppendLine("\t{");
 
-          
-                stringBuilder.AppendLine($"\t\tpublic FucType ClassName => FucType.{blockDatas[i].BlockFucType};");
+                stringBuilder.AppendLine($"\t\tpublic FucType FucType => FucType.{blockDatas[i].BlockFucType};");
                 stringBuilder.AppendLine($"\t\tpublic ScratchBlockType Type => ScratchBlockType.{blockDatas[i].ScratchType};");
+                stringBuilder.AppendLine($"\t\tpublic BlockType BlockType => BlockType.{blockDatas[i].Type};");
 
-                stringBuilder.AppendLine($"\t\tprivate BVector3 m_CanvasPos = BVector3.zero;");
-                stringBuilder.AppendLine($"\t\tpublic BVector3 CanvasPos");
-                stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tget => m_CanvasPos;");
-                stringBuilder.AppendLine("\t\t\tset");
-                stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\t\tSetCanvasPos(ref value);");
-                stringBuilder.AppendLine("\t\t\t\tm_CanvasPos = value;");
-                stringBuilder.AppendLine("\t\t\t}");
-                stringBuilder.AppendLine("\t\t}");
-                stringBuilder.AppendLine("\t\tpartial void SetCanvasPos(ref BVector3 newData);");
+                stringBuilder.AppendLine(string.Format($"\t\tpublic bool {nameof(IEngineBlockBaseData.IsRoot)} {{0}}", "{ get; set; } = false;"));
 
-                stringBuilder.AppendLine($"\t\tprivate int m_NextBlockGuid = -1;");
+                stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BVector2)} {nameof(IEngineBlockBaseData.CanvasPos)} {{0}} = {{1}}.zero;", "{ get; set; }", nameof(BVector2)));
+
+                stringBuilder.AppendLine($"\t\tprivate int m_NextBlockGuid = {ScratchUtils.InvalidGuid};");
                 stringBuilder.AppendLine($"\t\tpublic int NextBlockGuid");
                 stringBuilder.AppendLine("\t\t{");
                 stringBuilder.AppendLine("\t\t\tget => m_NextBlockGuid;");
@@ -283,19 +286,7 @@ namespace ScratchFramework
                 stringBuilder.AppendLine("\t\t}");
                 stringBuilder.AppendLine("\t\tpartial void SetNextBlockGuid(ref int newData);");
 
-                stringBuilder.AppendLine($"\t\tprivate IEngineBlockBaseData m_NextBlock;");
-                stringBuilder.AppendLine($"\t\tpublic IEngineBlockBaseData NextBlock");
-                stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tget => m_NextBlock;");
-                stringBuilder.AppendLine("\t\t\tset");
-                stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\t\tSetNextBlock(ref value);");
-                stringBuilder.AppendLine("\t\t\t\tm_NextBlock = value;");
-                stringBuilder.AppendLine("\t\t\t}");
-                stringBuilder.AppendLine("\t\t}");
-                stringBuilder.AppendLine("\t\tpartial void SetNextBlock(ref IEngineBlockBaseData newData);");
-
-                stringBuilder.AppendLine($"\t\tprivate int m_Guid = -1;");
+                stringBuilder.AppendLine($"\t\tprivate int m_Guid = {ScratchUtils.InvalidGuid};");
                 stringBuilder.AppendLine($"\t\tpublic int Guid");
                 stringBuilder.AppendLine("\t\t{");
                 stringBuilder.AppendLine("\t\t\tget => m_Guid;");
@@ -307,10 +298,8 @@ namespace ScratchFramework
                 stringBuilder.AppendLine("\t\t}");
                 stringBuilder.AppendLine("\t\tpartial void SetGuid(ref int newData);");
 
-                GetInterfaceProperty(ref stringBuilder, blockDatas[i].BlockFucType, blockDatas[i]);
+                GetInterfaceProperty(ref stringBuilder, blockDatas[i]);
 
-
-                stringBuilder.AppendLine("\t\t#region IBlockVarGuid");
 
                 //InputValue
 
@@ -386,7 +375,7 @@ namespace ScratchFramework
 
                 for (int j = 0; j < inputs.Count; j++)
                 {
-                    stringBuilder.AppendLine("\t\tprivate int m_VarGuid_" + j + " = -1;");
+                    stringBuilder.AppendLine("\t\tprivate int m_VarGuid_" + j + $" = {ScratchUtils.InvalidGuid};");
 
                     stringBuilder.AppendLine("\t\tpublic int VarGuid_" + j);
                     stringBuilder.AppendLine("\t\t{");
@@ -438,7 +427,7 @@ namespace ScratchFramework
                     stringBuilder.AppendLine("\t\t\t}");
                 }
 
-                stringBuilder.AppendLine("\t\t\treturn -1;");
+                stringBuilder.AppendLine($"\t\t\treturn {ScratchUtils.InvalidGuid};");
                 stringBuilder.AppendLine("\t\t}");
 
                 stringBuilder.AppendLine($"\t\tpublic int[] {nameof(IBlockVarGuid.GetVarGuids)}()");
@@ -453,16 +442,11 @@ namespace ScratchFramework
                 stringBuilder.AppendLine("\t\t}");
 
 
-                stringBuilder.AppendLine("\t\t#endregion");
-
-
-                stringBuilder.AppendLine("\t\t#region IBlockReturnVarGuid");
-
                 //ReturnVarGuid
 
                 for (int j = 0; j < returns.Count; j++)
                 {
-                    stringBuilder.AppendLine("\t\tprivate int m_ReturnVarGuid_" + j + " = -1;");
+                    stringBuilder.AppendLine("\t\tprivate int m_ReturnVarGuid_" + j + $" = {ScratchUtils.InvalidGuid};");
                     AddSummary($"{returns[j]}_{j}", ref stringBuilder);
                     stringBuilder.AppendLine("\t\tpublic int ReturnVarGuid_" + j);
                     stringBuilder.AppendLine("\t\t{");
@@ -513,7 +497,7 @@ namespace ScratchFramework
                 }
 
 
-                stringBuilder.AppendLine("\t\t\treturn -1;");
+                stringBuilder.AppendLine($"\t\t\treturn {ScratchUtils.InvalidGuid};");
                 stringBuilder.AppendLine("\t\t}");
 
                 stringBuilder.AppendLine($"\t\tpublic int[] {nameof(IBlockReturnVarGuid.GetReturnValues)}()");
@@ -526,9 +510,6 @@ namespace ScratchFramework
 
                 stringBuilder.AppendLine("\t\t\treturn values;");
                 stringBuilder.AppendLine("\t\t}");
-
-
-                stringBuilder.AppendLine("\t\t#endregion");
 
 
                 stringBuilder.AppendLine("\t}");

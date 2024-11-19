@@ -53,7 +53,7 @@ namespace ScratchFramework
             if (!IsDraging) return;
             
             base.OnEndDrag(eventData);
-
+            
             if (BlockDragManager.Instance.TargetSpot != null)
             {
                 var target = BlockDragManager.Instance.TargetSpot;
@@ -81,12 +81,14 @@ namespace ScratchFramework
                 }
             }
 
-            transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, 0);
-            transform.localEulerAngles = Vector3.zero;
+            LocalPosition = new Vector3(LocalPosition.x, LocalPosition.y, 0);
+            LocalEulerAngles = Vector3.zero;
 
             var ghostBlock = TempCanvasManager.Instance.GhostBlock;
             ghostBlock.SetParent(TempCanvasManager.Instance);
             ghostBlock.Active = false;
+            
+            BlockDragManager.Instance.EndDragFixPosData(this);
         }
     }
 }

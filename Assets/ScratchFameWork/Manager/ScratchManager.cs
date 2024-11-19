@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
-
     public class ScratchManager : ScratchSingleton<ScratchManager>, IScratchManager
     {
         private Canvas m_Canvas;
@@ -35,7 +34,7 @@ namespace ScratchFramework
             {
                 if (Canvas == null) return null;
 
-                if (Canvas.renderMode == RenderMode.ScreenSpaceOverlay) return null;
+                if (Canvas.renderMode == RenderMode.ScreenSpaceOverlay) return Camera.main;
 
                 return Camera.main;
             }
@@ -43,6 +42,7 @@ namespace ScratchFramework
 
         private TempCanvasManager m_TempCanvas;
         private ScratchResourcesManager m_ResourcesManager;
+
         private void Awake()
         {
             Initialize();
@@ -54,14 +54,16 @@ namespace ScratchFramework
             {
                 m_TempCanvas = GetComponentInChildren<TempCanvasManager>();
                 m_TempCanvas.Initialize();
-                
+
                 m_ResourcesManager = GetComponentInChildren<ScratchResourcesManager>();
             }
+
             m_ResourcesManager.Initialize();
             m_ResourcesManager.LoadAllResource(LoadResourceFinish);
+
             return Inited;
         }
-        
+
         private void LoadResourceFinish()
         {
             //ScratchDataManager
@@ -69,7 +71,7 @@ namespace ScratchFramework
 
             //ScratchEventManager
             ScratchEventManager.Instance.Initialize();
-            
+
             //BlockCanvasManager
             BlockCanvasManager.Instance.SetParent(transform);
             BlockCanvasManager.Instance.transform.localPosition = Vector3.zero;
@@ -84,10 +86,14 @@ namespace ScratchFramework
             ScratchMenuManager.Instance.SetParent(transform);
             ScratchMenuManager.Instance.transform.localPosition = Vector3.zero;
             ScratchMenuManager.Instance.Initialize();
-            
+
+            //ScratchDebug
+            ScratchDebugManager.Instance.Initialize();
+
+
             //从引擎可视化数据中加载
             ScratchEngine.Instance.Core.GenerateBlocks();
-            
+
             m_isInitialized = true;
         }
 
@@ -105,18 +111,19 @@ namespace ScratchFramework
         {
             ScratchEventManager.Instance.OnUpdate();
             BlockDragManager.Instance.OnUpdate();
+            ScratchDebugManager.Instance.OnUpdate();
         }
 
         public void OnLateUpdate()
         {
         }
-        
+
 
         public bool Clear()
         {
             //TempCanvasManager
             TempCanvasManager.Instance.Clear();
-            
+
             //ScratchDataManager
             ScratchDataManager.Instance.Clear();
 
@@ -133,11 +140,10 @@ namespace ScratchFramework
             ScratchMenuManager.Instance.Clear();
             return true;
         }
-        
+
         public void Save()
         {
             ScratchDataManager.Instance.Save();
         }
-        
     }
 }

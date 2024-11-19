@@ -21,7 +21,7 @@ namespace ScratchFramework
         public void SetVariableData(IEngineBlockVariableBase variableBase)
         {
             m_VariableData = variableBase;
-            Debug.LogError(variableBase.Guid);
+            // Debug.LogError(variableBase.Guid);
         }
 
         protected override void OnInitialize()

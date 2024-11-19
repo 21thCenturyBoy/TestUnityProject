@@ -115,28 +115,30 @@ namespace ScratchFramework
             }
         }
 
-        private void TrySetKoalaBlockBase(IEngineBlockBaseData blockBase)
-        {
-            if (blockBase is IBlockReturnVarGuid returnVarGuid)
-            {
-                int returnValueLength = returnVarGuid.GetReturnValuesLength();
-                int[] returnValues = new int[returnValueLength];
-                if (returnValueLength != 0)
-                {
-                    for (int j = 0; j < returnValueLength; j++)
-                    {
-                        returnValues[j] = returnVarGuid.GetReturnValueGuid(j);
-                    }
-                }
-            }
-
-        }
-
         private void SetKoalaBlockData(Block block, IEngineBlockBaseData blockBase)
         {
             if (block.GetEngineBlockData() == null)
             {
                 block.SetKoalaBlock(blockBase);
+
+                if (blockBase is IEngineBlockVariableBase variableBase)
+                {
+                    var sections = block.GetChildSection();
+                    for (int i = 0; i < sections.Count; i++)
+                    {
+                        if (sections[i].Header != null)
+                        {
+                            IBlockScratch_Head[] heads = sections[i].Header.GetComponentsInChildren<IBlockScratch_Head>();
+                            for (int j = 0; j < heads.Length; j++)
+                            {
+                                if (heads[j].DataRef() is IHeaderParamVariable paramVariable)
+                                {
+                                    ScratchUtils.RefreshVariableName(variableBase, paramVariable);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
