@@ -54,6 +54,25 @@ namespace ScratchFramework
             }
         }
 
+        public static bool SetNextGuid(this IEngineBlockBaseData blockBase,int nextGuid)
+        {
+            if (blockBase is IBlockPlug plug)
+            {
+                plug.NextGuid = nextGuid;
+                return true;
+            }
+            return false;
+        }
+        
+        public static int GetNextGuid(this IEngineBlockBaseData blockBase)
+        {
+            if (blockBase is IBlockPlug plug)
+            {
+                return plug.NextGuid;
+            }
+            return InvalidGuid;
+        }
+        
         public static bool String2VariableKoalaBlock(string str, IEngineBlockVariableBase blockBase)
         {
             return ScratchEngine.Instance.Core.String2VariableValueTo(blockBase, str);

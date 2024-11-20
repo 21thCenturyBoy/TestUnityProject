@@ -128,6 +128,7 @@ namespace ScratchFramework
                     {
                         engineBlockType = typeof(IEngineBlockOperationBase);
                     }
+
                     if (blockData.BlockFucType == FucType.GetValue)
                     {
                         engineBlockType = typeof(IEngineBlockOperationBase);
@@ -136,12 +137,14 @@ namespace ScratchFramework
                     {
                         engineBlockType = typeof(IEngineBlockVariableBase);
                     }
+
                     break;
                 case BlockType.Define:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             return engineBlockType;
         }
 
@@ -158,7 +161,7 @@ namespace ScratchFramework
             }
         }
 
-        private static void GetInputValuesLen(BlockData blockData, ref List<ScratchValueType> inputs, ref List<ScratchValueType> returns)
+        private static void GetInputValuesLen(BlockData blockData, ref List<string> inputs, ref List<KeyValuePair<ScratchValueType, string>> returns)
         {
             inputs.Clear();
             returns.Clear();
@@ -176,11 +179,15 @@ namespace ScratchFramework
                         case DataType.Label:
                             break;
                         case DataType.Input:
-                            inputs.Add(ScratchValueType.Undefined);
+                            BlockHeaderParam_Data_Input dataInput = headData as BlockHeaderParam_Data_Input;
+                            inputs.Add(dataInput.DataProperty);
                             break;
                         case DataType.Operation:
                             BlockHeaderParam_Data_Operation headOperationData = headData as BlockHeaderParam_Data_Operation;
-                            returns.Add(headOperationData.ValueType);
+                            if (headOperationData.GetBlockData().SectionTreeList[0].BlockHeadTreeList[0] is BlockHeaderParam_Data_RenturnVariableLabel renturnVariableLabel)
+                            {
+                                returns.Add(new KeyValuePair<ScratchValueType, string>(headOperationData.ValueType, renturnVariableLabel.VariableInfo));
+                            }
                             break;
                         case DataType.VariableLabel:
                             break;
@@ -198,15 +205,15 @@ namespace ScratchFramework
         private static void GetInterfaceProperty(ref StringBuilder stringBuilder, BlockData blockData)
         {
             Type engineBlockType = GetInterfaceType(blockData);
-            
+
             if (engineBlockType == null) return;
-            
+
             if (blockData.Type == BlockType.Condition)
             {
                 stringBuilder.AppendLine(string.Format($"\t\tpublic GuidList {nameof(IEngineBlockConditionBase.Branch_OperationGuids)} {{0}}{{1}});", "{ get; set; } = GuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length - 1));
-                stringBuilder.AppendLine(string.Format($"\t\tpublic GuidList {nameof(IEngineBlockConditionBase.Branch_BlockGuids)} {{0}}{{1}});", "{ get; set; } = GuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length)); 
+                stringBuilder.AppendLine(string.Format($"\t\tpublic GuidList {nameof(IEngineBlockConditionBase.Branch_BlockGuids)} {{0}}{{1}});", "{ get; set; } = GuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length));
             }
-            
+
             var properties = engineBlockType.GetProperties();
             for (int i = 0; i < properties.Length; i++)
             {
@@ -249,205 +256,68 @@ namespace ScratchFramework
             return;
         }
 
-        private static void AddSummary(string summary, ref StringBuilder stringBuilder)
+        private static void GenerateIEngineBlockBaseData(ref StringBuilder stringBuilder, BlockData blockData)
         {
-            stringBuilder.AppendLine($"\t\t/// <summary> {summary} </summary>");
+            AddSummary("[Editor Data]功能类型", ref stringBuilder);
+            stringBuilder.AppendLine($"\t\tpublic FucType FucType => FucType.{blockData.BlockFucType};");
+            AddSummary("[Editor Data]逻辑类型", ref stringBuilder);
+            stringBuilder.AppendLine($"\t\tpublic ScratchBlockType Type => ScratchBlockType.{blockData.ScratchType};");
+            AddSummary("[Editor Data]UI类型", ref stringBuilder);
+            stringBuilder.AppendLine($"\t\tpublic BlockType BlockType => BlockType.{blockData.Type};");
+            
+            AddSummary("[Editor Data]是否为画布根", ref stringBuilder);
+            stringBuilder.AppendLine(string.Format($"\t\tpublic bool {nameof(IEngineBlockBaseData.IsRoot)} {{0}}", "{ get; set; } = false;"));
+
+            AddSummary("[Editor Data]画布位置(需判断画布根时有效)", ref stringBuilder);
+            stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BVector2)} {nameof(IEngineBlockBaseData.CanvasPos)} {{0}} = {{1}}.zero;", "{ get; set; }", nameof(BVector2)));
+            
+            stringBuilder.AppendLine($"\t\tprivate int m_Guid = {ScratchUtils.InvalidGuid};");
+            AddSummary("[Editor Data]Guid", ref stringBuilder);
+            stringBuilder.AppendLine($"\t\tpublic int Guid");
+            stringBuilder.AppendLine("\t\t{");
+            stringBuilder.AppendLine("\t\t\tget => m_Guid;");
+            stringBuilder.AppendLine("\t\t\tset");
+            stringBuilder.AppendLine("\t\t\t{");
+            stringBuilder.AppendLine("\t\t\t\tSetGuid(ref value);");
+            stringBuilder.AppendLine("\t\t\t\tm_Guid = value;");
+            stringBuilder.AppendLine("\t\t\t}");
+            stringBuilder.AppendLine("\t\t}");
+            stringBuilder.AppendLine("\t\tpartial void SetGuid(ref int newData);");
+            
+            Type type = GetInterfaceType(blockData);
+            if (typeof(IBlockPlug).IsAssignableFrom(type))
+            {
+                stringBuilder.AppendLine($"\t\tprivate int m_NextGuid = {ScratchUtils.InvalidGuid};");
+                
+                AddSummary("[Editor Data]NextGuid", ref stringBuilder);
+                stringBuilder.AppendLine($"\t\tpublic int NextGuid");
+                stringBuilder.AppendLine("\t\t{");
+                stringBuilder.AppendLine("\t\t\tget => m_NextGuid;");
+                stringBuilder.AppendLine("\t\t\tset");
+                stringBuilder.AppendLine("\t\t\t{");
+                stringBuilder.AppendLine("\t\t\t\tSetNextGuid(ref value);");
+                stringBuilder.AppendLine("\t\t\t\tm_NextGuid = value;");
+                stringBuilder.AppendLine("\t\t\t}");
+                stringBuilder.AppendLine("\t\t}");
+                stringBuilder.AppendLine("\t\tpartial void SetNextGuid(ref int newData);");
+            }
         }
 
-        public static void ScratchBlockClass(ref StringBuilder stringBuilder, List<BlockData> blockDatas)
+        private static void GenerateIEngineBlockBaseData_InputValue(ref StringBuilder stringBuilder, BlockData blockData)
         {
-            List<ScratchValueType> inputs = new List<ScratchValueType>();
-            List<ScratchValueType> returns = new List<ScratchValueType>();
-            for (int i = 0; i < blockDatas.Count; i++)
+            List<string> inputs = new List<string>();
+            List<KeyValuePair<ScratchValueType, string>> returns = new List<KeyValuePair<ScratchValueType, string>>();
+
+            Type type = GetInterfaceType(blockData);
+            GetInputValuesLen(blockData, ref inputs, ref returns);
+
+            if (typeof(IBlockReturnVarGuid).IsAssignableFrom(type))
             {
-                GetInputValuesLen(blockDatas[i], ref inputs, ref returns);
-
-                string interfaceInfos = string.IsNullOrEmpty(GetInterfaceName(blockDatas[i])) ? string.Empty : ": " + GetInterfaceName(blockDatas[i]);
-                stringBuilder.AppendLine($"\tpublic partial class BlockLogic_{blockDatas[i].ScratchType} {interfaceInfos}");
-                stringBuilder.AppendLine("\t{");
-
-                stringBuilder.AppendLine($"\t\tpublic FucType FucType => FucType.{blockDatas[i].BlockFucType};");
-                stringBuilder.AppendLine($"\t\tpublic ScratchBlockType Type => ScratchBlockType.{blockDatas[i].ScratchType};");
-                stringBuilder.AppendLine($"\t\tpublic BlockType BlockType => BlockType.{blockDatas[i].Type};");
-
-                stringBuilder.AppendLine(string.Format($"\t\tpublic bool {nameof(IEngineBlockBaseData.IsRoot)} {{0}}", "{ get; set; } = false;"));
-
-                stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BVector2)} {nameof(IEngineBlockBaseData.CanvasPos)} {{0}} = {{1}}.zero;", "{ get; set; }", nameof(BVector2)));
-
-                stringBuilder.AppendLine($"\t\tprivate int m_NextBlockGuid = {ScratchUtils.InvalidGuid};");
-                stringBuilder.AppendLine($"\t\tpublic int NextBlockGuid");
-                stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tget => m_NextBlockGuid;");
-                stringBuilder.AppendLine("\t\t\tset");
-                stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\t\tSetNextBlockGuid(ref value);");
-                stringBuilder.AppendLine("\t\t\t\tm_NextBlockGuid = value;");
-                stringBuilder.AppendLine("\t\t\t}");
-                stringBuilder.AppendLine("\t\t}");
-                stringBuilder.AppendLine("\t\tpartial void SetNextBlockGuid(ref int newData);");
-
-                stringBuilder.AppendLine($"\t\tprivate int m_Guid = {ScratchUtils.InvalidGuid};");
-                stringBuilder.AppendLine($"\t\tpublic int Guid");
-                stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tget => m_Guid;");
-                stringBuilder.AppendLine("\t\t\tset");
-                stringBuilder.AppendLine("\t\t\t{");
-                stringBuilder.AppendLine("\t\t\t\tSetGuid(ref value);");
-                stringBuilder.AppendLine("\t\t\t\tm_Guid = value;");
-                stringBuilder.AppendLine("\t\t\t}");
-                stringBuilder.AppendLine("\t\t}");
-                stringBuilder.AppendLine("\t\tpartial void SetGuid(ref int newData);");
-
-                GetInterfaceProperty(ref stringBuilder, blockDatas[i]);
-
-
-                //InputValue
-
-                for (int j = 0; j < inputs.Count; j++)
-                {
-                    stringBuilder.AppendLine("\t\tprivate string m_InputValue_" + j + " = string.Empty;");
-
-                    stringBuilder.AppendLine("\t\tpublic string InputValue_" + j);
-                    stringBuilder.AppendLine("\t\t{");
-                    stringBuilder.AppendLine("\t\t\tget => m_InputValue_" + j + ";");
-                    stringBuilder.AppendLine("\t\t\tset");
-                    stringBuilder.AppendLine("\t\t\t{");
-                    stringBuilder.AppendLine("\t\t\t\tSetInputValue_" + j + "(ref value);");
-                    stringBuilder.AppendLine("\t\t\t\tm_InputValue_" + j + " = value;");
-                    stringBuilder.AppendLine("\t\t\t}");
-                    stringBuilder.AppendLine("\t\t}");
-
-
-                    stringBuilder.AppendLine("\t\tpartial void SetInputValue_" + j + "(ref string newData);");
-                }
-
-                stringBuilder.AppendLine($"\t\tpublic void {nameof(IBlockVarGuid.SetInputValues)}(int index, string value)");
-                stringBuilder.AppendLine("\t\t{");
-
-                if (inputs.Count != 0)
-                {
-                    stringBuilder.AppendLine("\t\t\tswitch(index)");
-                    stringBuilder.AppendLine("\t\t\t{");
-                    for (int j = 0; j < inputs.Count; j++)
-                    {
-                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                        stringBuilder.AppendLine("\t\t\t\t\tInputValue_" + j + " = value;");
-                        stringBuilder.AppendLine("\t\t\t\t\tbreak;");
-                    }
-
-                    stringBuilder.AppendLine("\t\t\t}");
-                }
-
-                stringBuilder.AppendLine("\t\t}");
-
-                stringBuilder.AppendLine($"\t\tpublic string {nameof(IBlockVarGuid.GetInputValue)}(int index)");
-                stringBuilder.AppendLine("\t\t{");
-
-                if (inputs.Count != 0)
-                {
-                    stringBuilder.AppendLine("\t\t\tswitch(index)");
-                    stringBuilder.AppendLine("\t\t\t{");
-                    for (int j = 0; j < inputs.Count; j++)
-                    {
-                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                        stringBuilder.AppendLine("\t\t\t\t\treturn InputValue_" + j + ";");
-                    }
-
-                    stringBuilder.AppendLine("\t\t\t}");
-                }
-
-                stringBuilder.AppendLine("\t\t\treturn string.Empty;");
-                stringBuilder.AppendLine("\t\t}");
-
-                stringBuilder.AppendLine($"\t\tpublic string[] {nameof(IBlockVarGuid.GetInputValues)}()");
-                stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tstring[] values = new string[" + inputs.Count + "];");
-                for (int j = 0; j < inputs.Count; j++)
-                {
-                    stringBuilder.AppendLine("\t\t\tvalues[" + j + "] = InputValue_" + j + ";");
-                }
-
-                stringBuilder.AppendLine("\t\t\treturn values;");
-                stringBuilder.AppendLine("\t\t}");
-
-
-                //VarGuid
-
-                for (int j = 0; j < inputs.Count; j++)
-                {
-                    stringBuilder.AppendLine("\t\tprivate int m_VarGuid_" + j + $" = {ScratchUtils.InvalidGuid};");
-
-                    stringBuilder.AppendLine("\t\tpublic int VarGuid_" + j);
-                    stringBuilder.AppendLine("\t\t{");
-                    stringBuilder.AppendLine("\t\t\tget => m_VarGuid_" + j + ";");
-                    stringBuilder.AppendLine("\t\t\tset");
-                    stringBuilder.AppendLine("\t\t\t{");
-                    stringBuilder.AppendLine("\t\t\t\tSetVarGuid_" + j + "(ref value);");
-                    stringBuilder.AppendLine("\t\t\t\tm_VarGuid_" + j + " = value;");
-                    stringBuilder.AppendLine("\t\t\t}");
-                    stringBuilder.AppendLine("\t\t}");
-
-
-                    stringBuilder.AppendLine("\t\tpartial void SetVarGuid_" + j + "(ref int newData);");
-                }
-
-                stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockVarGuid.GetVarGuidsLength)}()=> {inputs.Count};");
-                stringBuilder.AppendLine($"\t\tpublic void {nameof(IBlockVarGuid.SetVarsGuid)}(int index, int value)");
-                stringBuilder.AppendLine("\t\t{");
-
-                if (inputs.Count != 0)
-                {
-                    stringBuilder.AppendLine("\t\t\tswitch(index)");
-                    stringBuilder.AppendLine("\t\t\t{");
-                    for (int j = 0; j < inputs.Count; j++)
-                    {
-                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                        stringBuilder.AppendLine("\t\t\t\t\tVarGuid_" + j + " = value;");
-                        stringBuilder.AppendLine("\t\t\t\t\tbreak;");
-                    }
-
-                    stringBuilder.AppendLine("\t\t\t}");
-                }
-
-                stringBuilder.AppendLine("\t\t}");
-
-                stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockVarGuid.GetVarGuid)}(int index)");
-                stringBuilder.AppendLine("\t\t{");
-
-                if (inputs.Count != 0)
-                {
-                    stringBuilder.AppendLine("\t\t\tswitch(index)");
-                    stringBuilder.AppendLine("\t\t\t{");
-                    for (int j = 0; j < inputs.Count; j++)
-                    {
-                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
-                        stringBuilder.AppendLine("\t\t\t\t\treturn VarGuid_" + j + ";");
-                    }
-
-                    stringBuilder.AppendLine("\t\t\t}");
-                }
-
-                stringBuilder.AppendLine($"\t\t\treturn {ScratchUtils.InvalidGuid};");
-                stringBuilder.AppendLine("\t\t}");
-
-                stringBuilder.AppendLine($"\t\tpublic int[] {nameof(IBlockVarGuid.GetVarGuids)}()");
-                stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tint[] values = new int[" + inputs.Count + "];");
-                for (int j = 0; j < inputs.Count; j++)
-                {
-                    stringBuilder.AppendLine("\t\t\tvalues[" + j + "] = VarGuid_" + j + ";");
-                }
-
-                stringBuilder.AppendLine("\t\t\treturn values;");
-                stringBuilder.AppendLine("\t\t}");
-
-
-                //ReturnVarGuid
-
                 for (int j = 0; j < returns.Count; j++)
                 {
                     stringBuilder.AppendLine("\t\tprivate int m_ReturnVarGuid_" + j + $" = {ScratchUtils.InvalidGuid};");
-                    AddSummary($"{returns[j]}_{j}", ref stringBuilder);
+
+                    AddSummary($"[Editor Data]{returns[j]}", ref stringBuilder);
                     stringBuilder.AppendLine("\t\tpublic int ReturnVarGuid_" + j);
                     stringBuilder.AppendLine("\t\t{");
                     stringBuilder.AppendLine("\t\t\tget => m_ReturnVarGuid_" + j + ";");
@@ -458,11 +328,13 @@ namespace ScratchFramework
                     stringBuilder.AppendLine("\t\t\t}");
                     stringBuilder.AppendLine("\t\t}");
 
-                    AddSummary($"{returns[j]}_{j}", ref stringBuilder);
+                    AddSummary($"{returns[j]}", ref stringBuilder);
                     stringBuilder.AppendLine("\t\tpartial void SetReturnVarGuid_" + j + "(ref int newData);");
                 }
 
+                AddSummary($"获取返回值变量长度", ref stringBuilder);
                 stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockReturnVarGuid.GetReturnValuesLength)}()=> {returns.Count};");
+                AddSummary($"设置返回值变量Guid", ref stringBuilder);
                 stringBuilder.AppendLine($"\t\tpublic void {nameof(IBlockReturnVarGuid.SetReturnValueGuid)}(int index, int value)");
                 stringBuilder.AppendLine("\t\t{");
                 if (returns.Count != 0)
@@ -481,6 +353,7 @@ namespace ScratchFramework
 
                 stringBuilder.AppendLine("\t\t}");
 
+                AddSummary($"获取返回值变量Guid", ref stringBuilder);
                 stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockReturnVarGuid.GetReturnValueGuid)}(int index)");
                 stringBuilder.AppendLine("\t\t{");
                 if (returns.Count != 0)
@@ -500,6 +373,7 @@ namespace ScratchFramework
                 stringBuilder.AppendLine($"\t\t\treturn {ScratchUtils.InvalidGuid};");
                 stringBuilder.AppendLine("\t\t}");
 
+                AddSummary($"获取返回值变量Guid数组", ref stringBuilder);
                 stringBuilder.AppendLine($"\t\tpublic int[] {nameof(IBlockReturnVarGuid.GetReturnValues)}()");
                 stringBuilder.AppendLine("\t\t{");
                 stringBuilder.AppendLine("\t\t\tint[] values = new int[" + returns.Count + "];");
@@ -510,7 +384,101 @@ namespace ScratchFramework
 
                 stringBuilder.AppendLine("\t\t\treturn values;");
                 stringBuilder.AppendLine("\t\t}");
+            }
 
+            if (typeof(IBlockVarGuid).IsAssignableFrom(type))
+            {
+                for (int j = 0; j < inputs.Count; j++)
+                {
+                    stringBuilder.AppendLine("\t\tprivate int m_VarGuid_" + j + $" = {ScratchUtils.InvalidGuid};");
+
+                    AddSummary($"[Editor Data]{inputs[j]}", ref stringBuilder);
+                    stringBuilder.AppendLine("\t\tpublic int VarGuid_" + j);
+                    stringBuilder.AppendLine("\t\t{");
+                    stringBuilder.AppendLine("\t\t\tget => m_VarGuid_" + j + ";");
+                    stringBuilder.AppendLine("\t\t\tset");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    stringBuilder.AppendLine("\t\t\t\tSetVarGuid_" + j + "(ref value);");
+                    stringBuilder.AppendLine("\t\t\t\tm_VarGuid_" + j + " = value;");
+                    stringBuilder.AppendLine("\t\t\t}");
+                    stringBuilder.AppendLine("\t\t}");
+
+                    AddSummary(inputs[j], ref stringBuilder);
+                    stringBuilder.AppendLine("\t\tpartial void SetVarGuid_" + j + "(ref int newData);");
+                }
+
+                AddSummary($"获取输入变量长度", ref stringBuilder);
+                stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockVarGuid.GetVarGuidsLength)}()=> {inputs.Count};");
+                AddSummary($"设置输入变量Guid", ref stringBuilder);
+                stringBuilder.AppendLine($"\t\tpublic void {nameof(IBlockVarGuid.SetVarsGuid)}(int index, int value)");
+                stringBuilder.AppendLine("\t\t{");
+
+                if (inputs.Count != 0)
+                {
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < inputs.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\tVarGuid_" + j + " = value;");
+                        stringBuilder.AppendLine("\t\t\t\t\tbreak;");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
+                }
+
+                stringBuilder.AppendLine("\t\t}");
+
+                AddSummary($"获取返回值变量Guid", ref stringBuilder);
+                stringBuilder.AppendLine($"\t\tpublic int {nameof(IBlockVarGuid.GetVarGuid)}(int index)");
+                stringBuilder.AppendLine("\t\t{");
+
+                if (inputs.Count != 0)
+                {
+                    stringBuilder.AppendLine("\t\t\tswitch(index)");
+                    stringBuilder.AppendLine("\t\t\t{");
+                    for (int j = 0; j < inputs.Count; j++)
+                    {
+                        stringBuilder.AppendLine("\t\t\t\tcase " + j + ":");
+                        stringBuilder.AppendLine("\t\t\t\t\treturn VarGuid_" + j + ";");
+                    }
+
+                    stringBuilder.AppendLine("\t\t\t}");
+                }
+
+                stringBuilder.AppendLine($"\t\t\treturn {ScratchUtils.InvalidGuid};");
+                stringBuilder.AppendLine("\t\t}");
+
+                AddSummary($"获取变量Guid数组", ref stringBuilder);
+                stringBuilder.AppendLine($"\t\tpublic int[] {nameof(IBlockVarGuid.GetVarGuids)}()");
+                stringBuilder.AppendLine("\t\t{");
+                stringBuilder.AppendLine("\t\t\tint[] values = new int[" + inputs.Count + "];");
+                for (int j = 0; j < inputs.Count; j++)
+                {
+                    stringBuilder.AppendLine("\t\t\tvalues[" + j + "] = VarGuid_" + j + ";");
+                }
+
+                stringBuilder.AppendLine("\t\t\treturn values;");
+                stringBuilder.AppendLine("\t\t}");
+            }
+        }
+
+        private static void AddSummary(string summary, ref StringBuilder stringBuilder)
+        {
+            stringBuilder.AppendLine($"\t\t/// <summary> {summary} </summary>");
+        }
+
+        public static void ScratchBlockClass(ref StringBuilder stringBuilder, List<BlockData> blockDatas)
+        {
+            for (int i = 0; i < blockDatas.Count; i++)
+            {
+                string interfaceInfos = string.IsNullOrEmpty(GetInterfaceName(blockDatas[i])) ? string.Empty : ": " + GetInterfaceName(blockDatas[i]);
+                stringBuilder.AppendLine($"\tpublic partial class BlockLogic_{blockDatas[i].ScratchType} {interfaceInfos}");
+                stringBuilder.AppendLine("\t{");
+
+                GenerateIEngineBlockBaseData(ref stringBuilder, blockDatas[i]);
+                GetInterfaceProperty(ref stringBuilder, blockDatas[i]);
+                GenerateIEngineBlockBaseData_InputValue(ref stringBuilder, blockDatas[i]);
 
                 stringBuilder.AppendLine("\t}");
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -465,6 +466,27 @@ namespace ScratchFramework
             var spanArray = new Span<byte>(memoryStream.GetBuffer(), (int)memoryStream.Position, size);
 
             return spanArray;
+        }
+    }
+    
+    public class GuidListConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            GuidList list = (GuidList)value;
+            string jsonString = JsonConvert.SerializeObject(list.ToList());
+            writer.WriteValue(jsonString);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            GuidList list = new GuidList(JsonConvert.DeserializeObject<List<int>>((string)reader.Value));
+            return list;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(GuidList);
         }
     }
 }

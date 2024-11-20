@@ -57,23 +57,18 @@ namespace ScratchFramework
 	}
 	public partial class BlockLogic_ApplyForce : IEngineBlockSimpleBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Action;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.ApplyForce;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Simple;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -84,59 +79,20 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
 		{
-			get => m_InputValue_0;
+			get => m_NextGuid;
 			set
 			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
+				SetNextGuid(ref value);
+				m_NextGuid = value;
 			}
 		}
-		partial void SetInputValue_0(ref string newData);
-		private string m_InputValue_1 = string.Empty;
-		public string InputValue_1
-		{
-			get => m_InputValue_1;
-			set
-			{
-				SetInputValue_1(ref value);
-				m_InputValue_1 = value;
-			}
-		}
-		partial void SetInputValue_1(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-				case 1:
-					InputValue_1 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-				case 1:
-					return InputValue_1;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[2];
-			values[0] = InputValue_0;
-			values[1] = InputValue_1;
-			return values;
-		}
+		partial void SetNextGuid(ref int newData);
 		private int m_VarGuid_0 = 0;
+		/// <summary> [Editor Data]对象 </summary>
 		public int VarGuid_0
 		{
 			get => m_VarGuid_0;
@@ -146,8 +102,10 @@ namespace ScratchFramework
 				m_VarGuid_0 = value;
 			}
 		}
+		/// <summary> 对象 </summary>
 		partial void SetVarGuid_0(ref int newData);
 		private int m_VarGuid_1 = 0;
+		/// <summary> [Editor Data]向量 </summary>
 		public int VarGuid_1
 		{
 			get => m_VarGuid_1;
@@ -157,8 +115,11 @@ namespace ScratchFramework
 				m_VarGuid_1 = value;
 			}
 		}
+		/// <summary> 向量 </summary>
 		partial void SetVarGuid_1(ref int newData);
+		/// <summary> 获取输入变量长度 </summary>
 		public int GetVarGuidsLength()=> 2;
+		/// <summary> 设置输入变量Guid </summary>
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
@@ -171,6 +132,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetVarGuid(int index)
 		{
 			switch(index)
@@ -182,46 +144,29 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取变量Guid数组 </summary>
 		public int[] GetVarGuids()
 		{
 			int[] values = new int[2];
 			values[0] = VarGuid_0;
 			values[1] = VarGuid_1;
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
 			return values;
 		}
 	}
 	public partial class BlockLogic_CompareValues : IEngineBlockOperationBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Condition;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.CompareValues;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Operation;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -232,59 +177,8 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
-		{
-			get => m_InputValue_0;
-			set
-			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
-			}
-		}
-		partial void SetInputValue_0(ref string newData);
-		private string m_InputValue_1 = string.Empty;
-		public string InputValue_1
-		{
-			get => m_InputValue_1;
-			set
-			{
-				SetInputValue_1(ref value);
-				m_InputValue_1 = value;
-			}
-		}
-		partial void SetInputValue_1(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-				case 1:
-					InputValue_1 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-				case 1:
-					return InputValue_1;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[2];
-			values[0] = InputValue_0;
-			values[1] = InputValue_1;
-			return values;
-		}
 		private int m_VarGuid_0 = 0;
+		/// <summary> [Editor Data]左积木 </summary>
 		public int VarGuid_0
 		{
 			get => m_VarGuid_0;
@@ -294,8 +188,10 @@ namespace ScratchFramework
 				m_VarGuid_0 = value;
 			}
 		}
+		/// <summary> 左积木 </summary>
 		partial void SetVarGuid_0(ref int newData);
 		private int m_VarGuid_1 = 0;
+		/// <summary> [Editor Data]右积木 </summary>
 		public int VarGuid_1
 		{
 			get => m_VarGuid_1;
@@ -305,8 +201,11 @@ namespace ScratchFramework
 				m_VarGuid_1 = value;
 			}
 		}
+		/// <summary> 右积木 </summary>
 		partial void SetVarGuid_1(ref int newData);
+		/// <summary> 获取输入变量长度 </summary>
 		public int GetVarGuidsLength()=> 2;
+		/// <summary> 设置输入变量Guid </summary>
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
@@ -319,6 +218,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetVarGuid(int index)
 		{
 			switch(index)
@@ -330,6 +230,7 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取变量Guid数组 </summary>
 		public int[] GetVarGuids()
 		{
 			int[] values = new int[2];
@@ -337,39 +238,21 @@ namespace ScratchFramework
 			values[1] = VarGuid_1;
 			return values;
 		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
-			return values;
-		}
 	}
 	public partial class BlockLogic_DestroyObject : IEngineBlockSimpleBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Action;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.DestroyObject;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Simple;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -380,42 +263,20 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
 		{
-			get => m_InputValue_0;
+			get => m_NextGuid;
 			set
 			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
+				SetNextGuid(ref value);
+				m_NextGuid = value;
 			}
 		}
-		partial void SetInputValue_0(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[1];
-			values[0] = InputValue_0;
-			return values;
-		}
+		partial void SetNextGuid(ref int newData);
 		private int m_VarGuid_0 = 0;
+		/// <summary> [Editor Data]对象 </summary>
 		public int VarGuid_0
 		{
 			get => m_VarGuid_0;
@@ -425,8 +286,11 @@ namespace ScratchFramework
 				m_VarGuid_0 = value;
 			}
 		}
+		/// <summary> 对象 </summary>
 		partial void SetVarGuid_0(ref int newData);
+		/// <summary> 获取输入变量长度 </summary>
 		public int GetVarGuidsLength()=> 1;
+		/// <summary> 设置输入变量Guid </summary>
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
@@ -436,6 +300,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetVarGuid(int index)
 		{
 			switch(index)
@@ -445,45 +310,28 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取变量Guid数组 </summary>
 		public int[] GetVarGuids()
 		{
 			int[] values = new int[1];
 			values[0] = VarGuid_0;
 			return values;
 		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
-			return values;
-		}
 	}
 	public partial class BlockLogic_EntityValue : IEngineBlockVariableBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Variable;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.EntityValue;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Operation;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -522,64 +370,21 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetVariableValue(ref System.Object newData);
-		public void SetInputValues(int index, string value)
-		{
-		}
-		public string GetInputValue(int index)
-		{
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[0];
-			return values;
-		}
-		public int GetVarGuidsLength()=> 0;
-		public void SetVarsGuid(int index, int value)
-		{
-		}
-		public int GetVarGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[0];
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
-			return values;
-		}
 	}
 	public partial class BlockLogic_GetCharacterSpeed : IEngineBlockOperationBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.GetValue;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.GetCharacterSpeed;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Operation;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -590,42 +395,8 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
-		{
-			get => m_InputValue_0;
-			set
-			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
-			}
-		}
-		partial void SetInputValue_0(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[1];
-			values[0] = InputValue_0;
-			return values;
-		}
 		private int m_VarGuid_0 = 0;
+		/// <summary> [Editor Data]角色 </summary>
 		public int VarGuid_0
 		{
 			get => m_VarGuid_0;
@@ -635,8 +406,11 @@ namespace ScratchFramework
 				m_VarGuid_0 = value;
 			}
 		}
+		/// <summary> 角色 </summary>
 		partial void SetVarGuid_0(ref int newData);
+		/// <summary> 获取输入变量长度 </summary>
 		public int GetVarGuidsLength()=> 1;
+		/// <summary> 设置输入变量Guid </summary>
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
@@ -646,6 +420,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetVarGuid(int index)
 		{
 			switch(index)
@@ -655,45 +430,28 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取变量Guid数组 </summary>
 		public int[] GetVarGuids()
 		{
 			int[] values = new int[1];
 			values[0] = VarGuid_0;
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
 			return values;
 		}
 	}
 	public partial class BlockLogic_GetVectorMagnitude : IEngineBlockOperationBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.GetValue;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.GetVectorMagnitude;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Operation;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -704,42 +462,8 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
-		{
-			get => m_InputValue_0;
-			set
-			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
-			}
-		}
-		partial void SetInputValue_0(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[1];
-			values[0] = InputValue_0;
-			return values;
-		}
 		private int m_VarGuid_0 = 0;
+		/// <summary> [Editor Data]向量 </summary>
 		public int VarGuid_0
 		{
 			get => m_VarGuid_0;
@@ -749,8 +473,11 @@ namespace ScratchFramework
 				m_VarGuid_0 = value;
 			}
 		}
+		/// <summary> 向量 </summary>
 		partial void SetVarGuid_0(ref int newData);
+		/// <summary> 获取输入变量长度 </summary>
 		public int GetVarGuidsLength()=> 1;
+		/// <summary> 设置输入变量Guid </summary>
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
@@ -760,6 +487,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetVarGuid(int index)
 		{
 			switch(index)
@@ -769,45 +497,28 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取变量Guid数组 </summary>
 		public int[] GetVarGuids()
 		{
 			int[] values = new int[1];
 			values[0] = VarGuid_0;
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
 			return values;
 		}
 	}
 	public partial class BlockLogic_IfElse : IEngineBlockConditionBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Control;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.IfElse;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Condition;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -818,112 +529,35 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
+		{
+			get => m_NextGuid;
+			set
+			{
+				SetNextGuid(ref value);
+				m_NextGuid = value;
+			}
+		}
+		partial void SetNextGuid(ref int newData);
 		public GuidList Branch_OperationGuids { get; set; } = GuidList.CreateEmptyGuidList(1);
 		public GuidList Branch_BlockGuids { get; set; } = GuidList.CreateEmptyGuidList(2);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
-		{
-			get => m_InputValue_0;
-			set
-			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
-			}
-		}
-		partial void SetInputValue_0(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[1];
-			values[0] = InputValue_0;
-			return values;
-		}
-		private int m_VarGuid_0 = 0;
-		public int VarGuid_0
-		{
-			get => m_VarGuid_0;
-			set
-			{
-				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
-			}
-		}
-		partial void SetVarGuid_0(ref int newData);
-		public int GetVarGuidsLength()=> 1;
-		public void SetVarsGuid(int index, int value)
-		{
-			switch(index)
-			{
-				case 0:
-					VarGuid_0 = value;
-					break;
-			}
-		}
-		public int GetVarGuid(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return VarGuid_0;
-			}
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[1];
-			values[0] = VarGuid_0;
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
-			return values;
-		}
 	}
 	public partial class BlockLogic_IntegerValue : IEngineBlockVariableBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Variable;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.IntegerValue;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Operation;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -962,64 +596,21 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetVariableValue(ref System.Object newData);
-		public void SetInputValues(int index, string value)
-		{
-		}
-		public string GetInputValue(int index)
-		{
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[0];
-			return values;
-		}
-		public int GetVarGuidsLength()=> 0;
-		public void SetVarsGuid(int index, int value)
-		{
-		}
-		public int GetVarGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[0];
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
-			return values;
-		}
 	}
 	public partial class BlockLogic_OnCollisionEnter : IEngineBlockTriggerBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Event;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionEnter;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Trigger;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -1030,33 +621,20 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		public void SetInputValues(int index, string value)
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
 		{
+			get => m_NextGuid;
+			set
+			{
+				SetNextGuid(ref value);
+				m_NextGuid = value;
+			}
 		}
-		public string GetInputValue(int index)
-		{
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[0];
-			return values;
-		}
-		public int GetVarGuidsLength()=> 0;
-		public void SetVarsGuid(int index, int value)
-		{
-		}
-		public int GetVarGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[0];
-			return values;
-		}
+		partial void SetNextGuid(ref int newData);
 		private int m_ReturnVarGuid_0 = 0;
-		/// <summary> EntityRef_0 </summary>
+		/// <summary> [Editor Data][EntityRef, 碰撞目标] </summary>
 		public int ReturnVarGuid_0
 		{
 			get => m_ReturnVarGuid_0;
@@ -1066,10 +644,10 @@ namespace ScratchFramework
 				m_ReturnVarGuid_0 = value;
 			}
 		}
-		/// <summary> EntityRef_0 </summary>
+		/// <summary> [EntityRef, 碰撞目标] </summary>
 		partial void SetReturnVarGuid_0(ref int newData);
 		private int m_ReturnVarGuid_1 = 0;
-		/// <summary> EntityRef_1 </summary>
+		/// <summary> [Editor Data][EntityRef, 碰撞者] </summary>
 		public int ReturnVarGuid_1
 		{
 			get => m_ReturnVarGuid_1;
@@ -1079,9 +657,11 @@ namespace ScratchFramework
 				m_ReturnVarGuid_1 = value;
 			}
 		}
-		/// <summary> EntityRef_1 </summary>
+		/// <summary> [EntityRef, 碰撞者] </summary>
 		partial void SetReturnVarGuid_1(ref int newData);
+		/// <summary> 获取返回值变量长度 </summary>
 		public int GetReturnValuesLength()=> 2;
+		/// <summary> 设置返回值变量Guid </summary>
 		public void SetReturnValueGuid(int index, int value)
 		{
 			switch(index)
@@ -1094,6 +674,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetReturnValueGuid(int index)
 		{
 			switch(index)
@@ -1105,6 +686,7 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取返回值变量Guid数组 </summary>
 		public int[] GetReturnValues()
 		{
 			int[] values = new int[2];
@@ -1115,23 +697,18 @@ namespace ScratchFramework
 	}
 	public partial class BlockLogic_OnCollisionExit : IEngineBlockTriggerBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Event;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionExit;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Trigger;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -1142,33 +719,20 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		public void SetInputValues(int index, string value)
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
 		{
+			get => m_NextGuid;
+			set
+			{
+				SetNextGuid(ref value);
+				m_NextGuid = value;
+			}
 		}
-		public string GetInputValue(int index)
-		{
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[0];
-			return values;
-		}
-		public int GetVarGuidsLength()=> 0;
-		public void SetVarsGuid(int index, int value)
-		{
-		}
-		public int GetVarGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[0];
-			return values;
-		}
+		partial void SetNextGuid(ref int newData);
 		private int m_ReturnVarGuid_0 = 0;
-		/// <summary> EntityRef_0 </summary>
+		/// <summary> [Editor Data][EntityRef, 碰撞目标] </summary>
 		public int ReturnVarGuid_0
 		{
 			get => m_ReturnVarGuid_0;
@@ -1178,10 +742,10 @@ namespace ScratchFramework
 				m_ReturnVarGuid_0 = value;
 			}
 		}
-		/// <summary> EntityRef_0 </summary>
+		/// <summary> [EntityRef, 碰撞目标] </summary>
 		partial void SetReturnVarGuid_0(ref int newData);
 		private int m_ReturnVarGuid_1 = 0;
-		/// <summary> EntityRef_1 </summary>
+		/// <summary> [Editor Data][EntityRef, 碰撞者] </summary>
 		public int ReturnVarGuid_1
 		{
 			get => m_ReturnVarGuid_1;
@@ -1191,9 +755,11 @@ namespace ScratchFramework
 				m_ReturnVarGuid_1 = value;
 			}
 		}
-		/// <summary> EntityRef_1 </summary>
+		/// <summary> [EntityRef, 碰撞者] </summary>
 		partial void SetReturnVarGuid_1(ref int newData);
+		/// <summary> 获取返回值变量长度 </summary>
 		public int GetReturnValuesLength()=> 2;
+		/// <summary> 设置返回值变量Guid </summary>
 		public void SetReturnValueGuid(int index, int value)
 		{
 			switch(index)
@@ -1206,6 +772,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetReturnValueGuid(int index)
 		{
 			switch(index)
@@ -1217,6 +784,7 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取返回值变量Guid数组 </summary>
 		public int[] GetReturnValues()
 		{
 			int[] values = new int[2];
@@ -1227,23 +795,18 @@ namespace ScratchFramework
 	}
 	public partial class BlockLogic_OnCollisionStay : IEngineBlockTriggerBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Event;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.OnCollisionStay;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Trigger;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -1254,33 +817,20 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		public void SetInputValues(int index, string value)
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
 		{
+			get => m_NextGuid;
+			set
+			{
+				SetNextGuid(ref value);
+				m_NextGuid = value;
+			}
 		}
-		public string GetInputValue(int index)
-		{
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[0];
-			return values;
-		}
-		public int GetVarGuidsLength()=> 0;
-		public void SetVarsGuid(int index, int value)
-		{
-		}
-		public int GetVarGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[0];
-			return values;
-		}
+		partial void SetNextGuid(ref int newData);
 		private int m_ReturnVarGuid_0 = 0;
-		/// <summary> EntityRef_0 </summary>
+		/// <summary> [Editor Data][EntityRef, 碰撞目标] </summary>
 		public int ReturnVarGuid_0
 		{
 			get => m_ReturnVarGuid_0;
@@ -1290,10 +840,10 @@ namespace ScratchFramework
 				m_ReturnVarGuid_0 = value;
 			}
 		}
-		/// <summary> EntityRef_0 </summary>
+		/// <summary> [EntityRef, 碰撞目标] </summary>
 		partial void SetReturnVarGuid_0(ref int newData);
 		private int m_ReturnVarGuid_1 = 0;
-		/// <summary> EntityRef_1 </summary>
+		/// <summary> [Editor Data][EntityRef, 碰撞者] </summary>
 		public int ReturnVarGuid_1
 		{
 			get => m_ReturnVarGuid_1;
@@ -1303,9 +853,11 @@ namespace ScratchFramework
 				m_ReturnVarGuid_1 = value;
 			}
 		}
-		/// <summary> EntityRef_1 </summary>
+		/// <summary> [EntityRef, 碰撞者] </summary>
 		partial void SetReturnVarGuid_1(ref int newData);
+		/// <summary> 获取返回值变量长度 </summary>
 		public int GetReturnValuesLength()=> 2;
+		/// <summary> 设置返回值变量Guid </summary>
 		public void SetReturnValueGuid(int index, int value)
 		{
 			switch(index)
@@ -1318,6 +870,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetReturnValueGuid(int index)
 		{
 			switch(index)
@@ -1329,6 +882,7 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取返回值变量Guid数组 </summary>
 		public int[] GetReturnValues()
 		{
 			int[] values = new int[2];
@@ -1339,23 +893,18 @@ namespace ScratchFramework
 	}
 	public partial class BlockLogic_OnObjectCreated : IEngineBlockTriggerBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Event;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.OnObjectCreated;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Trigger;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -1366,39 +915,30 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
-		public void SetInputValues(int index, string value)
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
 		{
+			get => m_NextGuid;
+			set
+			{
+				SetNextGuid(ref value);
+				m_NextGuid = value;
+			}
 		}
-		public string GetInputValue(int index)
-		{
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[0];
-			return values;
-		}
-		public int GetVarGuidsLength()=> 0;
-		public void SetVarsGuid(int index, int value)
-		{
-		}
-		public int GetVarGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[0];
-			return values;
-		}
+		partial void SetNextGuid(ref int newData);
+		/// <summary> 获取返回值变量长度 </summary>
 		public int GetReturnValuesLength()=> 0;
+		/// <summary> 设置返回值变量Guid </summary>
 		public void SetReturnValueGuid(int index, int value)
 		{
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetReturnValueGuid(int index)
 		{
 			return 0;
 		}
+		/// <summary> 获取返回值变量Guid数组 </summary>
 		public int[] GetReturnValues()
 		{
 			int[] values = new int[0];
@@ -1407,23 +947,18 @@ namespace ScratchFramework
 	}
 	public partial class BlockLogic_RepeatAction : IEngineBlockLoopBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Control;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.RepeatAction;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Loop;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -1434,6 +969,18 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
+		{
+			get => m_NextGuid;
+			set
+			{
+				SetNextGuid(ref value);
+				m_NextGuid = value;
+			}
+		}
+		partial void SetNextGuid(ref int newData);
 		private System.Int32 m_ChildRootGuid = 0;
 		public System.Int32 ChildRootGuid
 		{
@@ -1445,42 +992,8 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetChildRootGuid(ref System.Int32 newData);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
-		{
-			get => m_InputValue_0;
-			set
-			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
-			}
-		}
-		partial void SetInputValue_0(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[1];
-			values[0] = InputValue_0;
-			return values;
-		}
 		private int m_VarGuid_0 = 0;
+		/// <summary> [Editor Data]次数 </summary>
 		public int VarGuid_0
 		{
 			get => m_VarGuid_0;
@@ -1490,8 +1003,11 @@ namespace ScratchFramework
 				m_VarGuid_0 = value;
 			}
 		}
+		/// <summary> 次数 </summary>
 		partial void SetVarGuid_0(ref int newData);
+		/// <summary> 获取输入变量长度 </summary>
 		public int GetVarGuidsLength()=> 1;
+		/// <summary> 设置输入变量Guid </summary>
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
@@ -1501,6 +1017,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetVarGuid(int index)
 		{
 			switch(index)
@@ -1510,45 +1027,28 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取变量Guid数组 </summary>
 		public int[] GetVarGuids()
 		{
 			int[] values = new int[1];
 			values[0] = VarGuid_0;
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
 			return values;
 		}
 	}
 	public partial class BlockLogic_StartCountdown : IEngineBlockLoopBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Control;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.StartCountdown;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Loop;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -1559,6 +1059,18 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetGuid(ref int newData);
+		private int m_NextGuid = 0;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int NextGuid
+		{
+			get => m_NextGuid;
+			set
+			{
+				SetNextGuid(ref value);
+				m_NextGuid = value;
+			}
+		}
+		partial void SetNextGuid(ref int newData);
 		private System.Int32 m_ChildRootGuid = 0;
 		public System.Int32 ChildRootGuid
 		{
@@ -1570,42 +1082,8 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetChildRootGuid(ref System.Int32 newData);
-		private string m_InputValue_0 = string.Empty;
-		public string InputValue_0
-		{
-			get => m_InputValue_0;
-			set
-			{
-				SetInputValue_0(ref value);
-				m_InputValue_0 = value;
-			}
-		}
-		partial void SetInputValue_0(ref string newData);
-		public void SetInputValues(int index, string value)
-		{
-			switch(index)
-			{
-				case 0:
-					InputValue_0 = value;
-					break;
-			}
-		}
-		public string GetInputValue(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return InputValue_0;
-			}
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[1];
-			values[0] = InputValue_0;
-			return values;
-		}
 		private int m_VarGuid_0 = 0;
+		/// <summary> [Editor Data]时间 </summary>
 		public int VarGuid_0
 		{
 			get => m_VarGuid_0;
@@ -1615,8 +1093,11 @@ namespace ScratchFramework
 				m_VarGuid_0 = value;
 			}
 		}
+		/// <summary> 时间 </summary>
 		partial void SetVarGuid_0(ref int newData);
+		/// <summary> 获取输入变量长度 </summary>
 		public int GetVarGuidsLength()=> 1;
+		/// <summary> 设置输入变量Guid </summary>
 		public void SetVarsGuid(int index, int value)
 		{
 			switch(index)
@@ -1626,6 +1107,7 @@ namespace ScratchFramework
 					break;
 			}
 		}
+		/// <summary> 获取返回值变量Guid </summary>
 		public int GetVarGuid(int index)
 		{
 			switch(index)
@@ -1635,45 +1117,28 @@ namespace ScratchFramework
 			}
 			return 0;
 		}
+		/// <summary> 获取变量Guid数组 </summary>
 		public int[] GetVarGuids()
 		{
 			int[] values = new int[1];
 			values[0] = VarGuid_0;
 			return values;
 		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
-			return values;
-		}
 	}
 	public partial class BlockLogic_VectorValue : IEngineBlockVariableBase
 	{
+		/// <summary> [Editor Data]功能类型 </summary>
 		public FucType FucType => FucType.Variable;
+		/// <summary> [Editor Data]逻辑类型 </summary>
 		public ScratchBlockType Type => ScratchBlockType.VectorValue;
+		/// <summary> [Editor Data]UI类型 </summary>
 		public BlockType BlockType => BlockType.Operation;
+		/// <summary> [Editor Data]是否为画布根 </summary>
 		public bool IsRoot { get; set; } = false;
+		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_NextBlockGuid = 0;
-		public int NextBlockGuid
-		{
-			get => m_NextBlockGuid;
-			set
-			{
-				SetNextBlockGuid(ref value);
-				m_NextBlockGuid = value;
-			}
-		}
-		partial void SetNextBlockGuid(ref int newData);
 		private int m_Guid = 0;
+		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
 			get => m_Guid;
@@ -1712,43 +1177,5 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetVariableValue(ref System.Object newData);
-		public void SetInputValues(int index, string value)
-		{
-		}
-		public string GetInputValue(int index)
-		{
-			return string.Empty;
-		}
-		public string[] GetInputValues()
-		{
-			string[] values = new string[0];
-			return values;
-		}
-		public int GetVarGuidsLength()=> 0;
-		public void SetVarsGuid(int index, int value)
-		{
-		}
-		public int GetVarGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetVarGuids()
-		{
-			int[] values = new int[0];
-			return values;
-		}
-		public int GetReturnValuesLength()=> 0;
-		public void SetReturnValueGuid(int index, int value)
-		{
-		}
-		public int GetReturnValueGuid(int index)
-		{
-			return 0;
-		}
-		public int[] GetReturnValues()
-		{
-			int[] values = new int[0];
-			return values;
-		}
 	}
 }

@@ -52,12 +52,12 @@ namespace ScratchFramework
                             break;
                         case BlockType.Trigger:
                         {
-                            if (oldParentBlock.GetEngineBlockData().NextBlockGuid == engineBlockData.Guid)
+                            if (oldParentBlock.GetEngineBlockData().GetNextGuid() == engineBlockData.Guid)
                             {
                                 var preBlock = FindPreBlock(oldParentBlockBase.Guid, engineBlockData.Guid);
                                 if (preBlock != null)
                                 {
-                                    preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
+                                    preBlock.SetNextGuid(engineBlockData.GetNextGuid());
                                 }
                             }
 
@@ -97,7 +97,7 @@ namespace ScratchFramework
                                 int branch_Index = parentCondition.Branch_BlockGuids.FindIndex(engineBlockData.Guid);
                                 if (branch_Index != -1)
                                 {
-                                    parentCondition.Branch_BlockGuids[branch_Index] = engineBlockData.NextBlockGuid;
+                                    parentCondition.Branch_BlockGuids[branch_Index] = engineBlockData.GetNextGuid();
                                 }
                                 else
                                 {
@@ -107,7 +107,7 @@ namespace ScratchFramework
                                         var preBlock = FindPreBlock(branch_root, engineBlockData.Guid);
                                         if (preBlock != null)
                                         {
-                                            preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
+                                            preBlock.SetNextGuid(engineBlockData.GetNextGuid());
                                             break;
                                         }
                                     }
@@ -128,14 +128,14 @@ namespace ScratchFramework
 
                             if (parentLoop.ChildRootGuid == engineBlockData.Guid)
                             {
-                                parentLoop.ChildRootGuid = engineBlockData.NextBlockGuid;
+                                parentLoop.ChildRootGuid = engineBlockData.GetNextGuid();
                                 break;
                             }
 
                             var preBlock = FindPreBlock(parentLoop.ChildRootGuid, engineBlockData.Guid);
                             if (preBlock != null)
                             {
-                                preBlock.NextBlockGuid = engineBlockData.NextBlockGuid;
+                                preBlock.SetNextGuid(engineBlockData.GetNextGuid());
                                 break;
                             }
 
@@ -225,20 +225,20 @@ namespace ScratchFramework
                                 var siblingIndex = bodyindex;
                                 if (siblingIndex == 0)
                                 {
-                                    engineBlockData.NextBlockGuid = ParentBlockBase.NextBlockGuid;
-                                    ParentBlockBase.NextBlockGuid = engineBlockData.Guid;
+                                    engineBlockData.SetNextGuid(ParentBlockBase.GetNextGuid());
+                                    ParentBlockBase.SetNextGuid(engineBlockData.Guid);
                                 }
                                 else
                                 {
                                     if (GetPreBlock(block, out var preblock, out var preblockIndex))
                                     {
-                                        engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
-                                        preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
+                                        engineBlockData.SetNextGuid(preblock.GetEngineBlockData().GetNextGuid());
+                                        preblock.GetEngineBlockData().SetNextGuid(engineBlockData.Guid);
                                     }
                                     else
                                     {
-                                        engineBlockData.NextBlockGuid = ParentBlockBase.NextBlockGuid;
-                                        ParentBlockBase.NextBlockGuid = engineBlockData.Guid;
+                                        engineBlockData.SetNextGuid(ParentBlockBase.GetNextGuid());
+                                        ParentBlockBase.SetNextGuid(engineBlockData.Guid);
                                     }
                                 }
                             }
@@ -309,19 +309,19 @@ namespace ScratchFramework
 
                                 if (siblingIndex == 0)
                                 {
-                                    engineBlockData.NextBlockGuid = branchs[sectionIndex];
+                                    engineBlockData.SetNextGuid(branchs[sectionIndex]);
                                     branchs[sectionIndex] = engineBlockData.Guid;
                                 }
                                 else
                                 {
                                     if (GetPreBlock(block, out var preblock, out var preblockIndex))
                                     {
-                                        engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
-                                        preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
+                                        engineBlockData.SetNextGuid(preblock.GetEngineBlockData().GetNextGuid());
+                                        preblock.GetEngineBlockData().SetNextGuid(engineBlockData.Guid);
                                     }
                                     else
                                     {
-                                        engineBlockData.NextBlockGuid = branchs[sectionIndex];
+                                        engineBlockData.SetNextGuid(branchs[sectionIndex]);
                                         branchs[sectionIndex] = engineBlockData.Guid;
                                     }
                                 }
@@ -367,19 +367,19 @@ namespace ScratchFramework
                                 var siblingIndex = block.RectTrans.GetSiblingIndex();
                                 if (siblingIndex == 0)
                                 {
-                                    engineBlockData.NextBlockGuid = parentLoop.ChildRootGuid;
+                                    engineBlockData.SetNextGuid(parentLoop.ChildRootGuid);
                                     parentLoop.ChildRootGuid = engineBlockData.Guid;
                                 }
                                 else
                                 {
                                     if (GetPreBlock(block, out var preblock, out var preblockIndex))
                                     {
-                                        engineBlockData.NextBlockGuid = preblock.GetEngineBlockData().NextBlockGuid;
-                                        preblock.GetEngineBlockData().NextBlockGuid = engineBlockData.Guid;
+                                        engineBlockData.SetNextGuid(preblock.GetEngineBlockData().GetNextGuid());
+                                        preblock.GetEngineBlockData().SetNextGuid(engineBlockData.Guid);
                                     }
                                     else
                                     {
-                                        engineBlockData.NextBlockGuid = parentLoop.ChildRootGuid;
+                                        engineBlockData.SetNextGuid(parentLoop.ChildRootGuid);
                                         parentLoop.ChildRootGuid = engineBlockData.Guid;
                                     }
                                 }
@@ -493,12 +493,12 @@ namespace ScratchFramework
 
             while (tempblock != null)
             {
-                if (tempblock.NextBlockGuid == CurGuid)
+                if (tempblock.GetNextGuid() == CurGuid)
                 {
                     return tempblock;
                 }
 
-                tempblock = GetBlocksDataRef(tempblock.NextBlockGuid);
+                tempblock = GetBlocksDataRef(tempblock.GetNextGuid());
             }
 
             return null;
@@ -979,7 +979,7 @@ namespace ScratchFramework
 
                     if (sections[0].Body != null)
                     {
-                        var childBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), sections[0].Body.RectTrans);
+                        var childBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), sections[0].Body.RectTrans);
                     }
 
                     break;
@@ -1004,7 +1004,7 @@ namespace ScratchFramework
                         }
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), parentTrans);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
                     break;
                 }
                 case BlockType.Loop:
@@ -1032,7 +1032,7 @@ namespace ScratchFramework
                         var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), sections[0].Body.RectTrans);
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), parentTrans);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
                     break;
                 }
                 case BlockType.Condition:
@@ -1068,7 +1068,7 @@ namespace ScratchFramework
                         }
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.NextBlockGuid), parentTrans);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
                     break;
                 }
                 case BlockType.Operation:
