@@ -64,7 +64,7 @@ namespace ScratchFramework
         /// if ... else if ... else if ... else ... == 3
         /// </summary>
         [BlockGuidRefList]
-        public GuidList Branch_OperationGuids { get; set; }
+        public BGuidList BranchOperationBGuids { get; set; }
 
         /// <summary>
         /// True,False == 2
@@ -74,7 +74,7 @@ namespace ScratchFramework
         /// </summary>
         /// <returns></returns>
         [BlockGuidRefList]
-        public GuidList Branch_BlockGuids { get; set; }
+        public BGuidList BranchBlockBGuids { get; set; }
     }
 
     public interface IEngineBlockTriggerBase : IEngineBlockBaseData, IBlockPlug, IBlockReturnVarGuid

@@ -67,27 +67,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -165,15 +165,15 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -251,27 +251,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -330,15 +330,15 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -383,15 +383,15 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -450,15 +450,15 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -517,32 +517,32 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		public GuidList Branch_OperationGuids { get; set; } = GuidList.CreateEmptyGuidList(1);
-		public GuidList Branch_BlockGuids { get; set; } = GuidList.CreateEmptyGuidList(2);
+		public BGuidList BranchOperationBGuids { get; set; } = BGuidList.CreateEmptyGuidList(1);
+		public BGuidList BranchBlockBGuids { get; set; } = BGuidList.CreateEmptyGuidList(2);
 	}
 	public partial class BlockLogic_IntegerValue : IEngineBlockVariableBase
 	{
@@ -556,15 +556,15 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -609,27 +609,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -707,27 +707,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -805,27 +805,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -903,27 +903,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -957,27 +957,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -1047,27 +1047,27 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_NextGuid = 0;
+		private BGuid m_NextGuid = new BGuid();
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
-			get => m_NextGuid;
+			get => m_NextGuid.GetGuid();
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid = value;
+				m_NextGuid.SetGuid(value);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -1137,15 +1137,15 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private int m_Guid = 0;
+		private BGuid m_Guid = new BGuid();
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
-			get => m_Guid;
+			get => m_Guid.GetGuid();
 			set
 			{
 				SetGuid(ref value);
-				m_Guid = value;
+				m_Guid.SetGuid(value);
 			}
 		}
 		partial void SetGuid(ref int newData);

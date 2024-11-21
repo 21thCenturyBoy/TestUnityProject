@@ -208,10 +208,10 @@ namespace ScratchFramework
 
             if (engineBlockType == null) return;
 
-            if (blockData.Type == BlockType.Condition)
+            if (engineBlockType == typeof(IEngineBlockConditionBase))
             {
-                stringBuilder.AppendLine(string.Format($"\t\tpublic GuidList {nameof(IEngineBlockConditionBase.Branch_OperationGuids)} {{0}}{{1}});", "{ get; set; } = GuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length - 1));
-                stringBuilder.AppendLine(string.Format($"\t\tpublic GuidList {nameof(IEngineBlockConditionBase.Branch_BlockGuids)} {{0}}{{1}});", "{ get; set; } = GuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length));
+                stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BGuidList)} {nameof(IEngineBlockConditionBase.BranchOperationBGuids)} {{0}}{{1}});", "{ get; set; } = BGuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length - 1));
+                stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BGuidList)} {nameof(IEngineBlockConditionBase.BranchBlockBGuids)} {{0}}{{1}});", "{ get; set; } = BGuidList.CreateEmptyGuidList(", blockData.SectionTreeList.Length));
             }
 
             var properties = engineBlockType.GetProperties();
@@ -271,15 +271,15 @@ namespace ScratchFramework
             AddSummary("[Editor Data]画布位置(需判断画布根时有效)", ref stringBuilder);
             stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BVector2)} {nameof(IEngineBlockBaseData.CanvasPos)} {{0}} = {{1}}.zero;", "{ get; set; }", nameof(BVector2)));
             
-            stringBuilder.AppendLine($"\t\tprivate int m_Guid = {ScratchUtils.InvalidGuid};");
+            stringBuilder.AppendLine($"\t\tprivate {nameof(BGuid)} m_Guid = new {nameof(BGuid)}();");
             AddSummary("[Editor Data]Guid", ref stringBuilder);
             stringBuilder.AppendLine($"\t\tpublic int Guid");
             stringBuilder.AppendLine("\t\t{");
-            stringBuilder.AppendLine("\t\t\tget => m_Guid;");
+            stringBuilder.AppendLine("\t\t\tget => m_Guid.GetGuid();");
             stringBuilder.AppendLine("\t\t\tset");
             stringBuilder.AppendLine("\t\t\t{");
             stringBuilder.AppendLine("\t\t\t\tSetGuid(ref value);");
-            stringBuilder.AppendLine("\t\t\t\tm_Guid = value;");
+            stringBuilder.AppendLine("\t\t\t\tm_Guid.SetGuid(value);");
             stringBuilder.AppendLine("\t\t\t}");
             stringBuilder.AppendLine("\t\t}");
             stringBuilder.AppendLine("\t\tpartial void SetGuid(ref int newData);");
@@ -287,16 +287,16 @@ namespace ScratchFramework
             Type type = GetInterfaceType(blockData);
             if (typeof(IBlockPlug).IsAssignableFrom(type))
             {
-                stringBuilder.AppendLine($"\t\tprivate int m_NextGuid = {ScratchUtils.InvalidGuid};");
+                stringBuilder.AppendLine($"\t\tprivate {nameof(BGuid)} m_NextGuid = new {nameof(BGuid)}();");
                 
                 AddSummary("[Editor Data]NextGuid", ref stringBuilder);
                 stringBuilder.AppendLine($"\t\tpublic int NextGuid");
                 stringBuilder.AppendLine("\t\t{");
-                stringBuilder.AppendLine("\t\t\tget => m_NextGuid;");
+                stringBuilder.AppendLine("\t\t\tget => m_NextGuid.GetGuid();");
                 stringBuilder.AppendLine("\t\t\tset");
                 stringBuilder.AppendLine("\t\t\t{");
                 stringBuilder.AppendLine("\t\t\t\tSetNextGuid(ref value);");
-                stringBuilder.AppendLine("\t\t\t\tm_NextGuid = value;");
+                stringBuilder.AppendLine("\t\t\t\tm_NextGuid.SetGuid(value);");
                 stringBuilder.AppendLine("\t\t\t}");
                 stringBuilder.AppendLine("\t\t}");
                 stringBuilder.AppendLine("\t\tpartial void SetNextGuid(ref int newData);");

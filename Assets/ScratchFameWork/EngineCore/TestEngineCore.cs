@@ -82,10 +82,10 @@ namespace ScratchFramework
 
                             if (engineBlockData.BlockType == BlockType.Operation)
                             {
-                                int operation_Index = parentCondition.Branch_OperationGuids.FindIndex(engineBlockData.Guid);
+                                int operation_Index = parentCondition.BranchOperationBGuids.FindIndex(engineBlockData.Guid);
                                 if (operation_Index != -1)
                                 {
-                                    parentCondition.Branch_OperationGuids[operation_Index] = ScratchUtils.InvalidGuid;
+                                    parentCondition.BranchOperationBGuids[operation_Index] = ScratchUtils.InvalidGuid;
                                 }
                                 else
                                 {
@@ -94,16 +94,16 @@ namespace ScratchFramework
                             }
                             else
                             {
-                                int branch_Index = parentCondition.Branch_BlockGuids.FindIndex(engineBlockData.Guid);
+                                int branch_Index = parentCondition.BranchBlockBGuids.FindIndex(engineBlockData.Guid);
                                 if (branch_Index != -1)
                                 {
-                                    parentCondition.Branch_BlockGuids[branch_Index] = engineBlockData.GetNextGuid();
+                                    parentCondition.BranchBlockBGuids[branch_Index] = engineBlockData.GetNextGuid();
                                 }
                                 else
                                 {
-                                    for (int i = 0; i < parentCondition.Branch_BlockGuids.Length; i++)
+                                    for (int i = 0; i < parentCondition.BranchBlockBGuids.Length; i++)
                                     {
-                                        int branch_root = parentCondition.Branch_BlockGuids[i];
+                                        int branch_root = parentCondition.BranchBlockBGuids[i];
                                         var preBlock = FindPreBlock(branch_root, engineBlockData.Guid);
                                         if (preBlock != null)
                                         {
@@ -284,7 +284,7 @@ namespace ScratchFramework
                         int sectionIndex = parentSection.RectTrans.GetSiblingIndex();
                         if (engineBlockData.BlockType == BlockType.Operation)
                         {
-                            var operations = parentCondition.Branch_OperationGuids;
+                            var operations = parentCondition.BranchOperationBGuids;
                             if (sectionIndex >= operations.Length)
                             {
                                 Debug.LogError("UI结构和数据结构对不上！:" + parentCondition.Type);
@@ -298,7 +298,7 @@ namespace ScratchFramework
                             if (IsOnBody(block, out var body, out var bodyindex))
                             {
                                 //Body Index
-                                var branchs = parentCondition.Branch_BlockGuids;
+                                var branchs = parentCondition.BranchBlockBGuids;
                                 if (sectionIndex >= branchs.Length)
                                 {
                                     Debug.LogError("UI结构和数据结构对不上！:" + parentCondition.Type);
@@ -1039,7 +1039,7 @@ namespace ScratchFramework
                 {
                     var _node = node as IEngineBlockConditionBase;
 
-                    int branchcount = _node.Branch_BlockGuids.Length;
+                    int branchcount = _node.BranchBlockBGuids.Length;
 
                     for (int i = 0; i < branchcount; i++)
                     {
@@ -1055,7 +1055,7 @@ namespace ScratchFramework
                                 return null;
                             }
 
-                            var operationBlock = DrawNode(GetBlocksDataRef(_node.Branch_OperationGuids[i]), section.Header.RectTrans, headerInputs[0].RectTrans.GetSiblingIndex());
+                            var operationBlock = DrawNode(GetBlocksDataRef(_node.BranchOperationBGuids[i]), section.Header.RectTrans, headerInputs[0].RectTrans.GetSiblingIndex());
                         }
                     }
 
@@ -1064,7 +1064,7 @@ namespace ScratchFramework
                         var section = sections[i];
                         if (section.Body != null)
                         {
-                            var branchBlock = DrawNode(GetBlocksDataRef(_node.Branch_BlockGuids[i]), section.Body.RectTrans);
+                            var branchBlock = DrawNode(GetBlocksDataRef(_node.BranchBlockBGuids[i]), section.Body.RectTrans);
                         }
                     }
 

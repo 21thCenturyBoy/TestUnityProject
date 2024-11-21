@@ -6,7 +6,7 @@ using System.Linq;
 namespace ScratchFramework
 {
     [Serializable]
-    public sealed class GuidList : IEnumerator<int>, IEquatable<GuidList>
+    public sealed class BGuidList : IEnumerator<int>, IEquatable<BGuidList>
     {
         private List<int> m_List;
         private int m_Index = -1;
@@ -15,7 +15,7 @@ namespace ScratchFramework
         public event Action<int, int> OnUpdateGuid;
         public int Length => m_List.Count;
 
-        public GuidList(params int[] guids)
+        public BGuidList(params int[] guids)
         {
             m_List = new List<int>(guids.Length);
             for (int i = 0; i < guids.Length; i++)
@@ -27,7 +27,7 @@ namespace ScratchFramework
             }
         }
 
-        public GuidList(List<int> guids)
+        public BGuidList(List<int> guids)
         {
             m_List = new List<int>(guids.Count);
             for (int i = 0; i < guids.Count; i++)
@@ -44,23 +44,23 @@ namespace ScratchFramework
             return m_List.ToList();
         }
 
-        public static GuidList CreateEmptyGuidList(int len = 0)
+        public static BGuidList CreateEmptyGuidList(int len = 0)
         {
-            GuidList newGuidList = new GuidList();
-            if (len == 0) return newGuidList;
+            BGuidList newBGuidList = new BGuidList();
+            if (len == 0) return newBGuidList;
             else
             {
-                newGuidList.m_List = new List<int>(new int[len]);
-                return newGuidList;
+                newBGuidList.m_List = new List<int>(new int[len]);
+                return newBGuidList;
             }
         }
 
-        public GuidList()
+        public BGuidList()
         {
             m_List = new List<int>();
         }
 
-        public void Repleace(GuidList list)
+        public void Refresh(BGuidList list)
         {
             m_List = new List<int>(list.m_List);
         }
@@ -104,7 +104,7 @@ namespace ScratchFramework
             return m_Index < m_List.Count;
         }
 
-        public bool Equals(GuidList other)
+        public bool Equals(BGuidList other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -114,7 +114,7 @@ namespace ScratchFramework
 
         public override bool Equals(object obj)
         {
-            return obj is GuidList other && Equals(other);
+            return obj is BGuidList other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -122,7 +122,7 @@ namespace ScratchFramework
             return (m_List != null ? m_List.GetHashCode() : 0);
         }
 
-        public static bool operator ==(GuidList left, GuidList right)
+        public static bool operator ==(BGuidList left, BGuidList right)
         {
             if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
             if (ReferenceEquals(null, left) || ReferenceEquals(null, right)) return false;
@@ -130,7 +130,7 @@ namespace ScratchFramework
             return left.m_List.SequenceEqual(right.m_List);
         }
 
-        public static bool operator !=(GuidList left, GuidList right)
+        public static bool operator !=(BGuidList left, BGuidList right)
         {
             if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return false;
             if (ReferenceEquals(null, left) || ReferenceEquals(null, right)) return true;

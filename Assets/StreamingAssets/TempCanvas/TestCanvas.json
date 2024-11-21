@@ -9,8 +9,8 @@
       "IsRoot": true,
       "CanvasPos": {
         "$type": "ScratchFramework.BVector2, Assembly-CSharp",
-        "x": 613.285645,
-        "y": 958.5
+        "x": 1380.85718,
+        "y": 387.6428
       },
       "Guid": -78187936,
       "NextGuid": 1699979198,
@@ -61,9 +61,24 @@
         "y": 0.0
       },
       "Guid": 1699979198,
-      "NextGuid": 0,
+      "NextGuid": 1969741598,
       "VarGuid_0": 0,
       "VarGuid_1": 0
+    },
+    {
+      "$type": "ScratchFramework.BlockLogic_DestroyObject, Assembly-CSharp",
+      "FucType": 2,
+      "Type": 20002,
+      "BlockType": 2,
+      "IsRoot": false,
+      "CanvasPos": {
+        "$type": "ScratchFramework.BVector2, Assembly-CSharp",
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Guid": 1969741598,
+      "NextGuid": 0,
+      "VarGuid_0": 0
     }
   ]
 }

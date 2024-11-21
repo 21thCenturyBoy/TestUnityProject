@@ -473,20 +473,41 @@ namespace ScratchFramework
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            GuidList list = (GuidList)value;
+            BGuidList list = (BGuidList)value;
             string jsonString = JsonConvert.SerializeObject(list.ToList());
             writer.WriteValue(jsonString);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            GuidList list = new GuidList(JsonConvert.DeserializeObject<List<int>>((string)reader.Value));
+            BGuidList list = new BGuidList(JsonConvert.DeserializeObject<List<int>>((string)reader.Value));
             return list;
         }
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(GuidList);
+            return objectType == typeof(BGuidList);
+        }
+    }
+    
+    public class GuidConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            BGuid guid = (BGuid)value;
+            writer.WriteValue(guid.GetGuid());
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            BGuid guid = new BGuid();
+            guid.SetGuid((int)reader.Value);
+            return guid;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(BGuid);
         }
     }
 }
