@@ -2,70 +2,56 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ScratchFramework
 {
-
     [ExecuteAlways]
-    public class BlockLayout_Input : ScratchUIBehaviour,IScratchModifyLayout
+    public class BlockLayout_Input : ScratchUIBehaviour
     {
-        private TMP_InputField m_inputField;
+        [SerializeField] private Button m_inputButton;
 
-        public TMP_InputField InputField
+        public Button InputButton
         {
             get
             {
-                if (m_inputField == null)
+                if (m_inputButton == null)
                 {
-                    m_inputField = GetComponent<TMP_InputField>();
+                    m_inputButton = GetComponent<Button>();
                 }
 
-                return m_inputField;
+                return m_inputButton;
             }
         }
-        public float minWidth = 70;
-        public float widthOffset = 35;
-        
-        public float maxWidth = 0;
 
-        protected override void OnEnable()
+        [SerializeField] private RectTransform m_WarnIconRect;
+
+        public RectTransform WarnIconRect
         {
-            base.OnEnable();
-            InputField.onValueChanged.AddListener(Resize);
+            get
+            {
+                if (m_WarnIconRect == null)
+                {
+                    m_WarnIconRect = GetComponent<RectTransform>();
+                }
+
+                return m_WarnIconRect;
+            }
         }
 
-        protected override void OnDisable()
+        [SerializeField] private TMP_Text m_InputText;
+
+        public TMP_Text InputText
         {
-            base.OnDisable();
-            
-            m_inputField.onValueChanged.RemoveAllListeners();
-        }
-        
-        public void Resize(string value)
-        {
-            float width = widthOffset + InputField.textComponent.GetPreferredValues(value).x;
-            if (width < minWidth)
-                width = minWidth;
+            get
+            {
+                if (m_InputText == null)
+                {
+                    m_InputText = GetComponent<TMP_Text>();
+                }
 
-            if (maxWidth > 0 && width > maxWidth)
-                width = maxWidth;
-
-            SetSize(new Vector2(width, GetSize().y));
-
-            InputField.textComponent.transform.localPosition = Vector3.zero;
-        }
-
-        public void UpdateLayout()
-        {
-            Resize(InputField.text);
-        }
-
-        public Vector2 SetSize(Vector2 size)
-        {
-            if (RectTrans == null) return Vector2.zero;
-            RectTrans.sizeDelta = size;
-            return size;
+                return m_InputText;
+            }
         }
     }
 }
-

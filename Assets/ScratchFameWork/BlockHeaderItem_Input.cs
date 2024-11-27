@@ -26,7 +26,7 @@ namespace ScratchFramework
                 OnPropertyChanged();
             }
         }
-        
+
         private int _languageId;
 
         public int LanguageId
@@ -79,11 +79,11 @@ namespace ScratchFramework
         protected override byte[] OnSerialize()
         {
             var stream = ScratchUtils.CreateMemoryStream();
-            
-            stream.Write( ScratchUtils.ScratchSerializeString(DataProperty));
+
+            stream.Write(ScratchUtils.ScratchSerializeString(DataProperty));
             stream.Write(ScratchUtils.ScratchSerializeInt(ChildOperation.RefIdPtr));
             stream.Write(ScratchUtils.ScratchSerializeInt(LanguageId));
-            
+
             return stream.ToArray();
         }
 
@@ -100,6 +100,7 @@ namespace ScratchFramework
             {
                 ChildOperation = ScratchVMDataRef<BlockHeaderParam_Data_Operation>.CreateInVaildPtr<BlockHeaderParam_Data_Operation>(DataPtr);
             }
+
             LanguageId = memoryStream.ScratchDeserializeInt();
         }
 
@@ -129,25 +130,25 @@ namespace ScratchFramework
         public void SetLanguageId(int languageId)
         {
         }
-        
     }
 
-    public class BlockHeaderItem_Input : BlockHeaderItem<BlockHeaderParam_Data_Input>,IBlockLanguage
+    public class BlockHeaderItem_Input : BlockHeaderItem<BlockHeaderParam_Data_Input>, IBlockLanguage
     {
-        private TMP_InputField m_InputField;
+        private BlockLayout_Input m_LayoutInput;
 
-        public TMP_InputField InputField
+        public BlockLayout_Input LayoutInput
         {
             get
             {
-                if (m_InputField == null)
+                if (m_LayoutInput == null)
                 {
-                    m_InputField = GetComponent<TMP_InputField>();
+                    m_LayoutInput = GetComponent<BlockLayout_Input>();
                 }
 
-                return m_InputField;
+                return m_LayoutInput;
             }
         }
+
         private BlockHeaderLanguage m_BlockHeaderLanguage;
 
         public BlockHeaderLanguage BlockHeaderLanguage
@@ -162,12 +163,12 @@ namespace ScratchFramework
                 return m_BlockHeaderLanguage;
             }
         }
-        
+
         protected override void OnCreateContextData()
         {
-            ContextData.DataProperty = InputField.text;
+            ContextData.DataProperty = LayoutInput.InputText.text;
             ContextData.InputBlock = this;
-            
+
             if (BlockHeaderLanguage != null)
             {
                 ContextData.LanguageId = BlockHeaderLanguage.LanguageNameId;
@@ -179,7 +180,7 @@ namespace ScratchFramework
             switch (e.PropertyName)
             {
                 case nameof(BlockHeaderParam_Data_Input.DataProperty):
-                    InputField.SetTextWithoutNotify(ContextData.DataProperty);
+                    LayoutInput.InputText.text = ContextData.DataProperty;
                     break;
                 case nameof(BlockHeaderParam_Data_Input.ChildOperation):
                     Active = ContextData.ChildOperation == ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
@@ -193,7 +194,7 @@ namespace ScratchFramework
 
         public override void RefreshUI()
         {
-            InputField.SetTextWithoutNotify(ContextData.DataProperty);
+            LayoutInput.InputText.text = ContextData.DataProperty;
             Active = ContextData.ChildOperation == ScratchVMDataRef<BlockHeaderParam_Data_Operation>.NULLRef;
         }
 
@@ -205,5 +206,4 @@ namespace ScratchFramework
             }
         }
     }
-    
 }
