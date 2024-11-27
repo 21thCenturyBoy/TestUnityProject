@@ -29,12 +29,11 @@ namespace ScratchFramework
             return CreateGuid(out var guid);
         }
 
-
         public static int CreateGuid(out Guid guid)
         {
             guid = Guid.NewGuid();
             int hashCode = guid.GetHashCode();
-            var baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(hashCode);
+            var baseData = ScratchEngine.Instance.GetBlocksDataRef(hashCode);
             while (hashCode == InvalidGuid || baseData != null)
             {
                 guid = Guid.NewGuid();
@@ -420,13 +419,12 @@ namespace ScratchFramework
             }
 
             return blockUI;
-
-            IEngineBlockBaseData GetBlocksDataRef(int guid)
-            {
-                return ScratchEngine.Instance.Core.GetBlocksDataRef(guid);
-            }
         }
 
+        public static IEngineBlockBaseData GetBlocksDataRef(int guid)
+        {
+            return ScratchEngine.Instance.GetBlocksDataRef(guid);
+        }
 
         /// <summary>
         /// 克隆Block
@@ -443,7 +441,7 @@ namespace ScratchFramework
 
             tree.TraverseTree((deep, bNode) =>
             {
-                IEngineBlockBaseData baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(bNode.Value);
+                IEngineBlockBaseData baseData = ScratchEngine.Instance.GetBlocksDataRef(bNode.Value);
 
                 if (baseData == null) return;
                 if (newblockGuids.Contains(baseData.Guid)) return;
@@ -468,7 +466,7 @@ namespace ScratchFramework
 
             for (int i = 0; i < newblockDatas.Count; i++)
             {
-                if (!ScratchEngine.Instance.Core.CreateBlocksData(newblockDatas[i]))
+                if (!ScratchEngine.Instance.AddBlocksData(newblockDatas[i]))
                 {
                     Debug.LogError("Engine Add Block Error:" + newblockDatas[i].Guid);
                 }
@@ -492,7 +490,7 @@ namespace ScratchFramework
             }
 
             FixedBindOperation(res);
-            
+
             return null;
         }
 
@@ -528,7 +526,7 @@ namespace ScratchFramework
 
         public static void DestroyBlock(Block block, bool recursion = true)
         {
-            var m_blocks = ScratchEngine.Instance.Core.GetAllBlocksRef();
+            var m_blocks = ScratchEngine.Instance.GetAllBlocksRef();
             var blockBaseData = block.GetEngineBlockData();
             if (blockBaseData != null)
             {
@@ -563,10 +561,10 @@ namespace ScratchFramework
 
                         foreach (int removeGuid in hashSet)
                         {
-                            var removeData = ScratchEngine.Instance.Core.GetBlocksDataRef(removeGuid);
+                            var removeData = ScratchEngine.Instance.GetBlocksDataRef(removeGuid);
                             if (removeData != null)
                             {
-                                ScratchEngine.Instance.Core.ClearBlocksData(removeData);
+                                ScratchEngine.Instance.RemoveBlocksData(removeData);
                             }
                         }
 
@@ -585,7 +583,7 @@ namespace ScratchFramework
                     }
                     else
                     {
-                        ScratchEngine.Instance.Core.ClearBlocksData(blockBaseData);
+                        ScratchEngine.Instance.RemoveBlocksData(blockBaseData);
                     }
 
                     BlockCanvasManager.Instance.RefreshCanvas();

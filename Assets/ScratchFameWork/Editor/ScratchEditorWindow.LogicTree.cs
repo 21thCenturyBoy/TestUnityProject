@@ -31,7 +31,7 @@ namespace ScratchFramework.Editor
 
                         if (canvasManager != null && canvasManager.Inited)
                         {
-                            var list = ScratchEngine.Instance.Core.GetAllBlocksRef()
+                            var list = ScratchEngine.Instance.GetAllBlocksRef()
                                 .Where(b => b.Value.IsRoot)
                                 .Select(pair => pair.Value).ToList();
 
@@ -44,7 +44,7 @@ namespace ScratchFramework.Editor
                                 tree.TraverseTree((deep, bNode) =>
                                 {
                                     id++;
-                                    IEngineBlockBaseData baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(bNode.Value);
+                                    IEngineBlockBaseData baseData = ScratchEngine.Instance.GetBlocksDataRef(bNode.Value);
                                     string icon = null;
                                     string name = $"[{bNode.Value}]";
                                     if (baseData != null)

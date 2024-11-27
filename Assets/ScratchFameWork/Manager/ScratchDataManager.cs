@@ -14,6 +14,8 @@ namespace ScratchFramework
         private int m_DataCurrentIndex = ScratchVMData.UnallocatedId;
 
         private Dictionary<int, Guid> m_IdDict = new();
+        
+        private Dictionary<int, IEngineBlockBaseData> m_blocks = new Dictionary<int, IEngineBlockBaseData>();
 
         public bool Initialize()
         {
@@ -62,7 +64,7 @@ namespace ScratchFramework
 
         public IEngineBlockBaseData GetKoalaBlockBase(int guid)
         {
-            IEngineBlockBaseData baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(guid);
+            IEngineBlockBaseData baseData = ScratchEngine.Instance.GetBlocksDataRef(guid);
 
             return baseData;
         }
@@ -159,7 +161,7 @@ namespace ScratchFramework
 
         public void Save()
         {
-            ScratchEngine.Instance.Core.SaveBlocks();
+            ScratchEngine.Instance.Core.SaveCanvasGroup(ScratchEngine.Instance.CurrentGroup, (res) => { Debug.Log("Save Success:" + res); });
         }
     }
 }

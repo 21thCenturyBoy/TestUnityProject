@@ -99,6 +99,9 @@ namespace ScratchFramework
             RectTrans.sizeDelta = sourceRectTransform.sizeDelta;
             RectTrans.pivot = sourceRectTransform.pivot;
             RectTrans.localScale = sourceRectTransform.localScale;
+            
+            var TopCanvasGroup = TempCanvasManager.Instance.TopCanvasGroup;
+            TopCanvasGroup.SetParent(RectTrans);
 
             return base.Initialize();
         }

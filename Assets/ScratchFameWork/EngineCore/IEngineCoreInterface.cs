@@ -25,7 +25,7 @@ namespace ScratchFramework
 
     public static class IEngineCoreInterfaceExtension
     {
-        public static IEngineBlockBaseData CopyData(this IEngineBlockBaseData data,ref IEngineBlockBaseData target)
+        public static IEngineBlockBaseData CopyData(this IEngineBlockBaseData data, ref IEngineBlockBaseData target)
         {
             //EditorData
             target.IsRoot = data.IsRoot;
@@ -42,7 +42,7 @@ namespace ScratchFramework
             {
                 targetPlug.NextGuid = blockPlug.NextGuid;
             }
-            
+
             if (data is IBlockReturnVarGuid blockReturnVarGuid && target is IBlockReturnVarGuid targetReturnVarGuid)
             {
                 for (int i = 0; i < blockReturnVarGuid.GetReturnValuesLength(); i++)
@@ -50,7 +50,7 @@ namespace ScratchFramework
                     targetReturnVarGuid.SetReturnValueGuid(i, blockReturnVarGuid.GetReturnValueGuid(i));
                 }
             }
-            
+
             if (data is IBlockVarGuid blockVarGuid && target is IBlockVarGuid targetVarGuid)
             {
                 for (int i = 0; i < blockVarGuid.GetVarGuidsLength(); i++)
@@ -58,7 +58,7 @@ namespace ScratchFramework
                     targetVarGuid.SetVarsGuid(i, blockVarGuid.GetVarGuid(i));
                 }
             }
-            
+
             if (data is IEngineBlockBranch blockBranch && target is IEngineBlockBranch targetBranch)
             {
                 targetBranch.BranchOperationBGuids = new BGuidList(blockBranch.BranchOperationBGuids.ToList());
@@ -67,29 +67,25 @@ namespace ScratchFramework
 
             if (data is IEngineBlockTriggerBase blockTriggerBase && target is IEngineBlockTriggerBase targetTriggerBase)
             {
-                
             }
-            
+
             if (data is IEngineBlockConditionBase blockConditionBase && target is IEngineBlockConditionBase targetConditionBase)
             {
-                
             }
-            
+
             if (data is IEngineBlockLoopBase blockLoopBase && target is IEngineBlockLoopBase targetLoopBase)
             {
                 targetLoopBase.ChildRootGuid = blockLoopBase.ChildRootGuid;
             }
-            
+
             if (data is IEngineBlockSimpleBase blockSimpleBase && target is IEngineBlockSimpleBase targetSimpleBase)
             {
-                
             }
-            
+
             if (data is IEngineBlockOperationBase blockOperationBase && target is IEngineBlockOperationBase targetOperationBase)
             {
-                
             }
-            
+
             if (data is IEngineBlockVariableBase blockVariableBase && target is IEngineBlockVariableBase targetVariableBase)
             {
                 targetVariableBase.VariableName = blockVariableBase.VariableName;
@@ -187,36 +183,8 @@ namespace ScratchFramework
 
     public interface IEngineCoreInterface
     {
-        string GetEngineVersion();
-
-        /// <summary>
-        /// 获取所有引擎Block数据
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<int, IEngineBlockBaseData> GetAllBlocksRef();
-
-
-        /// <summary>
-        /// 查询引擎Block数据
-        /// </summary>
-        /// <returns></returns>
-        public IEngineBlockBaseData GetBlocksDataRef(int guid);
-
-        /// <summary>
-        /// 创建Block数据
-        /// </summary>
-        /// <returns></returns>
-        public bool CreateBlocksData(IEngineBlockBaseData data);
-        
-        public bool ClearBlocksData(IEngineBlockBaseData data);
-
-        /// <summary>
-        /// 生成Block
-        /// </summary>
-        /// <returns></returns>
-        public void GenerateBlocks(string filepath = null, Action<List<Block>> callback = null);
-
-        public void SaveBlocks(string filepath = null, Action<bool> callback = null);
+        public void LoadCanvasGroup(Action<EngineBlockCanvasGroup> callback = null);
+        public void SaveCanvasGroup(EngineBlockCanvasGroup group, Action<bool> callback = null);
 
         /// <summary>
         /// 变量值转字符串

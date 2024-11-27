@@ -113,7 +113,7 @@ namespace ScratchFramework
                 DestroyImmediate(childs[i].gameObject);
             }
 
-            var blockDatas = ScratchEngine.Instance.Core.GetAllBlocksRef();
+            var blockDatas = ScratchEngine.Instance.GetAllBlocksRef();
             foreach (KeyValuePair<int,IEngineBlockBaseData> blockDataPair in blockDatas)
             {
                 var block = blockDataPair.Value;

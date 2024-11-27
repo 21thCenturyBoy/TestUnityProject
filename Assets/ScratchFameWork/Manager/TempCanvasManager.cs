@@ -46,6 +46,9 @@ namespace ScratchFramework
         private TempCanvasCenter m_CanvasCenter;
         public TempCanvasCenter CanvasCenter => m_CanvasCenter;
 
+
+        public RectTransform TopCanvasGroup { get; private set; }
+
         protected override void OnDestroy()
         {
             base.OnDestroy();
@@ -68,6 +71,8 @@ namespace ScratchFramework
             m_CanvasCenter = new GameObject(nameof(CanvasCenter)).AddComponent<TempCanvasCenter>();
             m_CanvasCenter.SetParent(this);
             m_CanvasCenter.Initialize();
+            
+            TopCanvasGroup = transform.Find("TopCanvasGroup").GetComponent<RectTransform>();
 
             return base.Initialize();
         }

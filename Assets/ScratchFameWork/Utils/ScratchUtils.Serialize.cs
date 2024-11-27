@@ -301,7 +301,7 @@ namespace ScratchFramework
         public static void GetBlockDataTree(int guid, out BTreeNode<int> root, Action<IEngineBlockBaseData> callback = null)
         {
             root = BTreeNode<int>.CreateNode(guid);
-            IEngineBlockBaseData plugData = ScratchEngine.Instance.Core.GetBlocksDataRef(guid);
+            IEngineBlockBaseData plugData = ScratchEngine.Instance.GetBlocksDataRef(guid);
 
             NextBlockPlug(plugData, root, callback);
             
@@ -321,7 +321,7 @@ namespace ScratchFramework
                 int nextGuid = plug.NextGuid;
                 while (nextGuid != InvalidGuid)
                 {
-                    IEngineBlockBaseData nextData = ScratchEngine.Instance.Core.GetBlocksDataRef(nextGuid);
+                    IEngineBlockBaseData nextData = ScratchEngine.Instance.GetBlocksDataRef(nextGuid);
                     callback?.Invoke(nextData);
                     
                     var nextNode = BTreeNode<int>.CreateNode(nextGuid);
@@ -344,7 +344,7 @@ namespace ScratchFramework
                 int branchNum = branch.GetBranchCount();
                 for (int i = 0; i < branchNum; i++)
                 {
-                    IEngineBlockBaseData branchData = ScratchEngine.Instance.Core.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
+                    IEngineBlockBaseData branchData = ScratchEngine.Instance.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
 
                     if (i != branchNum - 1)
                     {
@@ -354,7 +354,7 @@ namespace ScratchFramework
 
                         if (operaGuid != InvalidGuid)
                         {
-                            IEngineBlockBaseData operationData = ScratchEngine.Instance.Core.GetBlocksDataRef(branch.BranchOperationBGuids[i]);
+                            IEngineBlockBaseData operationData = ScratchEngine.Instance.GetBlocksDataRef(branch.BranchOperationBGuids[i]);
                             NextBlockPlug(branchData, operationNode, callback);
                         }
                     }
@@ -366,7 +366,7 @@ namespace ScratchFramework
 
                     if (branchGuid != InvalidGuid)
                     {
-                        IEngineBlockBaseData branchChildData = ScratchEngine.Instance.Core.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
+                        IEngineBlockBaseData branchChildData = ScratchEngine.Instance.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
                         NextBlockPlug(branchChildData, branchNode, callback);
                     }
                 }
@@ -383,7 +383,7 @@ namespace ScratchFramework
 
                     if (varGuid_0 != InvalidGuid)
                     {
-                        var varGuidData = ScratchEngine.Instance.Core.GetBlocksDataRef(varGuid_0);
+                        var varGuidData = ScratchEngine.Instance.GetBlocksDataRef(varGuid_0);
                         NextBlockPlug(varGuidData, varGuidNode, callback);
                     }
                 }

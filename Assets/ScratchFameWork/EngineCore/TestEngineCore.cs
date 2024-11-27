@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace ScratchFramework
 {
@@ -13,157 +14,75 @@ namespace ScratchFramework
     /// </summary>
     public class TestEngineCore : IEngineCoreInterface
     {
-        private Dictionary<int, IEngineBlockBaseData> m_blocks = new Dictionary<int, IEngineBlockBaseData>();
-        private Dictionary<int, IEngineBlockBaseData> m_RootBlockDatas = new Dictionary<int, IEngineBlockBaseData>();
-
-        public string GetEngineVersion()
-        {
-            return string.Empty;
-        }
-
-        public Dictionary<int, IEngineBlockBaseData> GetAllBlocksRef()
-        {
-            return m_blocks;
-        }
-
-        public Dictionary<int, IEngineBlockBaseData> GetRootBlocks()
-        {
-            return m_RootBlockDatas;
-        }
-
-        public IEngineBlockBaseData GetBlocksDataRef(int guid)
-        {
-            if (m_blocks.ContainsKey(guid)) return m_blocks[guid];
-            return null;
-        }
-
-        public bool CreateBlocksData(IEngineBlockBaseData data)
-        {
-            if (m_blocks.ContainsKey(data.Guid))
-            {
-                return false;
-            }
-
-            m_blocks[data.Guid] = data;
-            return true;
-        }
-
-        public bool ClearBlocksData(IEngineBlockBaseData data)
-        {
-            if (!m_blocks.ContainsKey(data.Guid))
-            {
-                return false;
-            }
-            
-            return m_blocks.Remove(data.Guid);
-        }
-
         private readonly string tempJsonfileUrl = "file://" + tempJsonfilePath;
-
-
-        IEnumerator GetJsonFile(string pathUrl, Action<Stream> callback = null)
-        {
-            WWW www = new WWW(pathUrl);
-            yield return www;
-
-            if (www.isDone)
-            {
-                if (www.bytes != null)
-                {
-                    var stream = new MemoryStream(www.bytes);
-                    callback?.Invoke(stream);
-                }
-            }
-
-            yield break;
-        }
-
-
-        private bool TryDeserializeBlockDatas(Stream stream)
-        {
-            Dictionary<int, IEngineBlockBaseData> allBlockDatas = new Dictionary<int, IEngineBlockBaseData>();
-
-            HashSet<Block> blocks = new HashSet<Block>();
-            List<IEngineBlockBaseData> blockDatas = null;
-            m_RootBlockDatas.Clear();
-            using (var reader = new StreamReader(stream))
-            {
-                var json = reader.ReadToEnd();
-                try
-                {
-                    JsonSerializerSettings settings = new JsonSerializerSettings();
-                    settings.TypeNameHandling = TypeNameHandling.All;
-                    settings.Converters = new List<JsonConverter> { new GuidListConverter() };
-                    blockDatas = JsonConvert.DeserializeObject<List<IEngineBlockBaseData>>(json, settings);
-
-
-                    if (blockDatas != null)
-                    {
-                        ScratchUtils.RefreshDataGuids(blockDatas);
-
-                        for (int i = 0; i < blockDatas.Count; i++)
-                        {
-                            allBlockDatas[blockDatas[i].Guid] = blockDatas[i];
-                            if (blockDatas[i].IsRoot)
-                            {
-                                m_RootBlockDatas[blockDatas[i].Guid] = blockDatas[i];
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e.ToString());
-                    return false;
-                }
-
-                if (blockDatas == null)
-                {
-                    blockDatas = new List<IEngineBlockBaseData>();
-                }
-
-                m_blocks = allBlockDatas;
-
-                for (int i = 0; i < blockDatas.Count; i++)
-                {
-                    var block = blockDatas[i];
-                    if (block.IsRoot)
-                    {
-                        var blockview = ScratchUtils.DrawNodeRoot(block, BlockCanvasManager.Instance.RectTrans, -1);
-                        for (int j = 0; j < blockview.Count; j++)
-                        {
-                            blocks.Add(blockview[j]);
-                        }
-                    }
-                }
-                
-                ScratchUtils.FixedBindOperation(blocks);
-
-                return true;
-            }
-        }
-
-        public void GenerateBlocks(string filepath = null, Action<List<Block>> callback = null)
-        {
-            List<Block> blocks = new List<Block>();
-            List<IEngineBlockBaseData> blockDatas = null;
-
-            if (string.IsNullOrEmpty(filepath))
-            {
-                ScratchEngine.Instance.StartCoroutine(GetJsonFile(tempJsonfileUrl, (stream) => { TryDeserializeBlockDatas(stream); }));
-            }
-            else
-            {
-                ScratchEngine.Instance.StartCoroutine(GetJsonFile(filepath, (stream) => { TryDeserializeBlockDatas(stream); }));
-            }
-        }
-
-        #region 生成预支存储数据
-
         private static readonly string tempJsonfilePath = Application.streamingAssetsPath + "/TempCanvas/TestCanvas.json";
 
-        public void SaveBlocks(string filepath = null, Action<bool> callback = null)
+        public void LoadCanvasGroup(Action<EngineBlockCanvasGroup> callback = null)
         {
+            IEnumerator GetJsonFile(string pathUrl, Action<Stream> callback = null)
+            {
+                UnityWebRequest request = UnityWebRequest.Get(pathUrl);
+                request.downloadHandler = new DownloadHandlerBuffer();
+
+                yield return request.SendWebRequest();
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    Debug.LogError($"Get Error: {request.error}");
+                    callback?.Invoke(null);
+                }
+                else
+                {
+                    if (request.downloadHandler.data != null)
+                    {
+                        var stream = new MemoryStream(request.downloadHandler.data);
+                        callback?.Invoke(stream);
+                    }
+                }
+            }
+
+            ScratchEngine.Instance.StartCoroutine(GetJsonFile(tempJsonfileUrl, (stream) =>
+            {
+                EngineBlockCanvasGroup group = null;
+
+                if (stream == null)
+                {
+                    group = new EngineBlockCanvasGroup();
+                    group.GlobalCanvas = EngineBlockCanvasGroup.CreateNewCanvas(nameof(EngineBlockCanvasGroup.GlobalCanvas));
+                }
+                else
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        var json = reader.ReadToEnd();
+                        try
+                        {
+                            JsonSerializerSettings settings = new JsonSerializerSettings();
+                            settings.TypeNameHandling = TypeNameHandling.All;
+                            settings.Converters = new List<JsonConverter> { new GuidListConverter() };
+                            group = JsonConvert.DeserializeObject<EngineBlockCanvasGroup>(json, settings);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e.ToString());
+                            return;
+                        }
+
+                        if (group == null)
+                        {
+                            group = new EngineBlockCanvasGroup();
+                            group.GlobalCanvas = EngineBlockCanvasGroup.CreateNewCanvas(nameof(EngineBlockCanvasGroup.GlobalCanvas));
+                        }
+                    }
+                }
+
+                callback?.Invoke(group);
+            }));
+        }
+
+
+        public void SaveCanvasGroup(EngineBlockCanvasGroup group, Action<bool> callback = null)
+        {
+            var filepath = tempJsonfilePath;
             if (string.IsNullOrEmpty(filepath))
             {
                 filepath = tempJsonfilePath;
@@ -173,22 +92,19 @@ namespace ScratchFramework
             FileStream stream = new FileStream(filepath, FileMode.CreateNew);
             using (stream)
             {
-                List<IEngineBlockBaseData> blockDatas = new List<IEngineBlockBaseData>();
-                foreach (var block in m_blocks)
-                {
-                    blockDatas.Add(block.Value);
-                }
-
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.TypeNameHandling = TypeNameHandling.All;
                 settings.Converters = new List<JsonConverter> { new GuidListConverter() };
                 settings.Formatting = Formatting.Indented;
-
-                var json = JsonConvert.SerializeObject(blockDatas, settings);
+                
+                var json = JsonConvert.SerializeObject(group, settings);
                 var bytes = System.Text.Encoding.UTF8.GetBytes(json);
                 stream.Write(bytes, 0, bytes.Length);
             }
+
+            callback?.Invoke(true);
         }
+
 
         public bool VariableValue2String(IEngineBlockVariableBase blockBase, out string value)
         {
@@ -352,7 +268,5 @@ namespace ScratchFramework
 
             return false;
         }
-
-        #endregion
     }
 }

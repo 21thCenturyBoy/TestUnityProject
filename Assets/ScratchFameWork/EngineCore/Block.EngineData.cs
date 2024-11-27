@@ -62,7 +62,7 @@ namespace ScratchFramework
                 block = scratchType.CreateBlockData();
                 block.Guid = ScratchUtils.CreateGuid();
 
-                if (!ScratchEngine.Instance.Core.CreateBlocksData(block))
+                if (!ScratchEngine.Instance.AddBlocksData(block))
                 {
                     Debug.LogError("Engine Add Block Error:" + block.Guid);
                     return;
@@ -538,7 +538,7 @@ namespace ScratchFramework
 
         public static IEngineBlockBaseData FindPreBlock(int rootGuid, int CurGuid)
         {
-            var tempblock = ScratchEngine.Instance.Core.GetBlocksDataRef(rootGuid);
+            var tempblock = ScratchEngine.Instance.GetBlocksDataRef(rootGuid);
 
             while (tempblock != null)
             {
@@ -547,7 +547,7 @@ namespace ScratchFramework
                     return tempblock;
                 }
 
-                tempblock = ScratchEngine.Instance.Core.GetBlocksDataRef(tempblock.GetNextGuid());
+                tempblock = ScratchEngine.Instance.GetBlocksDataRef(tempblock.GetNextGuid());
             }
 
             return null;
