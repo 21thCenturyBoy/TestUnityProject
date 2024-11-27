@@ -12,9 +12,9 @@ namespace ScratchFramework
 {
     public class ScratchResourcesManager : ScratchUISingleton<ScratchResourcesManager>, IScratchManager
     {
-        private List<ResourcesItem> m_TemplateResourcesItem = new List<ResourcesItem>();
-
-        public Dictionary<ScratchBlockType, ResourcesItem> TemplateResourcesDict = new Dictionary<ScratchBlockType, ResourcesItem>();
+        private Dictionary<ScratchBlockType, ResourcesItem> m_TemplateResourcesDict = new Dictionary<ScratchBlockType, ResourcesItem>();
+        private List<ResourcesItem> m_VarResourcesItem = new List<ResourcesItem>();
+        private Dictionary<ScratchBlockType, ResourcesItemData> m_TemplateTextDatas = new Dictionary<ScratchBlockType, ResourcesItemData>();
 
         public Transform TemplatePanelContent;
         public GameObject ResourcesItemPrefab;
@@ -25,13 +25,12 @@ namespace ScratchFramework
 
         public override bool Initialize()
         {
-            for (int i = 0; i < m_TemplateResourcesItem.Count; i++)
+            foreach (KeyValuePair<ScratchBlockType, ResourcesItem> resourcesItem in m_TemplateResourcesDict)
             {
-                GameObject.DestroyImmediate(m_TemplateResourcesItem[i].gameObject);
-                m_TemplateResourcesItem[i] = null;
+                GameObject.DestroyImmediate(resourcesItem.Value.gameObject);
             }
 
-            m_TemplateResourcesItem.Clear();
+            m_TemplateResourcesDict.Clear();
 
             if (m_isInitialized) return false;
 
@@ -42,25 +41,138 @@ namespace ScratchFramework
             return m_isInitialized;
         }
 
-
         public void LoadAllResource(Action successCallback = null, Action failedCallback = null)
         {
-            TemplateResourcesDict.Clear();
-            //TODO 资源管理
-            successCallback?.Invoke();
-
             var TemplateTextDatas = ScratchConfig.Instance.TemplateDatas;
+
             for (int i = 0; i < TemplateTextDatas.Count; i++)
             {
-                GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
-
                 BlockData blockData = new BlockData();
                 MemoryStream stream = ScratchUtils.CreateMemoryStream(TemplateTextDatas[i].bytes);
                 blockData.Deserialize_Base(stream);
 
+
+                ResourcesItemData data = new ResourcesItemData(TemplateTextDatas[i].bytes, TemplateTextDatas[i].name);
+
+                data.ScratchType = blockData.ScratchType;
+                data.Type = blockData.Type;
+                data.BlockFucType = blockData.BlockFucType;
+
+                m_TemplateTextDatas[data.ScratchType] = data;
+            }
+
+            //TODO 资源管理
+            successCallback?.Invoke();
+        }
+
+        public ResourcesItemData GetResourcesItemData(ScratchBlockType scratchType)
+        {
+            if (m_TemplateTextDatas.ContainsKey(scratchType))
+            {
+                return m_TemplateTextDatas[scratchType];
+            }
+
+            return null;
+        }
+
+        public void ShowFirstLevel(FirstLevelType firstLevelType)
+        {
+            foreach (KeyValuePair<ScratchBlockType, ResourcesItem> resourcesItem in m_TemplateResourcesDict)
+            {
+                GameObject.DestroyImmediate(resourcesItem.Value.gameObject);
+            }
+
+            m_TemplateResourcesDict.Clear();
+
+            ResourcesItemData[] datas = null;
+            FucType fucType = FucType.Undefined;
+            switch (firstLevelType)
+            {
+                case FirstLevelType.Event:
+                    fucType = FucType.Event;
+                    break;
+                case FirstLevelType.Action:
+                    fucType = FucType.Action;
+                    break;
+                case FirstLevelType.Control:
+                    fucType = FucType.Control;
+                    break;
+                case FirstLevelType.Condition:
+                    fucType = FucType.Condition;
+                    break;
+                case FirstLevelType.GetValue:
+                    fucType = FucType.GetValue;
+                    break;
+                case FirstLevelType.Variable:
+                    fucType = FucType.Variable;
+                    break;
+                case FirstLevelType.Custom:
+                    fucType = FucType.Undefined;
+                    break;
+                case FirstLevelType.Search:
+                    fucType = FucType.Undefined;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(firstLevelType), firstLevelType, null);
+            }
+
+            if (fucType == FucType.Undefined)
+            {
+                if (firstLevelType == FirstLevelType.Search)
+                {
+                    datas = m_TemplateTextDatas.Values.ToArray();
+                }
+                else if (firstLevelType == FirstLevelType.Custom)
+                {
+                    datas = Array.Empty<ResourcesItemData>();
+                    foreach (ResourcesItem varRe in m_VarResourcesItem)
+                    {
+                        varRe.Active = false;
+                    }
+
+                    TemplateVarHeader.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                if (firstLevelType == FirstLevelType.Variable)
+                {
+                    foreach (ResourcesItem varRe in m_VarResourcesItem)
+                    {
+                        varRe.Active = true;
+                    }
+
+                    TemplateVarHeader.gameObject.SetActive(true);
+                }
+                else
+                {
+                    foreach (ResourcesItem varRe in m_VarResourcesItem)
+                    {
+                        varRe.Active = false;
+                    }
+
+                    TemplateVarHeader.gameObject.SetActive(false);
+                }
+
+                datas = m_TemplateTextDatas.Where(data => data.Value.BlockFucType == fucType)
+                    .Select(data => data.Value).ToArray();
+            }
+
+            ShowBlockTemplate(datas);
+        }
+
+
+        public void ShowBlockTemplate(params ResourcesItemData[] templateDatas)
+        {
+            for (int i = 0; i < templateDatas.Length; i++)
+            {
+                GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
+
+                ResourcesItemData data = templateDatas[i];
+
                 ResourcesItem resourcesItem = null;
 
-                if (blockData.BlockFucType == FucType.Variable)
+                if (data.BlockFucType == FucType.Variable)
                 {
                     resourcesItem = obj.AddComponent<VariableResourcesItem>();
                 }
@@ -69,13 +181,7 @@ namespace ScratchFramework
                     resourcesItem = obj.AddComponent<ResourcesItem>();
                 }
 
-                ResourcesItemData data = new ResourcesItemData(TemplateTextDatas[i].bytes, TemplateTextDatas[i].name);
-
-                data.ScratchType = blockData.ScratchType;
-                data.Type = blockData.Type;
-                data.BlockFucType = blockData.BlockFucType;
-
-                resourcesItem.Data = data;
+                resourcesItem.Data = templateDatas[i];
 
                 resourcesItem.Active = true;
 
@@ -83,26 +189,8 @@ namespace ScratchFramework
 
                 resourcesItem.Initialize();
 
-                m_TemplateResourcesItem.Add(resourcesItem);
-
-                TemplateResourcesDict[blockData.ScratchType] = resourcesItem;
+                m_TemplateResourcesDict[data.ScratchType] = resourcesItem;
             }
-
-            ClearAllTempData();
-        }
-
-        public int ClearAllTempData()
-        {
-            return m_TemplateResourcesItem.RemoveAll(item =>
-            {
-                if (item is TempResourcesItem tempResourcesItem)
-                {
-                    GameObject.DestroyImmediate(tempResourcesItem.gameObject);
-                    return true;
-                }
-
-                return false;
-            });
         }
 
 
@@ -112,10 +200,11 @@ namespace ScratchFramework
             {
                 if (block.VariableLabel != null)
                 {
-                    var ResourcesItem = m_TemplateResourcesItem.FirstOrDefault(data => data.Data.Name == block.GetEngineBlockData().Guid.ToString());
+                    var ResourcesItem = m_VarResourcesItem.FirstOrDefault(data => data.Data.Name == block.GetEngineBlockData().Guid.ToString());
                     if (ResourcesItem == null)
                     {
-                        CreateVariable(block);
+                        TempResourcesItem resourcesItem = CreateVariable(block);
+                        resourcesItem.Active = FirstLevelMenu.Instance.CurrentShow == FirstLevelType.Variable;
                     }
                 }
             }
@@ -153,7 +242,7 @@ namespace ScratchFramework
             }
 
             //创建变量名
-            ScratchUtils.CreateVariableName(blockdata,variableData);
+            ScratchUtils.CreateVariableName(blockdata, variableData);
 
             //-----创建TempResourcesItem UI-----
             GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
@@ -161,7 +250,7 @@ namespace ScratchFramework
             resourcesItem.SetVariableData(blockdata);
 
             var blockData = block.GetDataRef() as BlockData;
-            var datas = ScratchResourcesManager.Instance.TemplateResourcesDict[blockData.ScratchType].Data.TemplateDatas;
+            var datas = ScratchResourcesManager.Instance.GetResourcesItemData(blockData.ScratchType).TemplateDatas;
 
             ResourcesItemData data = new ResourcesItemData(datas, variableData.VariableRef);
             data.ScratchType = blockData.ScratchType;
@@ -185,7 +274,7 @@ namespace ScratchFramework
 
             resourcesItem.SetParent(TemplatePanelContent, TemplateVarHeader.GetSiblingIndex() + 1);
 
-            m_TemplateResourcesItem.Add(resourcesItem);
+            m_VarResourcesItem.Add(resourcesItem);
 
 
             return resourcesItem;

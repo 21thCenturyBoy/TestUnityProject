@@ -124,6 +124,17 @@ namespace ScratchFramework
             return variableLabel.GetVariableData();
         }
 
+        public bool IsRefVariable(BlockHeaderItem_VariableLabel headerVariableLabel)
+        {
+            if (headerVariableLabel is IBlockHeaderVariableLabel variableLabel)
+            {
+                var data = variableLabel.GetVariableData() as ScratchVMData;
+                return m_VariableLabelRefDict.ContainsKey(data.Guid);
+            }
+
+            return false;
+        }
+
         #endregion
 
 

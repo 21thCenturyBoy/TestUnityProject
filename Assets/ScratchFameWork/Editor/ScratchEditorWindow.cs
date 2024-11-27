@@ -20,6 +20,7 @@ namespace ScratchFramework.Editor
             Config.Instance,
             Variable.Instance,
             BlockBrowser.Instance,
+            LogicTree.Instance,
         };
 
         [MenuItem("Tools/Scratch/EditorWindow")]

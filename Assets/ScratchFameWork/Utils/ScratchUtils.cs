@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using TMPro.SpriteAssetUtilities;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -29,11 +29,13 @@ namespace ScratchFramework
             return CreateGuid(out var guid);
         }
 
+
         public static int CreateGuid(out Guid guid)
         {
             guid = Guid.NewGuid();
             int hashCode = guid.GetHashCode();
-            while (hashCode == InvalidGuid)
+            var baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(hashCode);
+            while (hashCode == InvalidGuid || baseData != null)
             {
                 guid = Guid.NewGuid();
                 hashCode = guid.GetHashCode();
@@ -54,25 +56,32 @@ namespace ScratchFramework
             }
         }
 
-        public static bool SetNextGuid(this IEngineBlockBaseData blockBase,int nextGuid)
+        public static bool SetNextGuid(this IEngineBlockBaseData blockBase, int nextGuid)
         {
             if (blockBase is IBlockPlug plug)
             {
                 plug.NextGuid = nextGuid;
                 return true;
             }
+
             return false;
         }
-        
+
         public static int GetNextGuid(this IEngineBlockBaseData blockBase)
         {
             if (blockBase is IBlockPlug plug)
             {
                 return plug.NextGuid;
             }
+
             return InvalidGuid;
         }
-        
+
+        public static int GetBranchCount(this IEngineBlockBranch branch)
+        {
+            return branch.BranchBlockBGuids.Length;
+        }
+
         public static bool String2VariableKoalaBlock(string str, IEngineBlockVariableBase blockBase)
         {
             return ScratchEngine.Instance.Core.String2VariableValueTo(blockBase, str);
@@ -137,86 +146,356 @@ namespace ScratchFramework
         }
 
         /// <summary>
+        /// 刷新Guid
+        /// </summary>
+        /// <param name="blockDatas"></param>
+        public static void RefreshDataGuids(List<IEngineBlockBaseData> blockDatas, Dictionary<int, int> guidMap = null)
+        {
+            bool autoRefresh = guidMap == null;
+            if (autoRefresh)
+            {
+                guidMap = new Dictionary<int, int>();
+
+                foreach (IEngineBlockBaseData baseData in blockDatas)
+                {
+                    if (guidMap.ContainsKey(baseData.Guid) || baseData.Guid == ScratchUtils.InvalidGuid)
+                    {
+                        Debug.LogError("failed to get guid Fixed：" + baseData.Guid);
+                        baseData.Guid = ScratchUtils.CreateGuid();
+                    }
+
+                    guidMap[baseData.Guid] = baseData.Guid;
+                }
+
+                int[] orginkeys = guidMap.Keys.ToArray();
+                foreach (int key in orginkeys)
+                {
+                    guidMap[key] = ScratchUtils.CreateGuid();
+                }
+            }
+
+            foreach (IEngineBlockBaseData baseData in blockDatas)
+            {
+                var guids = baseData.GetGuids();
+                for (int i = 0; i < guids.Length; i++)
+                {
+                    var bGuid = guids[i];
+                    ref var ref_guid = ref bGuid.GetGuid();
+                    if (ref_guid == ScratchUtils.InvalidGuid) continue;
+                    if (guidMap.ContainsKey(ref_guid))
+                    {
+                        ref_guid = guidMap[ref_guid];
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 绘制根节点
+        /// </summary>
+        /// <param name="rootNode"></param>
+        /// <param name="parentTrans"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static List<Block> DrawNodeRoot(IEngineBlockBaseData rootNode, Transform parentTrans, int index = -1)
+        {
+            List<Block> res = new List<Block>();
+            var blockview = DrawNode(rootNode, parentTrans, index);
+            blockview.transform.position = rootNode.CanvasPos;
+            if (blockview != null)
+            {
+                res.Add(blockview);
+            }
+
+            return res;
+        }
+
+        public static void FixedBindOperation(HashSet<Block> blocks)
+        {
+            foreach (Block block in blocks)
+            {
+                var childBlocks = block.GetComponentsInChildren<Block>();
+                for (int j = 0; j < childBlocks.Length; j++)
+                {
+                    var childBlock = childBlocks[j];
+                    if (childBlock.Type == BlockType.Operation)
+                    {
+                        if (childBlock.TryGetOperationInput(out var input))
+                        {
+                            var itemOperation = childBlock.GetScratchComponent<BlockHeaderItem_Operation>();
+                            if (!itemOperation.Inited) itemOperation.Initialize();
+                            if (!input.Inited) input.Initialize();
+                            input.ContextData.ChildOperation = itemOperation.ContextData.CreateRef<BlockHeaderParam_Data_Operation>();
+                        }
+                    }
+                }
+            }
+        }
+
+        private static Block DrawNode(IEngineBlockBaseData node, Transform parentTrans, int index = -1)
+        {
+            if (node == null) return null;
+
+            var ResourceItem = ScratchResourcesManager.Instance.GetResourcesItemData(node.Type);
+            Block blockUI = ResourceItem.CreateBlock(node);
+
+            if (index == -1)
+            {
+                int lastPosIndex = parentTrans.childCount;
+                blockUI.SetParent(parentTrans, lastPosIndex);
+            }
+            else
+            {
+                if (index < parentTrans.childCount)
+                {
+                    blockUI.SetParent(parentTrans, index);
+                }
+                else
+                {
+                    int lastPosIndex = parentTrans.childCount;
+                    blockUI.SetParent(parentTrans, lastPosIndex);
+                }
+            }
+
+            var sections = blockUI.GetChildSection();
+
+            switch (node.BlockType)
+            {
+                case BlockType.none:
+                    break;
+                case BlockType.Trigger:
+                {
+                    var _node = node as IEngineBlockTriggerBase;
+                    if (sections[0].Header != null)
+                    {
+                        var headerOperations = sections[0].Header.GetHeaderOperation();
+                        int variableLen = _node.GetReturnValuesLength();
+                        if (variableLen != headerOperations.Length)
+                        {
+                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                            return null;
+                        }
+
+                        for (int i = 0; i < variableLen; i++)
+                        {
+                            int guid = _node.GetReturnValueGuid(i);
+                            if (headerOperations[i].OperationBlock.GetEngineBlockData() == null)
+                            {
+                                var operationBlock = GetBlocksDataRef(guid);
+                                headerOperations[i].OperationBlock.SetKoalaBlock(operationBlock);
+                            }
+                        }
+                    }
+
+                    if (sections[0].Body != null)
+                    {
+                        var childBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), sections[0].Body.RectTrans);
+                    }
+
+                    break;
+                }
+                case BlockType.Simple:
+                {
+                    var _node = node as IEngineBlockSimpleBase;
+
+                    if (sections[0].Header != null)
+                    {
+                        var headerInputs = sections[0].Header.GetHeaderInput();
+                        int variableLen = _node.GetVarGuidsLength();
+                        if (variableLen != headerInputs.Length)
+                        {
+                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                            return null;
+                        }
+
+                        for (int i = 0; i < variableLen; i++)
+                        {
+                            var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), sections[0].Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
+                        }
+                    }
+
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
+                    break;
+                }
+                case BlockType.Loop:
+                {
+                    var _node = node as IEngineBlockLoopBase;
+
+                    if (sections[0].Header != null)
+                    {
+                        var headerInputs = sections[0].Header.GetHeaderInput();
+                        int variableLen = _node.GetVarGuidsLength();
+                        if (variableLen != headerInputs.Length)
+                        {
+                            Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                            return null;
+                        }
+
+                        for (int i = 0; i < variableLen; i++)
+                        {
+                            var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), sections[0].Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
+                        }
+                    }
+
+                    if (sections[0].Body != null)
+                    {
+                        var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), sections[0].Body.RectTrans);
+                    }
+
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
+                    break;
+                }
+                case BlockType.Condition:
+                {
+                    var _node = node as IEngineBlockConditionBase;
+
+                    int branchcount = _node.BranchBlockBGuids.Length;
+
+                    for (int i = 0; i < branchcount; i++)
+                    {
+                        var section = sections[i];
+                        if (section.Header != null)
+                        {
+                            if (i == branchcount - 1) continue; //End 
+
+                            var headerInputs = section.Header.GetHeaderInput();
+                            if (headerInputs.Length != 1)
+                            {
+                                Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                                return null;
+                            }
+
+                            var operationBlock = DrawNode(GetBlocksDataRef(_node.BranchOperationBGuids[i]), section.Header.RectTrans, headerInputs[0].RectTrans.GetSiblingIndex());
+                        }
+                    }
+
+                    for (int i = 0; i < branchcount; i++)
+                    {
+                        var section = sections[i];
+                        if (section.Body != null)
+                        {
+                            var branchBlock = DrawNode(GetBlocksDataRef(_node.BranchBlockBGuids[i]), section.Body.RectTrans);
+                        }
+                    }
+
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
+                    break;
+                }
+                case BlockType.Operation:
+                {
+                    if (node.FucType == FucType.GetValue || node.FucType == FucType.Condition)
+                    {
+                        var _node = node as IEngineBlockOperationBase;
+
+                        if (sections[0].Header != null)
+                        {
+                            var headerInputs = sections[0].Header.GetHeaderInput();
+
+                            int variableLen = _node.GetVarGuidsLength();
+                            if (variableLen != headerInputs.Length)
+                            {
+                                Debug.LogError("UI结构和数据结构对不上！:" + node.Type);
+                                return null;
+                            }
+
+                            for (int i = 0; i < variableLen; i++)
+                            {
+                                var operationBlock = DrawNode(GetBlocksDataRef(_node.GetVarGuid(i)), sections[0].Header.RectTrans, headerInputs[i].RectTrans.GetSiblingIndex());
+                            }
+                        }
+                    }
+                    else if (node.FucType == FucType.Variable)
+                    {
+                        var _node = node as IEngineBlockVariableBase;
+                    }
+
+
+                    break;
+                }
+
+                case BlockType.Define:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return blockUI;
+
+            IEngineBlockBaseData GetBlocksDataRef(int guid)
+            {
+                return ScratchEngine.Instance.Core.GetBlocksDataRef(guid);
+            }
+        }
+
+
+        /// <summary>
         /// 克隆Block
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
         public static Block CloneBlock(Block block)
         {
-            var dict = new Dictionary<int, int>();
+            GetBlockDataTree(block.GetEngineBlockData().Guid, out var tree);
 
-            BlockData blockData = block.GetDataRef() as BlockData;
+            Dictionary<int, int> dataMapGuids = new Dictionary<int, int>();
+            HashSet<int> newblockGuids = new HashSet<int>();
+            List<IEngineBlockBaseData> newblockDatas = new List<IEngineBlockBaseData>();
 
-            BlockData.OrginData.Clear();
-            BlockData.NewData.Clear();
-
-            byte[] datas = blockData.Serialize();
-
-            MemoryStream memoryStream = CreateMemoryStream(datas);
-
-            BlockData newBlockData = new BlockData();
-            newBlockData.BlockData_Deserialize(memoryStream, ScratchConfig.Instance.Version, true);
-
-            Block newblock = null;
-
-
-            if (newBlockData.Type == BlockType.Operation)
+            tree.TraverseTree((deep, bNode) =>
             {
-                newblock = BlockCreator.CreateBlock(newBlockData, BlockCanvasManager.Instance.RectTrans);
-            }
-            else
-            {
-                newblock = BlockCreator.CreateBlock(newBlockData, block.ParentTrans);
-            }
+                IEngineBlockBaseData baseData = ScratchEngine.Instance.Core.GetBlocksDataRef(bNode.Value);
 
+                if (baseData == null) return;
+                if (newblockGuids.Contains(baseData.Guid)) return;
 
-            if (BlockData.OrginData.Count != BlockData.NewData.Count)
-            {
-                Debug.LogError("CloneBlock Failed !");
-            }
-            else
-            {
-                Dictionary<int, int> dictionary = new Dictionary<int, int>();
-                List<int> orginHeadDataIds = new List<int>();
-                List<int> newHeadDataIds = new List<int>();
-                for (int i = 0; i < BlockData.OrginData.Count; i++)
+                if (bNode.Parent != null && baseData is IEngineBlockVariableBase variableBase)
                 {
-                    if (BlockData.OrginData[i] is IBlockHeadData headData)
-                    {
-                        int dataId = headData.GetDataId();
-                        orginHeadDataIds.Add(dataId);
-                    }
+                    if (variableBase.ReturnParentGuid != bNode.Parent.Value) return; //Ref
                 }
 
-                for (int i = 0; i < BlockData.NewData.Count; i++)
+                IEngineBlockBaseData newData = baseData.Type.CreateBlockData();
+                newData.Guid = ScratchUtils.CreateGuid();
+
+                dataMapGuids[baseData.Guid] = newData.Guid;
+
+                baseData.CopyData(ref newData);
+
+                newData.Guid = dataMapGuids[baseData.Guid];
+
+                newblockGuids.Add(newData.Guid);
+                newblockDatas.Add(newData);
+            });
+
+            for (int i = 0; i < newblockDatas.Count; i++)
+            {
+                if (!ScratchEngine.Instance.Core.CreateBlocksData(newblockDatas[i]))
                 {
-                    if (BlockData.NewData[i] is IBlockHeadData headData)
-                    {
-                        int dataId = headData.GetDataId();
-                        newHeadDataIds.Add(dataId);
-                    }
+                    Debug.LogError("Engine Add Block Error:" + newblockDatas[i].Guid);
                 }
+            }
 
-                int len = orginHeadDataIds.Count;
-                for (int i = 0; i < len; i++)
+            RefreshDataGuids(newblockDatas, dataMapGuids);
+
+            HashSet<Block> res = new HashSet<Block>();
+            var newBlocks = newblockDatas;
+            for (int i = 0; i < newBlocks.Count; i++)
+            {
+                if (newBlocks[i].IsRoot)
                 {
-                    dictionary[orginHeadDataIds[i]] = newHeadDataIds[i];
-                }
+                    List<Block> blocks = DrawNodeRoot(newBlocks[i], BlockCanvasManager.Instance.RectTrans, -1);
 
-
-                for (int i = 0; i < BlockData.NewData.Count; i++)
-                {
-                    if (BlockData.NewData[i] is IScratchRefreshRef refreshRef)
+                    for (int j = 0; j < blocks.Count; j++)
                     {
-                        refreshRef.RefreshRef(dictionary);
+                        res.Add(blocks[j]);
                     }
                 }
             }
 
-            //TODO 
-            // KoalaScratchUtil.Instance.CopyBlockTree()
-            return newblock;
+            FixedBindOperation(res);
+            
+            return null;
         }
+
 
         public static int GetDataId(this ScratchVMData data)
         {
@@ -247,11 +526,71 @@ namespace ScratchFramework
             return id;
         }
 
-        public static void DestroyBlock(Block block)
+        public static void DestroyBlock(Block block, bool recursion = true)
         {
-            ScratchEngine.Instance.Core.DeleteBlock(block.GetEngineBlockData());
+            var m_blocks = ScratchEngine.Instance.Core.GetAllBlocksRef();
+            var blockBaseData = block.GetEngineBlockData();
+            if (blockBaseData != null)
+            {
+                if (m_blocks.ContainsKey(blockBaseData.Guid))
+                {
+                    if (recursion)
+                    {
+                        HashSet<int> hashSet = new HashSet<int>();
+                        GetBlockDataTree(blockBaseData.Guid, out var tree);
+                        tree.TraverseTree((deep, bNode) => { hashSet.Add(bNode.Value); });
 
-            GameObject.Destroy(block.gameObject);
+                        var needSave = new List<int>();
+                        foreach (int guid in hashSet)
+                        {
+                            if (m_blocks.ContainsKey(guid) && m_blocks[guid] is IEngineBlockVariableBase variableBase)
+                            {
+                                if (variableBase.ReturnParentGuid != ScratchUtils.InvalidGuid)
+                                {
+                                    if (!hashSet.Contains(variableBase.ReturnParentGuid))
+                                    {
+                                        needSave.Add(variableBase.Guid);
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < needSave.Count; i++)
+                        {
+                            hashSet.Remove(needSave[i]);
+                        }
+
+
+                        foreach (int removeGuid in hashSet)
+                        {
+                            var removeData = ScratchEngine.Instance.Core.GetBlocksDataRef(removeGuid);
+                            if (removeData != null)
+                            {
+                                ScratchEngine.Instance.Core.ClearBlocksData(removeData);
+                            }
+                        }
+
+                        foreach (IEngineBlockBaseData data in m_blocks.Values)
+                        {
+                            var logicBlock = data.GetGuids();
+                            for (int i = 0; i < logicBlock.Length; i++)
+                            {
+                                if (hashSet.Contains(logicBlock[i].GetGuid()))
+                                {
+                                    ref var ref_guid = ref logicBlock[i].GetGuid();
+                                    ref_guid = InvalidGuid;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ScratchEngine.Instance.Core.ClearBlocksData(blockBaseData);
+                    }
+
+                    BlockCanvasManager.Instance.RefreshCanvas();
+                }
+            }
         }
 
         public static Vector3 ScreenPos2WorldPos(this ScratchUIBehaviour transform, Vector2 screenPos)

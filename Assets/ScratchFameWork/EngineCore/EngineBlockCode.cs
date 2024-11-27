@@ -67,7 +67,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -75,11 +75,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -87,32 +87,32 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		private int m_VarGuid_0 = 0;
+		private BGuid m_VarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data]对象 </summary>
 		public int VarGuid_0
 		{
-			get => m_VarGuid_0;
+			get => m_VarGuid_0.GetGuid();
 			set
 			{
 				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
+				m_VarGuid_0.SetGuid(value,out m_VarGuid_0);
 			}
 		}
 		/// <summary> 对象 </summary>
 		partial void SetVarGuid_0(ref int newData);
-		private int m_VarGuid_1 = 0;
+		private BGuid m_VarGuid_1 = BGuid.Empty;
 		/// <summary> [Editor Data]向量 </summary>
 		public int VarGuid_1
 		{
-			get => m_VarGuid_1;
+			get => m_VarGuid_1.GetGuid();
 			set
 			{
 				SetVarGuid_1(ref value);
-				m_VarGuid_1 = value;
+				m_VarGuid_1.SetGuid(value,out m_VarGuid_1);
 			}
 		}
 		/// <summary> 向量 </summary>
@@ -152,6 +152,29 @@ namespace ScratchFramework
 			values[1] = VarGuid_1;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[4] 
+				{
+					m_Guid,
+					m_NextGuid,
+					m_VarGuid_0,
+					m_VarGuid_1,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+				m_Guids[2] = m_VarGuid_0;
+				m_Guids[3] = m_VarGuid_1;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_CompareValues : IEngineBlockOperationBase
 	{
@@ -165,7 +188,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -173,32 +196,32 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_VarGuid_0 = 0;
+		private BGuid m_VarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data]左积木 </summary>
 		public int VarGuid_0
 		{
-			get => m_VarGuid_0;
+			get => m_VarGuid_0.GetGuid();
 			set
 			{
 				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
+				m_VarGuid_0.SetGuid(value,out m_VarGuid_0);
 			}
 		}
 		/// <summary> 左积木 </summary>
 		partial void SetVarGuid_0(ref int newData);
-		private int m_VarGuid_1 = 0;
+		private BGuid m_VarGuid_1 = BGuid.Empty;
 		/// <summary> [Editor Data]右积木 </summary>
 		public int VarGuid_1
 		{
-			get => m_VarGuid_1;
+			get => m_VarGuid_1.GetGuid();
 			set
 			{
 				SetVarGuid_1(ref value);
-				m_VarGuid_1 = value;
+				m_VarGuid_1.SetGuid(value,out m_VarGuid_1);
 			}
 		}
 		/// <summary> 右积木 </summary>
@@ -238,6 +261,27 @@ namespace ScratchFramework
 			values[1] = VarGuid_1;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[3] 
+				{
+					m_Guid,
+					m_VarGuid_0,
+					m_VarGuid_1,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_VarGuid_0;
+				m_Guids[2] = m_VarGuid_1;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_DestroyObject : IEngineBlockSimpleBase
 	{
@@ -251,7 +295,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -259,11 +303,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -271,19 +315,19 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		private int m_VarGuid_0 = 0;
+		private BGuid m_VarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data]对象 </summary>
 		public int VarGuid_0
 		{
-			get => m_VarGuid_0;
+			get => m_VarGuid_0.GetGuid();
 			set
 			{
 				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
+				m_VarGuid_0.SetGuid(value,out m_VarGuid_0);
 			}
 		}
 		/// <summary> 对象 </summary>
@@ -317,6 +361,27 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[3] 
+				{
+					m_Guid,
+					m_NextGuid,
+					m_VarGuid_0,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+				m_Guids[2] = m_VarGuid_0;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_EntityValue : IEngineBlockVariableBase
 	{
@@ -330,7 +395,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -338,7 +403,7 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -370,6 +435,37 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetVariableValue(ref System.Object newData);
+		private BGuid m_ReturnParentGuid = BGuid.Empty;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int ReturnParentGuid
+		{
+			get => m_ReturnParentGuid.GetGuid();
+			set
+			{
+				SetReturnParentGuid(ref value);
+				m_ReturnParentGuid.SetGuid(value,out m_ReturnParentGuid);
+			}
+		}
+		partial void SetReturnParentGuid(ref System.Int32 newData);
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[2] 
+				{
+					m_Guid,
+					m_ReturnParentGuid,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_ReturnParentGuid;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_GetCharacterSpeed : IEngineBlockOperationBase
 	{
@@ -383,7 +479,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -391,19 +487,19 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_VarGuid_0 = 0;
+		private BGuid m_VarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data]角色 </summary>
 		public int VarGuid_0
 		{
-			get => m_VarGuid_0;
+			get => m_VarGuid_0.GetGuid();
 			set
 			{
 				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
+				m_VarGuid_0.SetGuid(value,out m_VarGuid_0);
 			}
 		}
 		/// <summary> 角色 </summary>
@@ -437,6 +533,25 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[2] 
+				{
+					m_Guid,
+					m_VarGuid_0,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_VarGuid_0;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_GetVectorMagnitude : IEngineBlockOperationBase
 	{
@@ -450,7 +565,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -458,19 +573,19 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private int m_VarGuid_0 = 0;
+		private BGuid m_VarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data]向量 </summary>
 		public int VarGuid_0
 		{
-			get => m_VarGuid_0;
+			get => m_VarGuid_0.GetGuid();
 			set
 			{
 				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
+				m_VarGuid_0.SetGuid(value,out m_VarGuid_0);
 			}
 		}
 		/// <summary> 向量 </summary>
@@ -504,6 +619,25 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[2] 
+				{
+					m_Guid,
+					m_VarGuid_0,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_VarGuid_0;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_IfElse : IEngineBlockConditionBase
 	{
@@ -517,7 +651,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -525,11 +659,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -537,12 +671,31 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
 		public BGuidList BranchOperationBGuids { get; set; } = BGuidList.CreateEmptyGuidList(1);
 		public BGuidList BranchBlockBGuids { get; set; } = BGuidList.CreateEmptyGuidList(2);
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[2] 
+				{
+					m_Guid,
+					m_NextGuid,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_IntegerValue : IEngineBlockVariableBase
 	{
@@ -556,7 +709,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -564,7 +717,7 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -596,6 +749,37 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetVariableValue(ref System.Object newData);
+		private BGuid m_ReturnParentGuid = BGuid.Empty;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int ReturnParentGuid
+		{
+			get => m_ReturnParentGuid.GetGuid();
+			set
+			{
+				SetReturnParentGuid(ref value);
+				m_ReturnParentGuid.SetGuid(value,out m_ReturnParentGuid);
+			}
+		}
+		partial void SetReturnParentGuid(ref System.Int32 newData);
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[2] 
+				{
+					m_Guid,
+					m_ReturnParentGuid,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_ReturnParentGuid;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_OnCollisionEnter : IEngineBlockTriggerBase
 	{
@@ -609,7 +793,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -617,11 +801,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -629,32 +813,32 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		private int m_ReturnVarGuid_0 = 0;
+		private BGuid m_ReturnVarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data][EntityRef, 碰撞目标] </summary>
 		public int ReturnVarGuid_0
 		{
-			get => m_ReturnVarGuid_0;
+			get => m_ReturnVarGuid_0.GetGuid();
 			set
 			{
 				SetReturnVarGuid_0(ref value);
-				m_ReturnVarGuid_0 = value;
+				m_ReturnVarGuid_0.SetGuid(value,out m_ReturnVarGuid_0);
 			}
 		}
 		/// <summary> [EntityRef, 碰撞目标] </summary>
 		partial void SetReturnVarGuid_0(ref int newData);
-		private int m_ReturnVarGuid_1 = 0;
+		private BGuid m_ReturnVarGuid_1 = BGuid.Empty;
 		/// <summary> [Editor Data][EntityRef, 碰撞者] </summary>
 		public int ReturnVarGuid_1
 		{
-			get => m_ReturnVarGuid_1;
+			get => m_ReturnVarGuid_1.GetGuid();
 			set
 			{
 				SetReturnVarGuid_1(ref value);
-				m_ReturnVarGuid_1 = value;
+				m_ReturnVarGuid_1.SetGuid(value,out m_ReturnVarGuid_1);
 			}
 		}
 		/// <summary> [EntityRef, 碰撞者] </summary>
@@ -693,6 +877,29 @@ namespace ScratchFramework
 			values[0] = ReturnVarGuid_0;
 			values[1] = ReturnVarGuid_1;
 			return values;
+		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[4] 
+				{
+					m_Guid,
+					m_NextGuid,
+					m_ReturnVarGuid_0,
+					m_ReturnVarGuid_1,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+				m_Guids[2] = m_ReturnVarGuid_0;
+				m_Guids[3] = m_ReturnVarGuid_1;
+
+			}
+			return m_Guids;
 		}
 	}
 	public partial class BlockLogic_OnCollisionExit : IEngineBlockTriggerBase
@@ -707,7 +914,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -715,11 +922,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -727,32 +934,32 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		private int m_ReturnVarGuid_0 = 0;
+		private BGuid m_ReturnVarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data][EntityRef, 碰撞目标] </summary>
 		public int ReturnVarGuid_0
 		{
-			get => m_ReturnVarGuid_0;
+			get => m_ReturnVarGuid_0.GetGuid();
 			set
 			{
 				SetReturnVarGuid_0(ref value);
-				m_ReturnVarGuid_0 = value;
+				m_ReturnVarGuid_0.SetGuid(value,out m_ReturnVarGuid_0);
 			}
 		}
 		/// <summary> [EntityRef, 碰撞目标] </summary>
 		partial void SetReturnVarGuid_0(ref int newData);
-		private int m_ReturnVarGuid_1 = 0;
+		private BGuid m_ReturnVarGuid_1 = BGuid.Empty;
 		/// <summary> [Editor Data][EntityRef, 碰撞者] </summary>
 		public int ReturnVarGuid_1
 		{
-			get => m_ReturnVarGuid_1;
+			get => m_ReturnVarGuid_1.GetGuid();
 			set
 			{
 				SetReturnVarGuid_1(ref value);
-				m_ReturnVarGuid_1 = value;
+				m_ReturnVarGuid_1.SetGuid(value,out m_ReturnVarGuid_1);
 			}
 		}
 		/// <summary> [EntityRef, 碰撞者] </summary>
@@ -791,6 +998,29 @@ namespace ScratchFramework
 			values[0] = ReturnVarGuid_0;
 			values[1] = ReturnVarGuid_1;
 			return values;
+		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[4] 
+				{
+					m_Guid,
+					m_NextGuid,
+					m_ReturnVarGuid_0,
+					m_ReturnVarGuid_1,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+				m_Guids[2] = m_ReturnVarGuid_0;
+				m_Guids[3] = m_ReturnVarGuid_1;
+
+			}
+			return m_Guids;
 		}
 	}
 	public partial class BlockLogic_OnCollisionStay : IEngineBlockTriggerBase
@@ -805,7 +1035,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -813,11 +1043,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -825,32 +1055,32 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		private int m_ReturnVarGuid_0 = 0;
+		private BGuid m_ReturnVarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data][EntityRef, 碰撞目标] </summary>
 		public int ReturnVarGuid_0
 		{
-			get => m_ReturnVarGuid_0;
+			get => m_ReturnVarGuid_0.GetGuid();
 			set
 			{
 				SetReturnVarGuid_0(ref value);
-				m_ReturnVarGuid_0 = value;
+				m_ReturnVarGuid_0.SetGuid(value,out m_ReturnVarGuid_0);
 			}
 		}
 		/// <summary> [EntityRef, 碰撞目标] </summary>
 		partial void SetReturnVarGuid_0(ref int newData);
-		private int m_ReturnVarGuid_1 = 0;
+		private BGuid m_ReturnVarGuid_1 = BGuid.Empty;
 		/// <summary> [Editor Data][EntityRef, 碰撞者] </summary>
 		public int ReturnVarGuid_1
 		{
-			get => m_ReturnVarGuid_1;
+			get => m_ReturnVarGuid_1.GetGuid();
 			set
 			{
 				SetReturnVarGuid_1(ref value);
-				m_ReturnVarGuid_1 = value;
+				m_ReturnVarGuid_1.SetGuid(value,out m_ReturnVarGuid_1);
 			}
 		}
 		/// <summary> [EntityRef, 碰撞者] </summary>
@@ -890,6 +1120,29 @@ namespace ScratchFramework
 			values[1] = ReturnVarGuid_1;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[4] 
+				{
+					m_Guid,
+					m_NextGuid,
+					m_ReturnVarGuid_0,
+					m_ReturnVarGuid_1,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+				m_Guids[2] = m_ReturnVarGuid_0;
+				m_Guids[3] = m_ReturnVarGuid_1;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_OnObjectCreated : IEngineBlockTriggerBase
 	{
@@ -903,7 +1156,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -911,11 +1164,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -923,7 +1176,7 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
@@ -944,6 +1197,25 @@ namespace ScratchFramework
 			int[] values = new int[0];
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[2] 
+				{
+					m_Guid,
+					m_NextGuid,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_RepeatAction : IEngineBlockLoopBase
 	{
@@ -957,7 +1229,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -965,11 +1237,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -977,30 +1249,31 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		private System.Int32 m_ChildRootGuid = 0;
-		public System.Int32 ChildRootGuid
+		private BGuid m_ChildRootGuid = BGuid.Empty;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int ChildRootGuid
 		{
-			get => m_ChildRootGuid;
+			get => m_ChildRootGuid.GetGuid();
 			set
 			{
 				SetChildRootGuid(ref value);
-				m_ChildRootGuid = value;
+				m_ChildRootGuid.SetGuid(value,out m_ChildRootGuid);
 			}
 		}
 		partial void SetChildRootGuid(ref System.Int32 newData);
-		private int m_VarGuid_0 = 0;
+		private BGuid m_VarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data]次数 </summary>
 		public int VarGuid_0
 		{
-			get => m_VarGuid_0;
+			get => m_VarGuid_0.GetGuid();
 			set
 			{
 				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
+				m_VarGuid_0.SetGuid(value,out m_VarGuid_0);
 			}
 		}
 		/// <summary> 次数 </summary>
@@ -1034,6 +1307,29 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[4] 
+				{
+					m_Guid,
+					m_NextGuid,
+					m_ChildRootGuid,
+					m_VarGuid_0,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+				m_Guids[2] = m_ChildRootGuid;
+				m_Guids[3] = m_VarGuid_0;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_StartCountdown : IEngineBlockLoopBase
 	{
@@ -1047,7 +1343,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -1055,11 +1351,11 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
-		private BGuid m_NextGuid = new BGuid();
+		private BGuid m_NextGuid = BGuid.Empty;
 		/// <summary> [Editor Data]NextGuid </summary>
 		public int NextGuid
 		{
@@ -1067,30 +1363,31 @@ namespace ScratchFramework
 			set
 			{
 				SetNextGuid(ref value);
-				m_NextGuid.SetGuid(value);
+				m_NextGuid.SetGuid(value,out m_NextGuid);
 			}
 		}
 		partial void SetNextGuid(ref int newData);
-		private System.Int32 m_ChildRootGuid = 0;
-		public System.Int32 ChildRootGuid
+		private BGuid m_ChildRootGuid = BGuid.Empty;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int ChildRootGuid
 		{
-			get => m_ChildRootGuid;
+			get => m_ChildRootGuid.GetGuid();
 			set
 			{
 				SetChildRootGuid(ref value);
-				m_ChildRootGuid = value;
+				m_ChildRootGuid.SetGuid(value,out m_ChildRootGuid);
 			}
 		}
 		partial void SetChildRootGuid(ref System.Int32 newData);
-		private int m_VarGuid_0 = 0;
+		private BGuid m_VarGuid_0 = BGuid.Empty;
 		/// <summary> [Editor Data]时间 </summary>
 		public int VarGuid_0
 		{
-			get => m_VarGuid_0;
+			get => m_VarGuid_0.GetGuid();
 			set
 			{
 				SetVarGuid_0(ref value);
-				m_VarGuid_0 = value;
+				m_VarGuid_0.SetGuid(value,out m_VarGuid_0);
 			}
 		}
 		/// <summary> 时间 </summary>
@@ -1124,6 +1421,29 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[4] 
+				{
+					m_Guid,
+					m_NextGuid,
+					m_ChildRootGuid,
+					m_VarGuid_0,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_NextGuid;
+				m_Guids[2] = m_ChildRootGuid;
+				m_Guids[3] = m_VarGuid_0;
+
+			}
+			return m_Guids;
+		}
 	}
 	public partial class BlockLogic_VectorValue : IEngineBlockVariableBase
 	{
@@ -1137,7 +1457,7 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
-		private BGuid m_Guid = new BGuid();
+		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
 		{
@@ -1145,7 +1465,7 @@ namespace ScratchFramework
 			set
 			{
 				SetGuid(ref value);
-				m_Guid.SetGuid(value);
+				m_Guid.SetGuid(value,out m_Guid);
 			}
 		}
 		partial void SetGuid(ref int newData);
@@ -1177,5 +1497,36 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetVariableValue(ref System.Object newData);
+		private BGuid m_ReturnParentGuid = BGuid.Empty;
+		/// <summary> [Editor Data]NextGuid </summary>
+		public int ReturnParentGuid
+		{
+			get => m_ReturnParentGuid.GetGuid();
+			set
+			{
+				SetReturnParentGuid(ref value);
+				m_ReturnParentGuid.SetGuid(value,out m_ReturnParentGuid);
+			}
+		}
+		partial void SetReturnParentGuid(ref System.Int32 newData);
+		private BGuid[] m_Guids = null;
+		public BGuid[] GetGuids()
+		{
+			if (m_Guids == null)
+			{
+				m_Guids = new BGuid[2] 
+				{
+					m_Guid,
+					m_ReturnParentGuid,
+
+				};
+			}
+			else{
+				m_Guids[0] = m_Guid;
+				m_Guids[1] = m_ReturnParentGuid;
+
+			}
+			return m_Guids;
+		}
 	}
 }

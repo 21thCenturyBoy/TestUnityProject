@@ -44,11 +44,7 @@ namespace ScratchFramework
         {
             get
             {
-                if (m_Parent == null)
-                {
-                    m_Parent = transform.parent.GetComponent<RectTransform>();
-                }
-
+                m_Parent = transform.parent.GetComponent<RectTransform>();
                 return m_Parent;
             }
         }

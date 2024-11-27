@@ -21,7 +21,6 @@ namespace ScratchFramework.Editor
                 ScratchDataDict,
                 HeaderItemInput,
                 ScratchUI,
-                EngineData
             }
 
             private EditorGUILayoutExtensions.EditorTab tab;
@@ -76,19 +75,8 @@ namespace ScratchFramework.Editor
                     case EditorTabType.ScratchUI:
                         Show_ScratchUI();
                         break;
-                    case EditorTabType.EngineData:
-                        Show_EngineData();
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
-                }
-            }
-
-            private void Show_EngineData()
-            {
-                foreach (var input in ScratchEngine.Instance.Core.GetAllBlocks())
-                {
-                    GUILayout.Label($"[{input.Key}][{input.Value}]");
                 }
             }
 

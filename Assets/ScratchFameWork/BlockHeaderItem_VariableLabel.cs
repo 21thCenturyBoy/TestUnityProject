@@ -91,7 +91,7 @@ namespace ScratchFramework
             {
                 if (m_LabelText == null)
                 {
-                    m_LabelText = GetComponent<TMP_Text>();
+                    m_LabelText = transform.Find("VariableLabel").GetComponent<TMP_Text>();
                 }
 
                 return m_LabelText;
@@ -102,7 +102,6 @@ namespace ScratchFramework
         {
             ContextData.VariableInfo = LabelText.text;
         }
-
 
         public override void OnUpdateLayout()
         {

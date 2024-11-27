@@ -59,7 +59,7 @@ namespace ScratchFramework
 
         private void OnRefBtn()
         {
-            if (ScratchResourcesManager.Instance.TemplateResourcesDict.ContainsKey(m_VariableData.Type))
+            if (ScratchResourcesManager.Instance.GetResourcesItemData(m_VariableData.Type) != null)
             {
                 Block block = ScratchUtils.DeserializeBlock(Data.TemplateDatas, BlockCanvasManager.Instance.RectTrans);
 

@@ -219,7 +219,7 @@ namespace ScratchFramework.Editor
 
             void DoTreeView()
             {
-                Rect rect = GUILayoutUtility.GetRect(0, 100, 0, 100);
+                Rect rect = GUILayoutUtility.GetRect(0, 500, 0, 500);
                 m_TreeView.OnGUI(rect);
             }
 

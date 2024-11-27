@@ -59,7 +59,7 @@ namespace ScratchFramework
             {
                 DestroyImmediate(childs[i].gameObject);
             }
-            
+
             m_BlockDict.Clear();
             OnBlockDictChanged = null;
         }
@@ -74,7 +74,7 @@ namespace ScratchFramework
                 m_BlockDict[block.BlockId] = block;
 
                 ScratchResourcesManager.Instance.OnCanvasAddBlock(block);
-                
+
                 OnBlockDictChanged?.Invoke();
             }
             else
@@ -90,7 +90,7 @@ namespace ScratchFramework
             if (m_BlockDict.ContainsKey(block.BlockId))
             {
                 ScratchResourcesManager.Instance.OnCanvasRemoveBlock(block);
-                
+
                 m_BlockDict.Remove(block.BlockId);
 
                 OnBlockDictChanged?.Invoke();
@@ -100,6 +100,34 @@ namespace ScratchFramework
             Debug.LogError("RemoveBlock Failed!");
         }
 
+        /// <summary>
+        /// 强制刷新画布
+        /// </summary>
+        public void RefreshCanvas()
+        {
+            HashSet<Block> res = new HashSet<Block>(BlockDict.Count);
+            
+            var childs = GetChildTempBlock();
+            for (int i = 0; i < childs.Length; i++)
+            {
+                DestroyImmediate(childs[i].gameObject);
+            }
+
+            var blockDatas = ScratchEngine.Instance.Core.GetAllBlocksRef();
+            foreach (KeyValuePair<int,IEngineBlockBaseData> blockDataPair in blockDatas)
+            {
+                var block = blockDataPair.Value;
+                if (block.IsRoot)
+                {
+                    var blocks = ScratchUtils.DrawNodeRoot(block, BlockCanvasManager.Instance.RectTrans, -1);
+                    for (int i = 0; i < blocks.Count; i++)
+                    {
+                        res.Add(blocks[i]);
+                    }
+                }
+            }
+            ScratchUtils.FixedBindOperation(res);
+        }
 
         public List<BlockTree> GetBlockTree()
         {
@@ -199,7 +227,6 @@ namespace ScratchFramework
 
         public bool Clear()
         {
-        
             return true;
         }
 

@@ -17,41 +17,6 @@ namespace ScratchFramework
             TemplateDatas = templateDatas;
             Name = name;
         }
-    }
-
-    public class ResourcesItem : ScratchBehaviour
-    {
-        public ResourcesItemData Data = null;
-
-        public Button CreateBtn;
-
-        public TMPro.TMP_Text NameText;
-
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
-
-            if (CreateBtn == null) CreateBtn = transform.Find("CreateBtn").GetComponent<Button>();
-            if (NameText == null) NameText = CreateBtn.GetComponentInChildren<TMPro.TMP_Text>();
-
-            CreateBtn.onClick.RemoveAllListeners();
-            CreateBtn.onClick.AddListener(CreateBlockTemplate);
-
-            NameText.text = Data.Name;
-
-            if (Data != null)
-            {
-                CreateBtn.image.color = ScratchConfig.Instance.GetFucColor(Data.BlockFucType);
-            }
-
-
-            CreateBtn.gameObject.SetActive(true);
-        }
-
-        public virtual void CreateBlockTemplate()
-        {
-            CreateBlock(null);
-        }
 
         /// <summary>
         /// 创建BlockUI
@@ -60,9 +25,7 @@ namespace ScratchFramework
         /// <returns></returns>
         public Block CreateBlock(IEngineBlockBaseData blockBase)
         {
-            if (Data == null) return null;
-
-            Block block = ScratchUtils.DeserializeBlock(Data.TemplateDatas, BlockCanvasManager.Instance.RectTrans);
+            Block block = ScratchUtils.DeserializeBlock(TemplateDatas, BlockCanvasManager.Instance.RectTrans);
 
             block.Position = TempCanvasManager.Instance.CanvasCenter.Position;
 
@@ -101,6 +64,12 @@ namespace ScratchFramework
                         {
                             SetKoalaBlockData(heads[j]);
                         }
+
+                        IBlockScratch_Head[] headDatas = sections[i].Header.GetComponentsInChildren<IBlockScratch_Head>();
+                        for (int j = 0; j < headDatas.Length; j++)
+                        {
+                            headDatas[j].RefreshUI();
+                        }
                     }
 
                     if (sections[i].Body != null)
@@ -135,10 +104,50 @@ namespace ScratchFramework
                                 {
                                     ScratchUtils.RefreshVariableName(variableBase, paramVariable);
                                 }
+
+                                heads[j].RefreshUI();
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public class ResourcesItem : ScratchBehaviour
+    {
+        public ResourcesItemData Data = null;
+
+        public Button CreateBtn;
+
+        public TMPro.TMP_Text NameText;
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+
+            if (CreateBtn == null) CreateBtn = transform.Find("CreateBtn").GetComponent<Button>();
+            if (NameText == null) NameText = CreateBtn.GetComponentInChildren<TMPro.TMP_Text>();
+
+            CreateBtn.onClick.RemoveAllListeners();
+            CreateBtn.onClick.AddListener(CreateBlockTemplate);
+
+            NameText.text = Data.Name;
+
+            if (Data != null)
+            {
+                CreateBtn.image.color = ScratchConfig.Instance.GetFucColor(Data.BlockFucType);
+            }
+
+
+            CreateBtn.gameObject.SetActive(true);
+        }
+
+        public virtual void CreateBlockTemplate()
+        {
+            if (Data != null)
+            {
+                Data.CreateBlock(null);
             }
         }
     }

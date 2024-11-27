@@ -14,8 +14,6 @@ namespace ScratchFramework
     public class BlockHeaderParam_Data_RenturnVariableLabel : BlockHeaderParam_Data<BlockHeaderParam_Data_RenturnVariableLabel>, IHeaderParamVariable, IScratchRefreshRef
     {
         private string _VariableInfo = string.Empty;
-
-
         public string VariableInfo
         {
             get => _VariableInfo;

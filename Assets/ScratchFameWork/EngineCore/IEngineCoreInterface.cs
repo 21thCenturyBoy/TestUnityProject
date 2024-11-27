@@ -23,6 +23,84 @@ namespace ScratchFramework
         }
     }
 
+    public static class IEngineCoreInterfaceExtension
+    {
+        public static IEngineBlockBaseData CopyData(this IEngineBlockBaseData data,ref IEngineBlockBaseData target)
+        {
+            //EditorData
+            target.IsRoot = data.IsRoot;
+            target.CanvasPos = data.CanvasPos;
+
+            var orginGuids = data.GetGuids();
+            var targetGuids = target.GetGuids();
+            for (int i = 0; i < orginGuids.Length; i++)
+            {
+                targetGuids[i] = orginGuids[i];
+            }
+
+            if (data is IBlockPlug blockPlug && target is IBlockPlug targetPlug)
+            {
+                targetPlug.NextGuid = blockPlug.NextGuid;
+            }
+            
+            if (data is IBlockReturnVarGuid blockReturnVarGuid && target is IBlockReturnVarGuid targetReturnVarGuid)
+            {
+                for (int i = 0; i < blockReturnVarGuid.GetReturnValuesLength(); i++)
+                {
+                    targetReturnVarGuid.SetReturnValueGuid(i, blockReturnVarGuid.GetReturnValueGuid(i));
+                }
+            }
+            
+            if (data is IBlockVarGuid blockVarGuid && target is IBlockVarGuid targetVarGuid)
+            {
+                for (int i = 0; i < blockVarGuid.GetVarGuidsLength(); i++)
+                {
+                    targetVarGuid.SetVarsGuid(i, blockVarGuid.GetVarGuid(i));
+                }
+            }
+            
+            if (data is IEngineBlockBranch blockBranch && target is IEngineBlockBranch targetBranch)
+            {
+                targetBranch.BranchOperationBGuids = new BGuidList(blockBranch.BranchOperationBGuids.ToList());
+                targetBranch.BranchBlockBGuids = new BGuidList(blockBranch.BranchBlockBGuids.ToList());
+            }
+
+            if (data is IEngineBlockTriggerBase blockTriggerBase && target is IEngineBlockTriggerBase targetTriggerBase)
+            {
+                
+            }
+            
+            if (data is IEngineBlockConditionBase blockConditionBase && target is IEngineBlockConditionBase targetConditionBase)
+            {
+                
+            }
+            
+            if (data is IEngineBlockLoopBase blockLoopBase && target is IEngineBlockLoopBase targetLoopBase)
+            {
+                targetLoopBase.ChildRootGuid = blockLoopBase.ChildRootGuid;
+            }
+            
+            if (data is IEngineBlockSimpleBase blockSimpleBase && target is IEngineBlockSimpleBase targetSimpleBase)
+            {
+                
+            }
+            
+            if (data is IEngineBlockOperationBase blockOperationBase && target is IEngineBlockOperationBase targetOperationBase)
+            {
+                
+            }
+            
+            if (data is IEngineBlockVariableBase blockVariableBase && target is IEngineBlockVariableBase targetVariableBase)
+            {
+                targetVariableBase.VariableName = blockVariableBase.VariableName;
+                targetVariableBase.VariableValue = blockVariableBase.VariableValue;
+                targetVariableBase.ReturnParentGuid = blockVariableBase.ReturnParentGuid;
+            }
+
+            return target;
+        }
+    }
+
     public interface IEngineBlockBaseData
     {
         public bool IsRoot { get; set; }
@@ -31,6 +109,7 @@ namespace ScratchFramework
         public BlockType BlockType { get; }
         public ScratchBlockType Type { get; }
         public int Guid { get; set; }
+        public BGuid[] GetGuids();
     }
 
     public interface IBlockPlug
@@ -103,6 +182,7 @@ namespace ScratchFramework
         public ScratchValueType ValueType { get; }
         public string VariableName { get; set; }
         public object VariableValue { get; set; }
+        [BlockGuidRef] public int ReturnParentGuid { get; set; }
     }
 
     public interface IEngineCoreInterface
@@ -113,7 +193,8 @@ namespace ScratchFramework
         /// 获取所有引擎Block数据
         /// </summary>
         /// <returns></returns>
-        public Dictionary<int, IEngineBlockBaseData> GetAllBlocks();
+        public Dictionary<int, IEngineBlockBaseData> GetAllBlocksRef();
+
 
         /// <summary>
         /// 查询引擎Block数据
@@ -121,37 +202,13 @@ namespace ScratchFramework
         /// <returns></returns>
         public IEngineBlockBaseData GetBlocksDataRef(int guid);
 
-        public bool ChangeBlockData(Block block, Transform orginParentTrans, Transform newParentTrans);
-
         /// <summary>
-        /// 修复并设置BlockData 位置
+        /// 创建Block数据
         /// </summary>
-        public bool TryFixedBlockBaseDataPos(IEngineBlockBaseData blockBaseData, Vector3 pos);
-
-        /// <summary>
-        /// 更新BlockData 位置
-        /// </summary>
-        public bool UpdateDataPos(IEngineBlockBaseData blockBaseData, Vector3 pos);
-
-        /// <summary>
-        /// 删除DeleteBlock
-        /// </summary>
-        public void DeleteBlock(IEngineBlockBaseData block, bool recursion = true);
-
-        /// <summary>
-        /// 根据类型创建方块
-        /// </summary>
-        /// <param name="scratchType"></param>
-        /// <param name="isAdd">是否是新创建  （生成新的guid并添加如block池子）</param>
         /// <returns></returns>
-        public IEngineBlockBaseData CreateBlock(ScratchBlockType scratchType, bool isAdd = true);
-
-        /// <summary>
-        /// 遍历方块
-        /// </summary>
-        /// <param name="rootGuid"></param>
-        /// <param name="function"></param>
-        public IEngineBlockBaseData FindPreBlock(int rootGuid, int CurGuid);
+        public bool CreateBlocksData(IEngineBlockBaseData data);
+        
+        public bool ClearBlocksData(IEngineBlockBaseData data);
 
         /// <summary>
         /// 生成Block
@@ -174,15 +231,5 @@ namespace ScratchFramework
         /// <param name="blockBase"></param>
         /// <param name="value"></param>
         public bool String2VariableValueTo(IEngineBlockVariableBase blockBase, string value);
-
-#if UNITY_EDITOR
-
-        /// <summary>
-        /// 编辑器创建Block文件
-        /// </summary>
-        /// <param name="blockCreateName"></param>
-        /// <returns></returns>
-        public bool BlockCreateCSFile(string blockCreateName);
-#endif
     }
 }

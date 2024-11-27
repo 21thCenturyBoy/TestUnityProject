@@ -82,8 +82,7 @@ namespace ScratchFramework
     [Serializable]
     public partial class BlockData : IBlockData
     {
-        [Newtonsoft.Json.JsonIgnore]
-        public Vector3 LocalPosition { get; set; }
+        [Newtonsoft.Json.JsonIgnore] public Vector3 LocalPosition { get; set; }
         public FucType BlockFucType { get; set; }
         public BlockType Type { get; set; }
         public ScratchBlockType ScratchType { get; set; }
@@ -91,10 +90,9 @@ namespace ScratchFramework
         public IBlockSectionData[] SectionTreeList { get; set; } = Array.Empty<IBlockSectionData>();
 
         #region 引用刷新
-        [Newtonsoft.Json.JsonIgnore]
-        public static List<IScratchData> OrginData { get; set; } = new List<IScratchData>();
-        [Newtonsoft.Json.JsonIgnore]
-        public static List<IScratchData> NewData { get; set; } = new List<IScratchData>();
+
+        [Newtonsoft.Json.JsonIgnore] public static List<IScratchData> OrginData { get; set; } = new List<IScratchData>();
+        [Newtonsoft.Json.JsonIgnore] public static List<IScratchData> NewData { get; set; } = new List<IScratchData>();
 
         #endregion
 
@@ -106,6 +104,7 @@ namespace ScratchFramework
         }
 
         #region 特殊Data
+
         public ScratchValueType OperationValueType { get; set; } = ScratchValueType.Undefined;
 
         #endregion
@@ -299,6 +298,97 @@ namespace ScratchFramework
 
         public static ref T GetArrayRef<T>(T[] items, int index) => ref items[index];
 
+        public static void GetBlockDataTree(int guid, out BTreeNode<int> root, Action<IEngineBlockBaseData> callback = null)
+        {
+            root = BTreeNode<int>.CreateNode(guid);
+            IEngineBlockBaseData plugData = ScratchEngine.Instance.Core.GetBlocksDataRef(guid);
+
+            NextBlockPlug(plugData, root, callback);
+            
+            if (plugData is IBlockReturnVarGuid returnVarGuid)
+            {
+                int returnNum = returnVarGuid.GetReturnValuesLength();
+                for (int i = 0; i < returnNum; i++)
+                {
+                    int returnGuid = returnVarGuid.GetReturnValueGuid(i);
+                    var returnNode = BTreeNode<int>.CreateNode(returnGuid);
+                    root.AddChild(returnNode);
+                }
+            }
+
+            if (plugData is IBlockPlug plug)
+            {
+                int nextGuid = plug.NextGuid;
+                while (nextGuid != InvalidGuid)
+                {
+                    IEngineBlockBaseData nextData = ScratchEngine.Instance.Core.GetBlocksDataRef(nextGuid);
+                    callback?.Invoke(nextData);
+                    
+                    var nextNode = BTreeNode<int>.CreateNode(nextGuid);
+                    root.AddChild(nextNode);
+
+                    NextBlockPlug(nextData, nextNode, callback);
+                    nextGuid = nextData is IBlockPlug nextPlug ? nextPlug.NextGuid : InvalidGuid;
+                }
+            }
+        }
+
+        private static void NextBlockPlug(IEngineBlockBaseData dataNode, BTreeNode<int> node, Action<IEngineBlockBaseData> callback = null)
+        {
+            if (dataNode == null) return;
+
+            callback?.Invoke(dataNode);
+
+            if (dataNode is IEngineBlockBranch branch)
+            {
+                int branchNum = branch.GetBranchCount();
+                for (int i = 0; i < branchNum; i++)
+                {
+                    IEngineBlockBaseData branchData = ScratchEngine.Instance.Core.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
+
+                    if (i != branchNum - 1)
+                    {
+                        int operaGuid = branch.BranchOperationBGuids[i];
+                        var operationNode = BTreeNode<int>.CreateNode(operaGuid);
+                        node.AddChild(operationNode);
+
+                        if (operaGuid != InvalidGuid)
+                        {
+                            IEngineBlockBaseData operationData = ScratchEngine.Instance.Core.GetBlocksDataRef(branch.BranchOperationBGuids[i]);
+                            NextBlockPlug(branchData, operationNode, callback);
+                        }
+                    }
+
+                    int branchGuid = branch.BranchBlockBGuids[i];
+                    var branchNode = BTreeNode<int>.CreateNode(branchGuid);
+
+                    node.AddChild(branchNode);
+
+                    if (branchGuid != InvalidGuid)
+                    {
+                        IEngineBlockBaseData branchChildData = ScratchEngine.Instance.Core.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
+                        NextBlockPlug(branchChildData, branchNode, callback);
+                    }
+                }
+            }
+
+            if (dataNode is IBlockVarGuid varGuid)
+            {
+                int varGuidLen = varGuid.GetVarGuidsLength();
+                for (int j = 0; j < varGuidLen; j++)
+                {
+                    int varGuid_0 = varGuid.GetVarGuid(j);
+                    var varGuidNode = BTreeNode<int>.CreateNode(varGuid_0);
+                    node.AddChild(varGuidNode);
+
+                    if (varGuid_0 != InvalidGuid)
+                    {
+                        var varGuidData = ScratchEngine.Instance.Core.GetBlocksDataRef(varGuid_0);
+                        NextBlockPlug(varGuidData, varGuidNode, callback);
+                    }
+                }
+            }
+        }
 
         public static byte[] ScratchSerializeInt(int data)
         {
@@ -468,7 +558,7 @@ namespace ScratchFramework
             return spanArray;
         }
     }
-    
+
     public class GuidListConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -489,7 +579,7 @@ namespace ScratchFramework
             return objectType == typeof(BGuidList);
         }
     }
-    
+
     public class GuidConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -500,8 +590,8 @@ namespace ScratchFramework
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            BGuid guid = new BGuid();
-            guid.SetGuid((int)reader.Value);
+            BGuid guid = BGuid.CreateGuid();
+            guid.SetGuid((int)reader.Value,out guid);
             return guid;
         }
 
