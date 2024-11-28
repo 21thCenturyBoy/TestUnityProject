@@ -304,7 +304,7 @@ namespace ScratchFramework
             IEngineBlockBaseData plugData = ScratchEngine.Instance.GetBlocksDataRef(guid);
 
             NextBlockPlug(plugData, root, callback);
-            
+
             if (plugData is IBlockReturnVarGuid returnVarGuid)
             {
                 int returnNum = returnVarGuid.GetReturnValuesLength();
@@ -323,7 +323,7 @@ namespace ScratchFramework
                 {
                     IEngineBlockBaseData nextData = ScratchEngine.Instance.GetBlocksDataRef(nextGuid);
                     callback?.Invoke(nextData);
-                    
+
                     var nextNode = BTreeNode<int>.CreateNode(nextGuid);
                     root.AddChild(nextNode);
 
@@ -591,7 +591,7 @@ namespace ScratchFramework
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             BGuid guid = BGuid.CreateGuid();
-            guid.SetGuid((int)reader.Value,out guid);
+            guid.SetGuid((int)reader.Value, out guid);
             return guid;
         }
 

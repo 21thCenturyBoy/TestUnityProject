@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -25,6 +26,7 @@ namespace ScratchFramework
 
     public static class IEngineCoreInterfaceExtension
     {
+
         public static IEngineBlockBaseData CopyData(this IEngineBlockBaseData data, ref IEngineBlockBaseData target)
         {
             //EditorData

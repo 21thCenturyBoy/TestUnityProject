@@ -106,20 +106,16 @@ namespace ScratchFramework
         {
             if (!transform.IsChildOf(BlockCanvasManager.Instance.RectTrans)) return;
             blockData.IsRoot = GetComponentInParent<IScratchSectionChild>() == null;
-
+            
             if (blockData.IsRoot)
             {
-                if (blockData != null)
-                {
-                    blockData.CanvasPos = transform.position;
-                }
+                blockData.CanvasPos = transform.position;
+                ScratchEngine.Instance.Current.RootBlock[blockData.Guid] = blockData;
             }
             else
-            {
-                if (blockData != null)
-                {
-                    blockData.CanvasPos = Vector3.zero;
-                }
+            {    
+                blockData.CanvasPos = Vector3.zero;
+                ScratchEngine.Instance.Current.RootBlock.Remove(blockData.Guid);
             }
         }
 

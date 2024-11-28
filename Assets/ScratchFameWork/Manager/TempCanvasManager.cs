@@ -47,7 +47,7 @@ namespace ScratchFramework
         public TempCanvasCenter CanvasCenter => m_CanvasCenter;
 
 
-        public RectTransform TopCanvasGroup { get; private set; }
+        public TopCanvasGroup TopCanvasGroup { get; private set; }
 
         protected override void OnDestroy()
         {
@@ -72,7 +72,7 @@ namespace ScratchFramework
             m_CanvasCenter.SetParent(this);
             m_CanvasCenter.Initialize();
             
-            TopCanvasGroup = transform.Find("TopCanvasGroup").GetComponent<RectTransform>();
+            TopCanvasGroup = transform.Find("TopCanvasGroup").GetComponent<TopCanvasGroup>();
 
             return base.Initialize();
         }

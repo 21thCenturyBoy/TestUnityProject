@@ -2005,6 +2005,7 @@ GameObject:
   m_Component:
   - component: {fileID: 856354297}
   - component: {fileID: 856354298}
+  - component: {fileID: 856354299}
   m_Layer: 0
   m_Name: TopCanvasGroup
   m_TagString: Untagged
@@ -2061,6 +2062,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &856354299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 856354296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b96033713104a3e44b4d9dffe28aebda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &878882010
 GameObject:
   m_ObjectHideFlags: 0
@@ -5608,8 +5621,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3781049594129938834}
-        m_TargetAssemblyTypeName: ScratchFramework.ScratchManager, Assembly-CSharp
+      - m_Target: {fileID: 856354299}
+        m_TargetAssemblyTypeName: ScratchFramework.TopCanvasGroup, Assembly-CSharp
         m_MethodName: AddCanvans
         m_Mode: 1
         m_Arguments:
@@ -9717,8 +9730,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3781049594129938834}
-        m_TargetAssemblyTypeName: ScratchFramework.ScratchManager, Assembly-CSharp
+      - m_Target: {fileID: 856354299}
+        m_TargetAssemblyTypeName: ScratchFramework.TopCanvasGroup, Assembly-CSharp
         m_MethodName: Save
         m_Mode: 1
         m_Arguments:

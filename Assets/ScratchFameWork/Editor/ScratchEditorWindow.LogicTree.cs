@@ -19,6 +19,83 @@ namespace ScratchFramework.Editor
                     Reload();
                 }
 
+                private int Add(List<TreeViewItem> allItems, int index, bool isGlobal = false)
+                {
+                    Dictionary<int, IEngineBlockBaseData> rootDict = isGlobal ? ScratchEngine.Instance.CurrentGroup.GlobalCanvas.RootBlock : ScratchEngine.Instance.Current.RootBlock;
+                    foreach (KeyValuePair<int, IEngineBlockBaseData> valuePair in rootDict)
+                    {
+                        ScratchUtils.GetBlockDataTree(valuePair.Value.Guid, out var tree);
+
+                        tree.TraverseTree((deep, bNode) =>
+                        {
+                            index++;
+                            IEngineBlockBaseData baseData = null;
+                            if (isGlobal)
+                            {
+                                if (ScratchEngine.Instance.CurrentGroup.GlobalCanvas.BlockDataDicts.ContainsKey(bNode.Value))
+                                {
+                                    baseData = ScratchEngine.Instance.CurrentGroup.GlobalCanvas.BlockDataDicts[bNode.Value];
+                                }
+                            }
+                            else
+                            {
+                                if (ScratchEngine.Instance.Current.BlockDataDicts.ContainsKey(bNode.Value))
+                                {
+                                    baseData = ScratchEngine.Instance.Current.BlockDataDicts[bNode.Value];
+                                }
+                            }
+
+                            string icon = null;
+                            string name = $"[{bNode.Value}]";
+                            if (baseData != null)
+                            {
+                                name += baseData.Type.ToString();
+                                switch (baseData.FucType)
+                                {
+                                    case FucType.Undefined:
+                                        icon = "sv_icon_dot8_pix16_gizmo";
+                                        break;
+                                    case FucType.Event:
+                                        icon = "sv_icon_dot12_pix16_gizmo";
+                                        break;
+                                    case FucType.Action:
+                                        icon = "sv_icon_dot9_pix16_gizmo";
+                                        break;
+                                    case FucType.Control:
+                                        icon = "sv_icon_dot15_pix16_gizmo";
+                                        break;
+                                    case FucType.Condition:
+                                        icon = "sv_icon_dot10_pix16_gizmo";
+                                        break;
+                                    case FucType.GetValue:
+                                        icon = "sv_icon_dot14_pix16_gizmo";
+                                        break;
+                                    case FucType.Variable:
+                                        icon = "sv_icon_dot11_pix16_gizmo";
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                            }
+                            else
+                            {
+                                icon = "sv_icon_dot8_pix16_gizmo";
+                            }
+
+                            var item = new TreeViewItem
+                            {
+                                id = index,
+                                depth = isGlobal ? deep + 1 : deep,
+                                displayName = name,
+                                icon = EditorGUIUtility.FindTexture(icon)
+                            };
+                            allItems.Add(item);
+                        });
+                    }
+
+                    return index;
+                }
+
                 protected override TreeViewItem BuildRoot()
                 {
                     var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
@@ -31,66 +108,13 @@ namespace ScratchFramework.Editor
 
                         if (canvasManager != null && canvasManager.Inited)
                         {
-                            var list = ScratchEngine.Instance.GetAllBlocksRef()
-                                .Where(b => b.Value.IsRoot)
-                                .Select(pair => pair.Value).ToList();
-
-                            int id = 0;
-
-                            for (int i = 0; i < list.Count; i++)
+                            int id = 1;
+                            var global = new TreeViewItem { id = id, depth = 0, displayName = "[Global]" };
+                            allItems.Add(global);
+                            id = Add(allItems, id, true);
+                            if (!ScratchEngine.Instance.CurrentIsGlobal)
                             {
-                                ScratchUtils.GetBlockDataTree(list[i].Guid, out var tree);
-
-                                tree.TraverseTree((deep, bNode) =>
-                                {
-                                    id++;
-                                    IEngineBlockBaseData baseData = ScratchEngine.Instance.GetBlocksDataRef(bNode.Value);
-                                    string icon = null;
-                                    string name = $"[{bNode.Value}]";
-                                    if (baseData != null)
-                                    {
-                                        name += baseData.Type.ToString();
-                                        switch (baseData.FucType)
-                                        {
-                                            case FucType.Undefined:
-                                                icon = "sv_icon_dot8_pix16_gizmo";
-                                                break;
-                                            case FucType.Event:
-                                                icon = "sv_icon_dot12_pix16_gizmo";
-                                                break;
-                                            case FucType.Action:
-                                                icon = "sv_icon_dot9_pix16_gizmo";
-                                                break;
-                                            case FucType.Control:
-                                                icon = "sv_icon_dot15_pix16_gizmo";
-                                                break;
-                                            case FucType.Condition:
-                                                icon = "sv_icon_dot10_pix16_gizmo";
-                                                break;
-                                            case FucType.GetValue:
-                                                icon = "sv_icon_dot14_pix16_gizmo";
-                                                break;
-                                            case FucType.Variable:
-                                                icon = "sv_icon_dot11_pix16_gizmo";
-                                                break;
-                                            default:
-                                                throw new ArgumentOutOfRangeException();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        icon = "sv_icon_dot8_pix16_gizmo";
-                                    }
-
-                                    var item = new TreeViewItem
-                                    {
-                                        id = id,
-                                        depth = deep,
-                                        displayName = name,
-                                        icon = EditorGUIUtility.FindTexture(icon)
-                                    };
-                                    allItems.Add(item);
-                                });
+                                id = Add(allItems, id);
                             }
                         }
                     }

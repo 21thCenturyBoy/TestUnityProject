@@ -48,7 +48,8 @@ namespace ScratchFramework
         protected override void OnInitialize()
         {
             ClearCanvas();
-
+            OnBlockDictChanged = null;
+            
             base.OnInitialize();
         }
 
@@ -59,9 +60,7 @@ namespace ScratchFramework
             {
                 DestroyImmediate(childs[i].gameObject);
             }
-
             m_BlockDict.Clear();
-            OnBlockDictChanged = null;
         }
 
         public void AddBlock(Block block)
@@ -105,14 +104,13 @@ namespace ScratchFramework
         /// </summary>
         public void RefreshCanvas()
         {
-            HashSet<Block> res = new HashSet<Block>(BlockDict.Count);
-            
             var childs = GetChildTempBlock();
             for (int i = 0; i < childs.Length; i++)
             {
                 DestroyImmediate(childs[i].gameObject);
             }
 
+            HashSet<Block> res = new HashSet<Block>(BlockDict.Count);
             var blockDatas = ScratchEngine.Instance.GetAllBlocksRef();
             foreach (KeyValuePair<int,IEngineBlockBaseData> blockDataPair in blockDatas)
             {

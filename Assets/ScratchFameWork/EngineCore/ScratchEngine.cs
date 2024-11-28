@@ -55,10 +55,7 @@ namespace ScratchFramework
         public EngineBlockCanvasGroup CurrentGroup
         {
             get => m_CurrentGroup;
-            set
-            {
-                m_CurrentGroup = value;
-            }
+            set { m_CurrentGroup = value; }
         }
 
         private EngineBlockCanvas m_Current;
@@ -68,6 +65,8 @@ namespace ScratchFramework
             get => m_Current;
             set => m_Current = value;
         }
+        
+        public bool CurrentIsGlobal => m_Current == m_CurrentGroup.GlobalCanvas;
 
         public Dictionary<int, IEngineBlockBaseData> GetAllBlocksRef()
         {
@@ -82,9 +81,10 @@ namespace ScratchFramework
                 callback?.Invoke(m_Current.BlockDataDicts[guid]);
                 return m_Current.BlockDataDicts[guid];
             }
+
             return null;
         }
-        
+
         public bool AddBlocksData(IEngineBlockBaseData data)
         {
             if (m_Current.BlockDataDicts.ContainsKey(data.Guid))

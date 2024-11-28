@@ -30,6 +30,15 @@ namespace ScratchFramework
 
             return canvas;
         }
+
+        public void RefreshDataGuids()
+        {
+            GlobalCanvas.RefreshDataGuids();
+            for (int i = 0; i < Canvas.Count; i++)
+            {
+                Canvas[i].RefreshDataGuids();
+            }
+        }
     }
 
     [Serializable]
