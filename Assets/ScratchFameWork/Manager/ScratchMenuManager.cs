@@ -49,6 +49,7 @@ namespace ScratchFramework
             BlockMenu.LocalPosition += new Vector3(block.GetSize().x, -block.GetSize().y) / 2;
 
             BlockMenu.TitleText.text = block.name;
+            BlockMenu.ShowReplaceScrollView();
 
             ScratchMenuMask.Active = true;
             BlockMenu.Active = true;

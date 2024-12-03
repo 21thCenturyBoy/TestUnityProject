@@ -6,6 +6,7 @@ namespace ScratchFramework
 {
     public enum FirstLevelType
     {
+        None = -1,
         Event,
         Action,
         Control,
@@ -19,6 +20,7 @@ namespace ScratchFramework
     public class FirstLevel : MonoBehaviour
     {
         public FirstLevelType Type;
+
         // Start is called before the first frame update
         void Start()
         {

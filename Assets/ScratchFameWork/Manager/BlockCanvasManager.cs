@@ -49,7 +49,7 @@ namespace ScratchFramework
         {
             ClearCanvas();
             OnBlockDictChanged = null;
-            
+
             base.OnInitialize();
         }
 
@@ -60,6 +60,7 @@ namespace ScratchFramework
             {
                 DestroyImmediate(childs[i].gameObject);
             }
+
             m_BlockDict.Clear();
         }
 
@@ -111,10 +112,10 @@ namespace ScratchFramework
             }
 
             HashSet<Block> res = new HashSet<Block>(BlockDict.Count);
-            var blockDatas = ScratchEngine.Instance.GetAllBlocksRef();
-            foreach (KeyValuePair<int,IEngineBlockBaseData> blockDataPair in blockDatas)
+            var keys = ScratchEngine.Instance.Current.GetKeys();
+            for (int j = 0; j < keys.Length; j++)
             {
-                var block = blockDataPair.Value;
+                var block = ScratchEngine.Instance.Current[keys[j]];
                 if (block.IsRoot)
                 {
                     var blocks = ScratchUtils.DrawNodeRoot(block, BlockCanvasManager.Instance.RectTrans, -1);
@@ -124,94 +125,10 @@ namespace ScratchFramework
                     }
                 }
             }
+
             ScratchUtils.FixedBindOperation(res);
-        }
-
-        public List<BlockTree> GetBlockTree()
-        {
-            List<BlockTree> trees = new List<BlockTree>();
-            trees.Clear();
-            int childCount = transform.childCount;
-            int index = 0;
-            int deep = 0;
-            for (int i = 0; i < childCount; i++)
-            {
-                Block block = transform.GetChild(i).GetComponent<Block>();
-
-                if (block != null && block.Active && block.Visible)
-                {
-                    BlockTree tree = new BlockTree();
-                    tree.BlockGuid = block.BlockId;
-                    tree.Depth = deep;
-                    tree.Index = index;
-                    tree.Header = false;
-                    tree.IsRoot = true;
-
-                    GetBlockDeep(tree, deep + 1);
-                    trees.Add(tree);
-                    index++;
-                }
-            }
-
-            return trees;
-        }
-
-        private void GetBlockDeep(BlockTree block, int deep)
-        {
-            var sections = m_BlockDict[block.BlockGuid].Layout.SectionsArray;
-            for (int j = 0; j < sections.Length; j++)
-            {
-                BlockTreeNode treeNode = new BlockTreeNode();
-                treeNode.SectionIndex = j;
-                block.BlockTreeNode.Add(treeNode);
-                if (sections[j].Header != null)
-                {
-                    int headChildCount = sections[j].Header.transform.childCount;
-                    int index_head = 0;
-                    for (int k = 0; k < headChildCount; k++)
-                    {
-                        Block childBlock = sections[j].Header.transform.GetChild(k).GetComponent<Block>();
-                        if (childBlock != null)
-                        {
-                            BlockTree blockTree_headBlock = new BlockTree();
-                            blockTree_headBlock.BlockGuid = childBlock.BlockId;
-                            blockTree_headBlock.Depth = deep;
-                            blockTree_headBlock.Index = index_head;
-                            blockTree_headBlock.Header = true;
-
-                            treeNode.HeadBlocks.Add(blockTree_headBlock);
-
-                            GetBlockDeep(blockTree_headBlock, deep + 1);
-
-                            index_head++;
-                        }
-                    }
-                }
-
-                if (sections[j].Body != null)
-                {
-                    int bodyChildCount = sections[j].Body.transform.childCount;
-                    int index_body = 0;
-
-                    for (int k = 0; k < bodyChildCount; k++)
-                    {
-                        Block childBlock = sections[j].Header.transform.GetChild(k).GetComponent<Block>();
-                        if (childBlock != null)
-                        {
-                            index_body++;
-                            BlockTree blockTree_bodyBlock = new BlockTree();
-                            blockTree_bodyBlock.BlockGuid = childBlock.BlockId;
-                            blockTree_bodyBlock.Depth = deep;
-                            blockTree_bodyBlock.Index = index_body;
-                            blockTree_bodyBlock.Header = false;
-
-                            treeNode.BodyBlocks.Add(blockTree_bodyBlock);
-
-                            GetBlockDeep(blockTree_bodyBlock, deep + 1);
-                        }
-                    }
-                }
-            }
+            
+            ScratchResourcesManager.Instance.RefreshResources();
         }
 
 

@@ -24,7 +24,7 @@ namespace ScratchFramework.Editor
                     Dictionary<int, IEngineBlockBaseData> rootDict = isGlobal ? ScratchEngine.Instance.CurrentGroup.GlobalCanvas.RootBlock : ScratchEngine.Instance.Current.RootBlock;
                     foreach (KeyValuePair<int, IEngineBlockBaseData> valuePair in rootDict)
                     {
-                        ScratchUtils.GetBlockDataTree(valuePair.Value.Guid, out var tree);
+                        ScratchUtils.GetBlockDataTree(valuePair.Value.Guid, out var tree, null, false);
 
                         tree.TraverseTree((deep, bNode) =>
                         {
@@ -32,17 +32,11 @@ namespace ScratchFramework.Editor
                             IEngineBlockBaseData baseData = null;
                             if (isGlobal)
                             {
-                                if (ScratchEngine.Instance.CurrentGroup.GlobalCanvas.BlockDataDicts.ContainsKey(bNode.Value))
-                                {
-                                    baseData = ScratchEngine.Instance.CurrentGroup.GlobalCanvas.BlockDataDicts[bNode.Value];
-                                }
+                                ScratchEngine.Instance.CurrentGroup.GlobalCanvas.TryGetDataRef(bNode.Value, out baseData);
                             }
                             else
                             {
-                                if (ScratchEngine.Instance.Current.BlockDataDicts.ContainsKey(bNode.Value))
-                                {
-                                    baseData = ScratchEngine.Instance.Current.BlockDataDicts[bNode.Value];
-                                }
+                                ScratchEngine.Instance.Current.TryGetDataRef(bNode.Value, out baseData);
                             }
 
                             string icon = null;
@@ -90,6 +84,8 @@ namespace ScratchFramework.Editor
                                 icon = EditorGUIUtility.FindTexture(icon)
                             };
                             allItems.Add(item);
+
+                            return true;
                         });
                     }
 
@@ -104,9 +100,7 @@ namespace ScratchFramework.Editor
                     var allItems = new List<TreeViewItem>();
                     if (Application.isPlaying)
                     {
-                        BlockCanvasManager canvasManager = GameObject.FindObjectOfType<BlockCanvasManager>();
-
-                        if (canvasManager != null && canvasManager.Inited)
+                        if (ScratchEngine.Instance.Current != null)
                         {
                             int id = 1;
                             var global = new TreeViewItem { id = id, depth = 0, displayName = "[Global]" };

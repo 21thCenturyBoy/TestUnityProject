@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -26,7 +25,6 @@ namespace ScratchFramework
 
     public static class IEngineCoreInterfaceExtension
     {
-
         public static IEngineBlockBaseData CopyData(this IEngineBlockBaseData data, ref IEngineBlockBaseData target)
         {
             //EditorData
@@ -35,10 +33,15 @@ namespace ScratchFramework
 
             var orginGuids = data.GetGuids();
             var targetGuids = target.GetGuids();
-            for (int i = 0; i < orginGuids.Length; i++)
+            if (orginGuids.Length == targetGuids.Length)
             {
-                targetGuids[i] = orginGuids[i];
+                for (int i = 0; i < orginGuids.Length; i++)
+                {
+                    BGuid guid = targetGuids[i];
+                    guid.SetGuid(orginGuids[i].GetGuid(), out guid);
+                }
             }
+
 
             if (data is IBlockPlug blockPlug && target is IBlockPlug targetPlug)
             {

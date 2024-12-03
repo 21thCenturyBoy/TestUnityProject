@@ -35,8 +35,8 @@ namespace ScratchFramework
 
         private BTreeNode(T value, params BTreeNode<T>[] childNodes)
         {
-            this.Value = value;
-            this.ChildNodes = new List<BTreeNode<T>>();
+            Value = value;
+            ChildNodes = new List<BTreeNode<T>>();
             foreach (var child in childNodes)
             {
                 this.ChildNodes.Add(child);
@@ -44,7 +44,14 @@ namespace ScratchFramework
             }
         }
 
-        public T Value { get; set; }
+        private T m_Value = default;
+
+        public T Value
+        {
+            get => m_Value;
+            set { m_Value = value; }
+        }
+
         private IList<BTreeNode<T>> ChildNodes { get; set; }
         public BTreeNode<T> Parent { get; set; }
 
@@ -54,14 +61,31 @@ namespace ScratchFramework
             child.Parent = this;
             return this;
         }
-
-        public void TraverseTree(Action<int, BTreeNode<T>> callback, int level = 0)
+        
+        /// <param name="callback">return 是否中断遍历</param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public bool TraverseTree(Func<int, BTreeNode<T>, bool> callback, int level = 0)
         {
-            callback(level, this);
+            if (!callback(level, this)) return false;
             foreach (var child in this.ChildNodes)
             {
-                child.TraverseTree(callback, level + 1);
+                if (!child.TraverseTree(callback, level + 1)) return false;
             }
+
+            return true;
+        }
+        
+        public BTreeNode<T> SelecTreeNode(Func<BTreeNode<T>, bool> callback)
+        {
+            if (callback(this)) return this;
+            foreach (var child in this.ChildNodes)
+            {
+                var node = child.SelecTreeNode(callback);
+                if (node != null) return node;
+            }
+
+            return null;
         }
 
         public void ReleaseTree()
@@ -72,6 +96,8 @@ namespace ScratchFramework
                 node.ChildNodes.Clear();
                 node.Parent = null;
                 EmptyNodePool.Push(node);
+
+                return true;
             });
         }
     }

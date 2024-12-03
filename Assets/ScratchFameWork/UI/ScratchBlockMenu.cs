@@ -11,8 +11,13 @@ namespace ScratchFramework
         public TMP_Text TitleText;
         public Button DuplicateBtn;
         public Button DeleteBtn;
+        public RectTransform ReplaceScrollView;
+        public RectTransform ReplaceScrollView_Content;
 
+        [SerializeField] private GameObject m_ButtonPrefab;
         public Block Current { get; set; }
+
+        private List<Button> contentBtns = new List<Button>();
 
 
         protected override void OnInitialize()
@@ -21,9 +26,13 @@ namespace ScratchFramework
 
             DuplicateBtn.onClick.RemoveAllListeners();
             DuplicateBtn.onClick.AddListener(DuplicateBtnOnClick);
-            
+
             DeleteBtn.onClick.RemoveAllListeners();
             DeleteBtn.onClick.AddListener(DeleteBtnOnClick);
+        }
+
+        private void ReplaceBtnOnClick()
+        {
         }
 
         protected override void OnDisable()
@@ -41,12 +50,64 @@ namespace ScratchFramework
                 ScratchMenuManager.Instance.Close(this);
             }
         }
+
         private void DeleteBtnOnClick()
         {
             if (Current != null)
             {
                 ScratchUtils.DestroyBlock(Current);
                 ScratchMenuManager.Instance.Close(this);
+            }
+        }
+
+        public void ShowReplaceScrollView()
+        {
+            if (Current.GetEngineBlockData() is not IBlockPlug)
+            {
+                ReplaceScrollView.gameObject.SetActive(false);
+                return;
+            }
+            else
+            {
+                ReplaceScrollView.gameObject.SetActive(true);
+            }
+
+            for (int i = 0; i < contentBtns.Count; i++)
+            {
+                GameObject.DestroyImmediate(contentBtns[i].gameObject);
+            }
+
+            contentBtns.Clear();
+
+            if (Current != null)
+            {
+                var teledatas = ScratchResourcesManager.Instance.GetTemplateData(Current.BlockFucType);
+                for (int i = 0; i < teledatas.Length; i++)
+                {
+                    Button btn = GameObject.Instantiate(m_ButtonPrefab).GetComponent<Button>();
+                    btn.GetComponentInChildren<TMP_Text>().text = "Replace " + teledatas[i].Name;
+                    btn.transform.SetParent(ReplaceScrollView_Content);
+                    btn.transform.localScale = Vector3.one;
+
+                    var type = teledatas[i].ScratchType;
+                    btn.onClick.AddListener(() =>
+                    {
+                        IEngineBlockBaseData newData = type.CreateBlockData();
+                        
+                        newData.IsRoot =  Current.GetEngineBlockData().IsRoot;
+                        newData.CanvasPos =  Current.GetEngineBlockData().CanvasPos;
+                        
+                        newData.Guid = ScratchUtils.CreateGuid();
+                        ScratchEngine.Instance.AddBlocksData(newData);
+                        
+                        ScratchUtils.ReplaceBlock(Current, newData);
+                        
+                        ScratchMenuManager.Instance.Close(this);
+                    });
+                    btn.gameObject.SetActive(true);
+
+                    contentBtns.Add(btn);
+                }
             }
         }
     }

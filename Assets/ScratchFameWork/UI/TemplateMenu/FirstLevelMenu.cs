@@ -10,7 +10,7 @@ namespace ScratchFramework
     {
         private List<FirstLevel> m_firstLevels = new List<FirstLevel>();
 
-        private int m_CurrentShowType = -1;
+        private FirstLevelType m_CurrentShowType = FirstLevelType.None;
         public FirstLevelType CurrentShow => (FirstLevelType)m_CurrentShowType;
 
         private void Start()
@@ -35,19 +35,25 @@ namespace ScratchFramework
 
                 var toggle = firstLevels[i].GetComponent<Toggle>();
                 toggle.isOn = false;
-
+                toggle.onValueChanged.RemoveAllListeners();
                 toggle.onValueChanged.AddListener((isOn) =>
                 {
                     if (isOn)
                     {
-                        ShowMenu(type);
+                        m_CurrentShowType = type;
+                        
+                        ScratchResourcesManager.Instance.ShowFirstLevel(type);
+                        ScratchResourcesManager.Instance.Active = true;
+           
                     }
                     else
                     {
-                        HideMenu(type);
+                        m_CurrentShowType = FirstLevelType.None;
+                        ScratchResourcesManager.Instance.Active = false;
                     }
                 });
             }
+
             ScratchResourcesManager.Instance.Active = false;
         }
 
@@ -66,22 +72,6 @@ namespace ScratchFramework
 
             return types;
         }
-
-        private void ShowMenu(FirstLevelType type)
-        {
-            //TODO
-            m_CurrentShowType = (int)type;
-            
-            ScratchResourcesManager.Instance.ShowFirstLevel(type);
-            ScratchResourcesManager.Instance.Active = true;
-        }
-
-        private void HideMenu(FirstLevelType type)
-        {
-            //TODO
-            m_CurrentShowType = -1;
-            
-            ScratchResourcesManager.Instance.Active = false;
-        }
+        
     }
 }

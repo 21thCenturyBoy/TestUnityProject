@@ -58,10 +58,8 @@ namespace ScratchFramework
 
             if (GetEngineBlockData() == null)
             {
-                IEngineBlockBaseData block = null;
-                block = scratchType.CreateBlockData();
-                block.Guid = ScratchUtils.CreateGuid();
-
+                IEngineBlockBaseData block = ScratchUtils.CreateBlockData(scratchType);
+                
                 if (!ScratchEngine.Instance.AddBlocksData(block))
                 {
                     Debug.LogError("Engine Add Block Error:" + block.Guid);
@@ -106,14 +104,14 @@ namespace ScratchFramework
         {
             if (!transform.IsChildOf(BlockCanvasManager.Instance.RectTrans)) return;
             blockData.IsRoot = GetComponentInParent<IScratchSectionChild>() == null;
-            
+
             if (blockData.IsRoot)
             {
                 blockData.CanvasPos = transform.position;
                 ScratchEngine.Instance.Current.RootBlock[blockData.Guid] = blockData;
             }
             else
-            {    
+            {
                 blockData.CanvasPos = Vector3.zero;
                 ScratchEngine.Instance.Current.RootBlock.Remove(blockData.Guid);
             }
@@ -131,13 +129,9 @@ namespace ScratchFramework
 
         #region ChangeBlockData
 
-        public bool ChangeBlockData(Block block, Transform orginParentTrans, Transform newParentTrans)
+        public static void ClearOrginData(Block block, Transform orginParentTrans)
         {
             var engineBlockData = block.GetEngineBlockData();
-
-            if (engineBlockData == null) return false;
-
-            //Clear orginParentTrans
             if (orginParentTrans != null)
             {
                 var oldTag = orginParentTrans.GetComponent<IScratchSectionChild>();
@@ -273,8 +267,11 @@ namespace ScratchFramework
                     }
                 }
             }
+        }
 
-
+        public static bool SetNewParentTrans(Block block)
+        {
+            var engineBlockData = block.GetEngineBlockData();
             //Set newParentTrans
             var tag = block.GetComponentInParent<IScratchSectionChild>();
             if (tag != null)
@@ -532,6 +529,18 @@ namespace ScratchFramework
             return true;
         }
 
+        public static bool ChangeBlockData(Block block, Transform orginParentTrans, Transform newParentTrans)
+        {
+            var engineBlockData = block.GetEngineBlockData();
+
+            if (engineBlockData == null) return false;
+
+            //Clear orginParentTrans
+            ClearOrginData(block, orginParentTrans);
+            
+            return SetNewParentTrans(block);
+        }
+
         public static IEngineBlockBaseData FindPreBlock(int rootGuid, int CurGuid)
         {
             var tempblock = ScratchEngine.Instance.GetBlocksDataRef(rootGuid);
@@ -650,7 +659,6 @@ namespace ScratchFramework
 
             return false;
         }
-        
 
         #endregion
     }

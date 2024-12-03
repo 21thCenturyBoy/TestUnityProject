@@ -266,11 +266,44 @@ namespace ScratchFramework
         }
     }
 
+    [Flags]
+    public enum BlocksDataDirtyType : byte
+    {
+        None = 0,
+        Add = 1 << 0,
+        Remove = 1 << 1,
+        Update = 1 << 2,
+        Change = 1 << 3,
+        Refresh = 1 << 4,
+    }
+
     public static partial class ScratchUtils
     {
         public static SerializeMode SerializeMode = SerializeMode.Bit;
 
         public static int CurrentSerializeVersion = 0;
+
+        private static BlocksDataDirtyType m_DirtyTreeType = BlocksDataDirtyType.None;
+
+        public static bool Contains(this BlocksDataDirtyType equipment, BlocksDataDirtyType checkState)
+        {
+            if (checkState == 0)
+            {
+                throw new ArgumentOutOfRangeException("checkState", "不能为NONE");
+            }
+
+            return (equipment & checkState) == checkState;
+        }
+
+        public static BlocksDataDirtyType Remove(this BlocksDataDirtyType equipment, BlocksDataDirtyType removeState)
+        {
+            return equipment ^ removeState;
+        }
+
+        public static BlocksDataDirtyType Append(this BlocksDataDirtyType equipment, BlocksDataDirtyType addState)
+        {
+            return equipment | addState;
+        }
 
         public static MemoryStream CreateMemoryStream(int capacity = 4096)
         {
@@ -298,10 +331,44 @@ namespace ScratchFramework
 
         public static ref T GetArrayRef<T>(T[] items, int index) => ref items[index];
 
-        public static void GetBlockDataTree(int guid, out BTreeNode<int> root, Action<IEngineBlockBaseData> callback = null)
+        public static void SetDirtyType(BlocksDataDirtyType type)
         {
+            if (type == BlocksDataDirtyType.None)
+            {
+                m_DirtyTreeType = BlocksDataDirtyType.None;
+                return;
+            }
+            else
+            {
+                m_DirtyTreeType = m_DirtyTreeType.Append(type);
+            }
+        }
+
+        public static void ClearDirtyType()
+        {
+            m_DirtyTreeType = BlocksDataDirtyType.None;
+        }
+
+        private static BTreeNode<int> m_cache = null;
+
+        public static void GetBlockDataTree(int guid, out BTreeNode<int> root, Action<IEngineBlockBaseData> callback = null, bool useCache = true)
+        {
+            if (m_DirtyTreeType == BlocksDataDirtyType.None)
+            {
+                if (useCache)
+                {
+                    if (m_cache != null && m_cache.Value == guid)
+                    {
+                        root = m_cache;
+                        return;
+                    }
+                }
+            }
+
+            m_cache?.ReleaseTree();
+
             root = BTreeNode<int>.CreateNode(guid);
-            IEngineBlockBaseData plugData = ScratchEngine.Instance.GetBlocksDataRef(guid);
+            IEngineBlockBaseData plugData = ScratchEngine.Instance.Current[guid];
 
             NextBlockPlug(plugData, root, callback);
 
@@ -321,7 +388,7 @@ namespace ScratchFramework
                 int nextGuid = plug.NextGuid;
                 while (nextGuid != InvalidGuid)
                 {
-                    IEngineBlockBaseData nextData = ScratchEngine.Instance.GetBlocksDataRef(nextGuid);
+                    IEngineBlockBaseData nextData = ScratchEngine.Instance.Current[nextGuid];
                     callback?.Invoke(nextData);
 
                     var nextNode = BTreeNode<int>.CreateNode(nextGuid);
@@ -331,6 +398,9 @@ namespace ScratchFramework
                     nextGuid = nextData is IBlockPlug nextPlug ? nextPlug.NextGuid : InvalidGuid;
                 }
             }
+
+            m_cache = root;
+            ClearDirtyType();
         }
 
         private static void NextBlockPlug(IEngineBlockBaseData dataNode, BTreeNode<int> node, Action<IEngineBlockBaseData> callback = null)
@@ -344,7 +414,7 @@ namespace ScratchFramework
                 int branchNum = branch.GetBranchCount();
                 for (int i = 0; i < branchNum; i++)
                 {
-                    IEngineBlockBaseData branchData = ScratchEngine.Instance.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
+                    IEngineBlockBaseData branchData = ScratchEngine.Instance.Current[branch.BranchBlockBGuids[i]];
 
                     if (i != branchNum - 1)
                     {
@@ -354,7 +424,7 @@ namespace ScratchFramework
 
                         if (operaGuid != InvalidGuid)
                         {
-                            IEngineBlockBaseData operationData = ScratchEngine.Instance.GetBlocksDataRef(branch.BranchOperationBGuids[i]);
+                            IEngineBlockBaseData operationData = ScratchEngine.Instance.Current[branch.BranchOperationBGuids[i]];
                             NextBlockPlug(branchData, operationNode, callback);
                         }
                     }
@@ -366,7 +436,7 @@ namespace ScratchFramework
 
                     if (branchGuid != InvalidGuid)
                     {
-                        IEngineBlockBaseData branchChildData = ScratchEngine.Instance.GetBlocksDataRef(branch.BranchBlockBGuids[i]);
+                        IEngineBlockBaseData branchChildData = ScratchEngine.Instance.Current[branch.BranchBlockBGuids[i]];
                         NextBlockPlug(branchChildData, branchNode, callback);
                     }
                 }
@@ -383,7 +453,7 @@ namespace ScratchFramework
 
                     if (varGuid_0 != InvalidGuid)
                     {
-                        var varGuidData = ScratchEngine.Instance.GetBlocksDataRef(varGuid_0);
+                        var varGuidData = ScratchEngine.Instance.Current[varGuid_0];
                         NextBlockPlug(varGuidData, varGuidNode, callback);
                     }
                 }

@@ -426,6 +426,69 @@ namespace ScratchFramework
             return ScratchEngine.Instance.GetBlocksDataRef(guid);
         }
 
+        public static void ReplaceBlock(this Block block, IEngineBlockBaseData blockData)
+        {
+            if (blockData == null) return;
+
+            if (block.BlockFucType != blockData.FucType) return;
+
+            var parentBlock = block.ParentTrans.GetComponentInParent<Block>();
+            var baseData = block.GetEngineBlockData();
+            if (parentBlock != null)
+            {
+                var orginParent = parentBlock.GetEngineBlockData();
+                if (orginParent is IEngineBlockBranch orginParnetBranch)
+                {
+                    int branchCount = orginParnetBranch.GetBranchCount();
+                    var branchs = orginParnetBranch.BranchBlockBGuids;
+                    for (int i = 0; i < branchs.Length; i++)
+                    {
+                        if (branchs[i] == baseData.Guid)
+                        {
+                            branchs[i] = blockData.Guid;
+                        }
+                    }
+                }
+                else if (orginParent is IBlockPlug orginParnetPlug)
+                {
+                    orginParnetPlug.NextGuid = blockData.Guid;
+                }
+            }
+
+            int orginnext = InvalidGuid;
+            if (baseData is IBlockPlug orginPlug)
+            {
+                orginnext = orginPlug.NextGuid;
+            }
+
+            if (blockData is IBlockPlug newPlug)
+            {
+                newPlug.NextGuid = orginnext;
+            }
+
+            DestroyBlock(block, false);
+
+
+            BlockCanvasManager.Instance.RefreshCanvas();
+        }
+
+        public static IEngineBlockBaseData CreateBlockData(ScratchBlockType scratchType)
+        {
+            IEngineBlockBaseData block = scratchType.CreateBlockData();
+            block.Guid = CreateGuid();
+
+            return block;
+        }
+
+        public static bool IsReturnVariable(this IEngineBlockBaseData blockBase)
+        {
+            if (blockBase is IEngineBlockVariableBase variableBase)
+            {
+                return variableBase.ReturnParentGuid != InvalidGuid;
+            }
+
+            return false;
+        }
         /// <summary>
         /// 克隆Block
         /// </summary>
@@ -441,18 +504,28 @@ namespace ScratchFramework
 
             tree.TraverseTree((deep, bNode) =>
             {
+                if (bNode.Value == InvalidGuid) return true;
+
                 IEngineBlockBaseData baseData = ScratchEngine.Instance.GetBlocksDataRef(bNode.Value);
 
-                if (baseData == null) return;
-                if (newblockGuids.Contains(baseData.Guid)) return;
+                if (baseData == null)
+                {
+                    Debug.LogError("baseData is null");
+                    return true;
+                }
+
+                if (newblockGuids.Contains(baseData.Guid))
+                {
+                    Debug.LogError("baseData Contains");
+                    return true;
+                }
 
                 if (bNode.Parent != null && baseData is IEngineBlockVariableBase variableBase)
                 {
-                    if (variableBase.ReturnParentGuid != bNode.Parent.Value) return; //Ref
+                    if (variableBase.ReturnParentGuid != bNode.Parent.Value) return true; //Ref
                 }
 
-                IEngineBlockBaseData newData = baseData.Type.CreateBlockData();
-                newData.Guid = ScratchUtils.CreateGuid();
+                IEngineBlockBaseData newData = ScratchUtils.CreateBlockData(baseData.Type);
 
                 dataMapGuids[baseData.Guid] = newData.Guid;
 
@@ -462,6 +535,8 @@ namespace ScratchFramework
 
                 newblockGuids.Add(newData.Guid);
                 newblockDatas.Add(newData);
+
+                return true;
             });
 
             for (int i = 0; i < newblockDatas.Count; i++)
@@ -474,23 +549,7 @@ namespace ScratchFramework
 
             RefreshDataGuids(newblockDatas, dataMapGuids);
 
-            HashSet<Block> res = new HashSet<Block>();
-            var newBlocks = newblockDatas;
-            for (int i = 0; i < newBlocks.Count; i++)
-            {
-                if (newBlocks[i].IsRoot)
-                {
-                    List<Block> blocks = DrawNodeRoot(newBlocks[i], BlockCanvasManager.Instance.RectTrans, -1);
-
-                    for (int j = 0; j < blocks.Count; j++)
-                    {
-                        res.Add(blocks[j]);
-                    }
-                }
-            }
-
-            FixedBindOperation(res);
-
+            BlockCanvasManager.Instance.RefreshCanvas();
             return null;
         }
 
@@ -507,43 +566,30 @@ namespace ScratchFramework
             return GetDataId(data as ScratchVMData);
         }
 
-        public static bool IdIsValid(int id)
+        public static void DestroyBlock(Block block, bool refreshCanvas = true, bool recursion = true)
         {
-            return id > ScratchVMData.UnallocatedId;
-        }
-
-        public static int UnallocatedId(ref int id)
-        {
-            if (id > 0) id = -id;
-            return id;
-        }
-
-        public static int AllocatedId(ref int id)
-        {
-            if (id < 0) id = ~id + 1;
-            return id;
-        }
-
-        public static void DestroyBlock(Block block, bool recursion = true)
-        {
-            var m_blocks = ScratchEngine.Instance.GetAllBlocksRef();
+            var m_blocks = ScratchEngine.Instance.Current.GetKeys();
             var blockBaseData = block.GetEngineBlockData();
             if (blockBaseData != null)
             {
-                if (m_blocks.ContainsKey(blockBaseData.Guid))
+                if (m_blocks.Contains(blockBaseData.Guid))
                 {
                     if (recursion)
                     {
                         HashSet<int> hashSet = new HashSet<int>();
                         GetBlockDataTree(blockBaseData.Guid, out var tree);
-                        tree.TraverseTree((deep, bNode) => { hashSet.Add(bNode.Value); });
+                        tree.TraverseTree((deep, bNode) =>
+                        {
+                            hashSet.Add(bNode.Value);
+                            return true;
+                        });
 
                         var needSave = new List<int>();
                         foreach (int guid in hashSet)
                         {
-                            if (m_blocks.ContainsKey(guid) && m_blocks[guid] is IEngineBlockVariableBase variableBase)
+                            if (m_blocks.Contains(guid) && ScratchEngine.Instance.Current[guid] is IEngineBlockVariableBase variableBase)
                             {
-                                if (variableBase.ReturnParentGuid != ScratchUtils.InvalidGuid)
+                                if (variableBase.IsReturnVariable())
                                 {
                                     if (!hashSet.Contains(variableBase.ReturnParentGuid))
                                     {
@@ -568,15 +614,19 @@ namespace ScratchFramework
                             }
                         }
 
-                        foreach (IEngineBlockBaseData data in m_blocks.Values)
+                        for (int j = 0; j < m_blocks.Length; j++)
                         {
-                            var logicBlock = data.GetGuids();
-                            for (int i = 0; i < logicBlock.Length; i++)
+                            var logicBlock = ScratchEngine.Instance.Current[m_blocks[j]];
+                            if (logicBlock != null)
                             {
-                                if (hashSet.Contains(logicBlock[i].GetGuid()))
+                                var logicBlockGuids = logicBlock.GetGuids();
+                                for (int i = 0; i < logicBlockGuids.Length; i++)
                                 {
-                                    ref var ref_guid = ref logicBlock[i].GetGuid();
-                                    ref_guid = InvalidGuid;
+                                    if (hashSet.Contains(logicBlockGuids[i].GetGuid()))
+                                    {
+                                        ref var ref_guid = ref logicBlockGuids[i].GetGuid();
+                                        ref_guid = InvalidGuid;
+                                    }
                                 }
                             }
                         }
@@ -586,7 +636,10 @@ namespace ScratchFramework
                         ScratchEngine.Instance.RemoveBlocksData(blockBaseData);
                     }
 
-                    BlockCanvasManager.Instance.RefreshCanvas();
+                    if (refreshCanvas)
+                    {
+                        BlockCanvasManager.Instance.RefreshCanvas();
+                    }
                 }
             }
         }

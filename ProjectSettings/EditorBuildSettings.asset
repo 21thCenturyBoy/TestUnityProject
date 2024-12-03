@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/TestMutiPlay/Scenes/TestLogin.unity
-    guid: 537edd01682b4df46a9dc65ea2e36ae8
+    path: Assets/Test/TestIL2CPP/TestIL2CPP.unity
+    guid: b394beb8ccf42af438b670ec3189d4ff
   m_configObjects: {}
