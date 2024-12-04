@@ -29,15 +29,7 @@ namespace ScratchFramework.Editor
                         tree.TraverseTree((deep, bNode) =>
                         {
                             index++;
-                            IEngineBlockBaseData baseData = null;
-                            if (isGlobal)
-                            {
-                                ScratchEngine.Instance.CurrentGroup.GlobalCanvas.TryGetDataRef(bNode.Value, out baseData);
-                            }
-                            else
-                            {
-                                ScratchEngine.Instance.Current.TryGetDataRef(bNode.Value, out baseData);
-                            }
+                            IEngineBlockBaseData baseData =  ScratchEngine.Instance.Current[bNode.Value];
 
                             string icon = null;
                             string name = $"[{bNode.Value}]";

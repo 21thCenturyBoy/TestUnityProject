@@ -118,7 +118,7 @@ namespace ScratchFramework
                     if (blockBase.VariableValue == null)
                     {
                         value = bool.FalseString;
-                        return false;
+                        return true;
                     }
 
                     break;
@@ -126,7 +126,7 @@ namespace ScratchFramework
                     if (blockBase.VariableValue == null)
                     {
                         value = "0";
-                        return false;
+                        return true;
                     }
 
                     break;
@@ -134,7 +134,7 @@ namespace ScratchFramework
                     if (blockBase.VariableValue == null)
                     {
                         value = "0";
-                        return false;
+                        return true;
                     }
 
                     break;
@@ -142,7 +142,7 @@ namespace ScratchFramework
                     if (blockBase.VariableValue == null)
                     {
                         value = "0.00";
-                        return false;
+                        return true;
                     }
 
                     break;
@@ -150,7 +150,7 @@ namespace ScratchFramework
                     if (blockBase.VariableValue == null)
                     {
                         value = Vector2.zero.ToString();
-                        return false;
+                        return true;
                     }
 
                     break;
@@ -158,7 +158,7 @@ namespace ScratchFramework
                     if (blockBase.VariableValue == null)
                     {
                         value = Vector3.zero.ToString();
-                        return false;
+                        return true;
                     }
 
                     break;
@@ -232,7 +232,6 @@ namespace ScratchFramework
                         blockBase.VariableValue = intresult;
                         return true;
                     }
-
                     break;
                 case ScratchValueType.Float:
                     if (float.TryParse(value, out float floatresult))

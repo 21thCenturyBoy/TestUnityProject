@@ -36,25 +36,17 @@ namespace ScratchFramework
 
         public bool CurrentIsGlobal => m_Current == m_CurrentGroup.GlobalCanvas;
 
-
-        public IEngineBlockBaseData GetBlocksDataRef(int guid, Action<IEngineBlockBaseData> callback = null)
+        public bool ContainGuids(int guid)
         {
-            if (m_Current.TryGetDataRef(guid, out IEngineBlockBaseData baseData))
-            {
-                callback?.Invoke(baseData);
-                return baseData;
-            }
-
-            callback?.Invoke(null);
-            return null;
+            return m_Current.ContainGuids(guid);
+        }
+        
+        public void SerachVariableData(out List<IEngineBlockBaseData> listGlobal, out List<IEngineBlockBaseData> listLocal)
+        {
+            listGlobal = CurrentGroup.GlobalCanvas.BlockDataDicts.Where(pair => pair.Value is IEngineBlockVariableBase).Select(pair => pair.Value).ToList();
+            listLocal = Current.BlockDataDicts.Where(pair => pair.Value is IEngineBlockVariableBase).Select(pair => pair.Value).ToList();
         }
 
-        public void SerachVariableData(out List<IEngineBlockBaseData> listGlobal,out List<IEngineBlockBaseData> listLocal)
-        {
-            listGlobal = CurrentGroup.GlobalCanvas.BlockDataDicts.Where(pair => pair.Value is IEngineBlockVariableBase).Select(pair=>pair.Value).ToList();
-            listLocal = Current.BlockDataDicts.Where(pair => pair.Value is IEngineBlockVariableBase).Select(pair=>pair.Value).ToList();
-            
-        }
         public bool AddBlocksData(IEngineBlockBaseData data)
         {
             return m_Current.AddBlocksData(data);

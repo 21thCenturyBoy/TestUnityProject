@@ -67,7 +67,10 @@ namespace ScratchFramework
 
         public int this[int index]
         {
-            get { return m_List[index]; }
+            get
+            {
+                return m_List[index];
+            }
             set
             {
                 if (value != ScratchUtils.InvalidGuid && m_List.Contains(value))

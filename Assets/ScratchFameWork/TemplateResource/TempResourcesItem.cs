@@ -70,9 +70,12 @@ namespace ScratchFramework
                 var variableLabel = block.VariableLabel;
                 if (variableLabel != null)
                 {
-                    var variableData = ScratchDataManager.Instance.RefVariable(variableLabel);
+                    var variableData = variableLabel.GetVariableData() ;
                     //绑定数据
                     variableData.VariableRef = m_VariableData.Guid.ToString();
+                    
+                    EngineVariableRef engineVariableRef = new EngineVariableRef(m_VariableData);
+                    ScratchEngine.Instance.Current.VariableRefs.Add(engineVariableRef);
                 }
             }
             else
@@ -93,14 +96,17 @@ namespace ScratchFramework
 
         public virtual void OnNameFieldEndEdit(string strInfo)
         {
-            var VariableLabelDatas = ScratchDataManager.Instance.GetVariableLabel(m_VariableData);
-
-            for (int i = 0; i < VariableLabelDatas.Length; i++)
+            foreach (var scData in ScratchDataManager.Instance.DataDict.Values)
             {
-                VariableLabelDatas[i].UpdateVariablName(strInfo);
+                if (scData is IHeaderParamVariable paramData)
+                {
+                    if (m_VariableData.Guid.ToString() ==  paramData.VariableRef)
+                    {
+                        paramData.VariableInfo = strInfo;
+                        m_VariableData.VariableName = strInfo;
+                    }
+                }
             }
-
-            m_VariableData.VariableName = strInfo;
         }
 
         public virtual void OnValueFieldEndEdit(string strInfo)

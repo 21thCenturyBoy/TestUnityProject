@@ -89,18 +89,16 @@ namespace ScratchFramework
                     btn.transform.SetParent(ReplaceScrollView_Content);
                     btn.transform.localScale = Vector3.one;
 
+                    ResourcesItemData itemData = teledatas[i];
                     var type = teledatas[i].ScratchType;
                     btn.onClick.AddListener(() =>
                     {
-                        IEngineBlockBaseData newData = type.CreateBlockData();
+                        Block newBlock = itemData.CreateBlock(null);
                         
-                        newData.IsRoot =  Current.GetEngineBlockData().IsRoot;
-                        newData.CanvasPos =  Current.GetEngineBlockData().CanvasPos;
+                        newBlock.GetEngineBlockData().IsRoot = Current.GetEngineBlockData().IsRoot;
+                        newBlock.GetEngineBlockData().CanvasPos = Current.GetEngineBlockData().CanvasPos;
                         
-                        newData.Guid = ScratchUtils.CreateGuid();
-                        ScratchEngine.Instance.AddBlocksData(newData);
-                        
-                        ScratchUtils.ReplaceBlock(Current, newData);
+                        ScratchUtils.ReplaceBlock(Current, newBlock);
                         
                         ScratchMenuManager.Instance.Close(this);
                     });

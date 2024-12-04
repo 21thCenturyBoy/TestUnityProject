@@ -273,34 +273,30 @@ namespace ScratchFramework
 
         public void OnCanvasAddBlock(Block block)
         {
-            // if (block.BlockFucType == FucType.Variable)
-            // {
-            //     if (block.VariableLabel != null)
-            //     {
-            //         var ResourcesItem = m_VarResourcesItem.FirstOrDefault(data => data.Data.Name == block.GetEngineBlockData().Guid.ToString());
-            //         if (ResourcesItem == null)
-            //         {
-            //             TempResourcesItem resourcesItem = CreateVariable(block);
-            //             resourcesItem.Active = FirstLevelMenu.Instance.CurrentShow == FirstLevelType.Variable;
-            //         }
-            //     }
-            // }
+            if (block.BlockFucType == FucType.Variable)
+            {
+                if (block.GetDataRef() != null)
+                {
+                    var variableLabel = block.VariableLabel;
+                    // var variableData = ScratchDataManager.Instance.CreateVariable(variableLabel);
+                }
+            }
         }
 
         public void OnCanvasRemoveBlock(Block block)
         {
-            // if (block.BlockFucType == FucType.Variable)
-            // {
-            //     var index = m_VarResourcesItem.FindIndex(data => data.Data.Name == block.GetEngineBlockData().Guid.ToString());
-            //
-            //     if (index != -1)
-            //     {
-            //         TempResourcesItem varItem = m_VarResourcesItem[index] as TempResourcesItem;
-            //         DestroyImmediate(varItem.gameObject);
-            //
-            //         m_VarResourcesItem.RemoveAt(index);
-            //     }
-            // }
+            if (block.BlockFucType == FucType.Variable)
+            {
+                // var index = m_VarResourcesItem.FindIndex(data => data.Data.Name == block.GetEngineBlockData().Guid.ToString());
+                //
+                // if (index != -1)
+                // {
+                //     TempResourcesItem varItem = m_VarResourcesItem[index] as TempResourcesItem;
+                //     DestroyImmediate(varItem.gameObject);
+                //
+                //     m_VarResourcesItem.RemoveAt(index);
+                // }
+            }
         }
 
 

@@ -67,6 +67,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -152,28 +164,49 @@ namespace ScratchFramework
 			values[1] = VarGuid_1;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[4] 
-				{
-					m_Guid,
-					m_NextGuid,
-					m_VarGuid_0,
-					m_VarGuid_1,
+				int guidLen = 4;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
+				index++;
+				m_Guids[index] = VarGuid_1;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
-				m_Guids[2] = m_VarGuid_0;
-				m_Guids[3] = m_VarGuid_1;
+			else
+			{
+				int guidLen = 4;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
+				index++;
+				m_Guids[index] = VarGuid_1;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			if (VarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_0)) VarGuid_0 = map[VarGuid_0];
+			if (VarGuid_1 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_1)) VarGuid_1 = map[VarGuid_1];
+
 		}
 	}
 	public partial class BlockLogic_CompareValues : IEngineBlockOperationBase
@@ -188,6 +221,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -261,26 +306,44 @@ namespace ScratchFramework
 			values[1] = VarGuid_1;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[3] 
-				{
-					m_Guid,
-					m_VarGuid_0,
-					m_VarGuid_1,
+				int guidLen = 3;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = VarGuid_0;
+				index++;
+				m_Guids[index] = VarGuid_1;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_VarGuid_0;
-				m_Guids[2] = m_VarGuid_1;
+			else
+			{
+				int guidLen = 3;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = VarGuid_0;
+				index++;
+				m_Guids[index] = VarGuid_1;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (VarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_0)) VarGuid_0 = map[VarGuid_0];
+			if (VarGuid_1 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_1)) VarGuid_1 = map[VarGuid_1];
+
 		}
 	}
 	public partial class BlockLogic_DestroyObject : IEngineBlockSimpleBase
@@ -295,6 +358,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -361,26 +436,44 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[3] 
-				{
-					m_Guid,
-					m_NextGuid,
-					m_VarGuid_0,
+				int guidLen = 3;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
-				m_Guids[2] = m_VarGuid_0;
+			else
+			{
+				int guidLen = 3;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			if (VarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_0)) VarGuid_0 = map[VarGuid_0];
+
 		}
 	}
 	public partial class BlockLogic_EntityValue : IEngineBlockVariableBase
@@ -395,6 +488,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -447,24 +552,34 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetReturnParentGuid(ref System.Int32 newData);
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[2] 
-				{
-					m_Guid,
-					m_ReturnParentGuid,
+				int guidLen = 1;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_ReturnParentGuid;
+			else
+			{
+				int guidLen = 1;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+
 		}
 	}
 	public partial class BlockLogic_GetCharacterSpeed : IEngineBlockOperationBase
@@ -479,6 +594,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -533,24 +660,39 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[2] 
-				{
-					m_Guid,
-					m_VarGuid_0,
+				int guidLen = 2;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_VarGuid_0;
+			else
+			{
+				int guidLen = 2;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (VarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_0)) VarGuid_0 = map[VarGuid_0];
+
 		}
 	}
 	public partial class BlockLogic_GetVectorMagnitude : IEngineBlockOperationBase
@@ -565,6 +707,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -619,24 +773,39 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[2] 
-				{
-					m_Guid,
-					m_VarGuid_0,
+				int guidLen = 2;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_VarGuid_0;
+			else
+			{
+				int guidLen = 2;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (VarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_0)) VarGuid_0 = map[VarGuid_0];
+
 		}
 	}
 	public partial class BlockLogic_IfElse : IEngineBlockConditionBase
@@ -651,6 +820,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -677,24 +858,67 @@ namespace ScratchFramework
 		partial void SetNextGuid(ref int newData);
 		public BGuidList BranchOperationBGuids { get; set; } = BGuidList.CreateEmptyGuidList(1);
 		public BGuidList BranchBlockBGuids { get; set; } = BGuidList.CreateEmptyGuidList(2);
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[2] 
+				int guidLen = 2 + BranchOperationBGuids.Length + BranchBlockBGuids.Length;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				for (int i = 0; i < BranchOperationBGuids.Length; i++)
 				{
-					m_Guid,
-					m_NextGuid,
+					m_Guids[i + index] = BranchOperationBGuids[i];
+				}
+				index += BranchOperationBGuids.Length;
+				for (int i = 0; i < BranchBlockBGuids.Length; i++)
+				{
+					m_Guids[i + index] = BranchBlockBGuids[i];
+				}
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
+			else
+			{
+				int guidLen = 2 + BranchOperationBGuids.Length + BranchBlockBGuids.Length;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				for (int i = 0; i < BranchOperationBGuids.Length; i++)
+				{
+					m_Guids[i + index] = BranchOperationBGuids[i];
+				}
+				index += BranchOperationBGuids.Length;
+				for (int i = 0; i < BranchBlockBGuids.Length; i++)
+				{
+					m_Guids[i + index] = BranchBlockBGuids[i];
+				}
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			for (int i = 0; i < BranchOperationBGuids.Length; i++)
+			{
+				if (BranchOperationBGuids[i] != ScratchUtils.InvalidGuid && map.ContainsKey(BranchOperationBGuids[i])) BranchOperationBGuids[i] = map[BranchOperationBGuids[i]];
+			}
+			for (int i = 0; i < BranchBlockBGuids.Length; i++)
+			{
+				if (BranchBlockBGuids[i] != ScratchUtils.InvalidGuid && map.ContainsKey(BranchBlockBGuids[i])) BranchBlockBGuids[i] = map[BranchBlockBGuids[i]];
+			}
+
 		}
 	}
 	public partial class BlockLogic_IntegerValue : IEngineBlockVariableBase
@@ -709,6 +933,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -761,24 +997,34 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetReturnParentGuid(ref System.Int32 newData);
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[2] 
-				{
-					m_Guid,
-					m_ReturnParentGuid,
+				int guidLen = 1;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_ReturnParentGuid;
+			else
+			{
+				int guidLen = 1;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+
 		}
 	}
 	public partial class BlockLogic_OnCollisionEnter : IEngineBlockTriggerBase
@@ -793,6 +1039,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -878,28 +1136,49 @@ namespace ScratchFramework
 			values[1] = ReturnVarGuid_1;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[4] 
-				{
-					m_Guid,
-					m_NextGuid,
-					m_ReturnVarGuid_0,
-					m_ReturnVarGuid_1,
+				int guidLen = 4;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = ReturnVarGuid_0;
+				index++;
+				m_Guids[index] = ReturnVarGuid_1;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
-				m_Guids[2] = m_ReturnVarGuid_0;
-				m_Guids[3] = m_ReturnVarGuid_1;
+			else
+			{
+				int guidLen = 4;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = ReturnVarGuid_0;
+				index++;
+				m_Guids[index] = ReturnVarGuid_1;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			if (ReturnVarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_0)) ReturnVarGuid_0 = map[ReturnVarGuid_0];
+			if (ReturnVarGuid_1 != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_1)) ReturnVarGuid_1 = map[ReturnVarGuid_1];
+
 		}
 	}
 	public partial class BlockLogic_OnCollisionExit : IEngineBlockTriggerBase
@@ -914,6 +1193,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -999,28 +1290,49 @@ namespace ScratchFramework
 			values[1] = ReturnVarGuid_1;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[4] 
-				{
-					m_Guid,
-					m_NextGuid,
-					m_ReturnVarGuid_0,
-					m_ReturnVarGuid_1,
+				int guidLen = 4;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = ReturnVarGuid_0;
+				index++;
+				m_Guids[index] = ReturnVarGuid_1;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
-				m_Guids[2] = m_ReturnVarGuid_0;
-				m_Guids[3] = m_ReturnVarGuid_1;
+			else
+			{
+				int guidLen = 4;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = ReturnVarGuid_0;
+				index++;
+				m_Guids[index] = ReturnVarGuid_1;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			if (ReturnVarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_0)) ReturnVarGuid_0 = map[ReturnVarGuid_0];
+			if (ReturnVarGuid_1 != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_1)) ReturnVarGuid_1 = map[ReturnVarGuid_1];
+
 		}
 	}
 	public partial class BlockLogic_OnCollisionStay : IEngineBlockTriggerBase
@@ -1035,6 +1347,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -1120,28 +1444,49 @@ namespace ScratchFramework
 			values[1] = ReturnVarGuid_1;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[4] 
-				{
-					m_Guid,
-					m_NextGuid,
-					m_ReturnVarGuid_0,
-					m_ReturnVarGuid_1,
+				int guidLen = 4;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = ReturnVarGuid_0;
+				index++;
+				m_Guids[index] = ReturnVarGuid_1;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
-				m_Guids[2] = m_ReturnVarGuid_0;
-				m_Guids[3] = m_ReturnVarGuid_1;
+			else
+			{
+				int guidLen = 4;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = ReturnVarGuid_0;
+				index++;
+				m_Guids[index] = ReturnVarGuid_1;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			if (ReturnVarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_0)) ReturnVarGuid_0 = map[ReturnVarGuid_0];
+			if (ReturnVarGuid_1 != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_1)) ReturnVarGuid_1 = map[ReturnVarGuid_1];
+
 		}
 	}
 	public partial class BlockLogic_OnObjectCreated : IEngineBlockTriggerBase
@@ -1156,6 +1501,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -1197,24 +1554,39 @@ namespace ScratchFramework
 			int[] values = new int[0];
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[2] 
-				{
-					m_Guid,
-					m_NextGuid,
+				int guidLen = 2;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
+			else
+			{
+				int guidLen = 2;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+
 		}
 	}
 	public partial class BlockLogic_RepeatAction : IEngineBlockLoopBase
@@ -1229,6 +1601,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -1307,28 +1691,44 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[4] 
-				{
-					m_Guid,
-					m_NextGuid,
-					m_ChildRootGuid,
-					m_VarGuid_0,
+				int guidLen = 3;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
-				m_Guids[2] = m_ChildRootGuid;
-				m_Guids[3] = m_VarGuid_0;
+			else
+			{
+				int guidLen = 3;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			if (VarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_0)) VarGuid_0 = map[VarGuid_0];
+
 		}
 	}
 	public partial class BlockLogic_StartCountdown : IEngineBlockLoopBase
@@ -1343,6 +1743,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -1421,28 +1833,44 @@ namespace ScratchFramework
 			values[0] = VarGuid_0;
 			return values;
 		}
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[4] 
-				{
-					m_Guid,
-					m_NextGuid,
-					m_ChildRootGuid,
-					m_VarGuid_0,
+				int guidLen = 3;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_NextGuid;
-				m_Guids[2] = m_ChildRootGuid;
-				m_Guids[3] = m_VarGuid_0;
+			else
+			{
+				int guidLen = 3;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = NextGuid;
+				index++;
+				m_Guids[index] = VarGuid_0;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];
+			if (VarGuid_0 != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_0)) VarGuid_0 = map[VarGuid_0];
+
 		}
 	}
 	public partial class BlockLogic_VectorValue : IEngineBlockVariableBase
@@ -1457,6 +1885,18 @@ namespace ScratchFramework
 		public bool IsRoot { get; set; } = false;
 		/// <summary> [Editor Data]画布位置(需判断画布根时有效) </summary>
 		public BVector2 CanvasPos { get; set; } = BVector2.zero;
+		private bool m_Enable = true;
+		/// <summary> [Editor Data]编辑器逻辑是否Enable </summary>
+		public bool Enable
+		{
+			get => m_Enable;
+			set
+			{
+				SetEnable(ref value);
+				m_Enable = value;
+			}
+		}
+		partial void SetEnable(ref bool newData);
 		private BGuid m_Guid = BGuid.Empty;
 		/// <summary> [Editor Data]Guid </summary>
 		public int Guid
@@ -1509,24 +1949,34 @@ namespace ScratchFramework
 			}
 		}
 		partial void SetReturnParentGuid(ref System.Int32 newData);
-		private BGuid[] m_Guids = null;
-		public BGuid[] GetGuids()
+		private int[] m_Guids = null;
+		public int[] GetGuids()
 		{
 			if (m_Guids == null)
 			{
-				m_Guids = new BGuid[2] 
-				{
-					m_Guid,
-					m_ReturnParentGuid,
+				int guidLen = 1;
+				m_Guids = new int[guidLen];
+				int index = 0;
+				m_Guids[index] = Guid;
 
-				};
 			}
-			else{
-				m_Guids[0] = m_Guid;
-				m_Guids[1] = m_ReturnParentGuid;
+			else
+			{
+				int guidLen = 1;
+				if (guidLen != m_Guids.Length)
+				{
+					m_Guids = new int[guidLen];
+				}
+				int index = 0;
+				m_Guids[index] = Guid;
 
 			}
 			return m_Guids;
+		}
+		public void RefreshGuids(Dictionary<int, int> map)
+		{
+			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+
 		}
 	}
 }

@@ -222,7 +222,7 @@ namespace ScratchFramework
                 if (properties[i].GetAttribute<BlockGuidRefAttribute>() != null)
                 {
                     stringBuilder.AppendLine($"\t\tprivate {nameof(BGuid)} m_{properties[i].Name} = BGuid.Empty;");
-                    
+
                     AddSummary("[Editor Data]NextGuid", ref stringBuilder);
                     stringBuilder.AppendLine($"\t\tpublic int {properties[i].Name}");
                     stringBuilder.AppendLine("\t\t{");
@@ -288,6 +288,21 @@ namespace ScratchFramework
 
             AddSummary("[Editor Data]画布位置(需判断画布根时有效)", ref stringBuilder);
             stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BVector2)} {nameof(IEngineBlockBaseData.CanvasPos)} {{0}} = {{1}}.zero;", "{ get; set; }", nameof(BVector2)));
+
+
+            stringBuilder.AppendLine($"\t\tprivate bool m_Enable = true;");
+            AddSummary("[Editor Data]编辑器逻辑是否Enable", ref stringBuilder);
+            stringBuilder.AppendLine($"\t\tpublic bool Enable");
+            stringBuilder.AppendLine("\t\t{");
+            stringBuilder.AppendLine("\t\t\tget => m_Enable;");
+            stringBuilder.AppendLine("\t\t\tset");
+            stringBuilder.AppendLine("\t\t\t{");
+            stringBuilder.AppendLine("\t\t\t\tSetEnable(ref value);");
+            stringBuilder.AppendLine("\t\t\t\tm_Enable = value;");
+            stringBuilder.AppendLine("\t\t\t}");
+            stringBuilder.AppendLine("\t\t}");
+            stringBuilder.AppendLine("\t\tpartial void SetEnable(ref bool newData);");
+
 
             stringBuilder.AppendLine($"\t\tprivate {nameof(BGuid)} m_Guid = BGuid.Empty;");
             AddSummary("[Editor Data]Guid", ref stringBuilder);
@@ -486,41 +501,26 @@ namespace ScratchFramework
             stringBuilder.AppendLine($"\t\t/// <summary> {summary} </summary>");
         }
 
+
         private static void GenerateGetGuids(ref StringBuilder stringBuilder, BlockData blockData)
         {
-            stringBuilder.AppendLine("\t\tprivate BGuid[] m_Guids = null;");
-
-            stringBuilder.AppendLine($"\t\tpublic BGuid[] {nameof(IEngineBlockBaseData.GetGuids)}()");
-            stringBuilder.AppendLine("\t\t{");
-            stringBuilder.AppendLine("\t\t\tif (m_Guids == null)");
-            stringBuilder.AppendLine("\t\t\t{");
-
-            StringBuilder temp = new StringBuilder();
-            StringBuilder tem2 = new StringBuilder();
-            int num = 1;
-            temp.AppendLine("\t\t\t\t\tm_Guid,");
-            tem2.AppendLine($"\t\t\t\tm_Guids[0] = m_Guid;");
-
             Type type = GetInterfaceType(blockData);
+
+            int num = 1;
+            StringBuilder temp_1 = new StringBuilder();
+            StringBuilder temp_2 = new StringBuilder();
+            string temp_guidLen = string.Empty;
+
+            temp_1.AppendLine($"\t\t\t\tm_Guids[index] = Guid;");
+            temp_2.AppendLine("\t\t\tif (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];");
+
             if (typeof(IBlockPlug).IsAssignableFrom(type))
             {
-                tem2.AppendLine($"\t\t\t\tm_Guids[{num}] = m_NextGuid;");
                 num++;
-                temp.AppendLine($"\t\t\t\t\tm_NextGuid,");
-            }
-
-            if (typeof(IEngineBlockLoopBase).IsAssignableFrom(type))
-            {
-                tem2.AppendLine($"\t\t\t\tm_Guids[{num}] = m_ChildRootGuid;");
-                num++;
-                temp.AppendLine($"\t\t\t\t\tm_ChildRootGuid,");
-            }
-
-            if (typeof(IEngineBlockVariableBase).IsAssignableFrom(type))
-            {
-                tem2.AppendLine($"\t\t\t\tm_Guids[{num}] = m_ReturnParentGuid;");
-                num++;
-                temp.AppendLine($"\t\t\t\t\tm_ReturnParentGuid,");
+                temp_1.AppendLine("\t\t\t\tindex++;");
+                temp_1.AppendLine($"\t\t\t\tm_Guids[index] = NextGuid;");
+                
+                temp_2.AppendLine("\t\t\tif (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];");
             }
 
             List<string> inputs = new List<string>();
@@ -531,9 +531,11 @@ namespace ScratchFramework
             {
                 for (int i = 0; i < inputs.Count; i++)
                 {
-                    tem2.AppendLine($"\t\t\t\tm_Guids[{num}] = m_VarGuid_{i};");
                     num++;
-                    temp.AppendLine($"\t\t\t\t\tm_VarGuid_{i},");
+                    temp_1.AppendLine("\t\t\t\tindex++;");
+                    temp_1.AppendLine($"\t\t\t\tm_Guids[index] = VarGuid_{i};");
+                    
+                    temp_2.AppendLine($"\t\t\tif (VarGuid_{i} != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_{i})) VarGuid_{i} = map[VarGuid_{i}];");
                 }
             }
 
@@ -541,21 +543,83 @@ namespace ScratchFramework
             {
                 for (int i = 0; i < returns.Count; i++)
                 {
-                    tem2.AppendLine($"\t\t\t\tm_Guids[{num}] = m_ReturnVarGuid_{i};");
                     num++;
-                    temp.AppendLine($"\t\t\t\t\tm_ReturnVarGuid_{i},");
+                    temp_1.AppendLine("\t\t\t\tindex++;");
+                    temp_1.AppendLine($"\t\t\t\tm_Guids[index] = ReturnVarGuid_{i};");
+                    
+                    temp_2.AppendLine($"\t\t\tif (ReturnVarGuid_{i} != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_{i})) ReturnVarGuid_{i} = map[ReturnVarGuid_{i}];");
                 }
             }
-            
-            stringBuilder.AppendLine($"\t\t\t\tm_Guids = new BGuid[{num}] ");
+
+            if (typeof(IEngineBlockConditionBase).IsAssignableFrom(type))
+            {
+                temp_1.AppendLine("\t\t\t\tindex++;");
+                temp_1.AppendLine("\t\t\t\tfor (int i = 0; i < BranchOperationBGuids.Length; i++)");
+                temp_1.AppendLine("\t\t\t\t{");
+                temp_1.AppendLine("\t\t\t\t\tm_Guids[i + index] = BranchOperationBGuids[i];");
+                temp_1.AppendLine("\t\t\t\t}");
+                temp_1.AppendLine("\t\t\t\tindex += BranchOperationBGuids.Length;");
+                temp_1.AppendLine("\t\t\t\tfor (int i = 0; i < BranchBlockBGuids.Length; i++)");
+                temp_1.AppendLine("\t\t\t\t{");
+                temp_1.AppendLine("\t\t\t\t\tm_Guids[i + index] = BranchBlockBGuids[i];");
+                temp_1.AppendLine("\t\t\t\t}");
+
+                temp_2.AppendLine("\t\t\tfor (int i = 0; i < BranchOperationBGuids.Length; i++)");
+                temp_2.AppendLine("\t\t\t{");
+                temp_2.AppendLine("\t\t\t\tif (BranchOperationBGuids[i] != ScratchUtils.InvalidGuid && map.ContainsKey(BranchOperationBGuids[i])) BranchOperationBGuids[i] = map[BranchOperationBGuids[i]];");
+                temp_2.AppendLine("\t\t\t}");
+                
+                temp_2.AppendLine("\t\t\tfor (int i = 0; i < BranchBlockBGuids.Length; i++)");
+                temp_2.AppendLine("\t\t\t{");
+                temp_2.AppendLine("\t\t\t\tif (BranchBlockBGuids[i] != ScratchUtils.InvalidGuid && map.ContainsKey(BranchBlockBGuids[i])) BranchBlockBGuids[i] = map[BranchBlockBGuids[i]];");
+                temp_2.AppendLine("\t\t\t}");
+                
+                
+                temp_guidLen = ($"\t\t\t\tint guidLen = {num} + BranchOperationBGuids.Length + BranchBlockBGuids.Length;");
+            }
+            else
+            {
+                temp_guidLen = ($"\t\t\t\tint guidLen = {num};");
+            }
+
+
+            stringBuilder.AppendLine("\t\tprivate int[] m_Guids = null;");
+            stringBuilder.AppendLine($"\t\tpublic int[] {nameof(IEngineBlockBaseData.GetGuids)}()");
+            stringBuilder.AppendLine("\t\t{");
+            stringBuilder.AppendLine("\t\t\tif (m_Guids == null)");
+            stringBuilder.AppendLine("\t\t\t{");
+
+            stringBuilder.AppendLine(temp_guidLen);
+
+            stringBuilder.AppendLine("\t\t\t\tm_Guids = new int[guidLen];");
+
+            stringBuilder.AppendLine("\t\t\t\tint index = 0;");
+
+            stringBuilder.AppendLine(temp_1.ToString());
+
+            stringBuilder.AppendLine("\t\t\t}");
+            stringBuilder.AppendLine("\t\t\telse");
+            stringBuilder.AppendLine("\t\t\t{");
+
+            stringBuilder.AppendLine(temp_guidLen);
+            stringBuilder.AppendLine("\t\t\t\tif (guidLen != m_Guids.Length)");
             stringBuilder.AppendLine("\t\t\t\t{");
-            stringBuilder.AppendLine(temp.ToString());
-            stringBuilder.AppendLine("\t\t\t\t};");
+            stringBuilder.AppendLine("\t\t\t\t\tm_Guids = new int[guidLen];");
+            stringBuilder.AppendLine("\t\t\t\t}");
+
+            stringBuilder.AppendLine("\t\t\t\tint index = 0;");
+            stringBuilder.AppendLine(temp_1.ToString());
+            
             stringBuilder.AppendLine("\t\t\t}");
-            stringBuilder.AppendLine("\t\t\telse{");
-            stringBuilder.AppendLine(tem2.ToString());
-            stringBuilder.AppendLine("\t\t\t}");
+
             stringBuilder.AppendLine("\t\t\treturn m_Guids;");
+            stringBuilder.AppendLine("\t\t}");
+
+            stringBuilder.AppendLine("\t\tpublic void RefreshGuids(Dictionary<int, int> map)");
+            stringBuilder.AppendLine("\t\t{");
+
+            stringBuilder.AppendLine(temp_2.ToString());
+            
             stringBuilder.AppendLine("\t\t}");
         }
 

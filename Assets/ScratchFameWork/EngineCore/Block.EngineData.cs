@@ -59,7 +59,7 @@ namespace ScratchFramework
             if (GetEngineBlockData() == null)
             {
                 IEngineBlockBaseData block = ScratchUtils.CreateBlockData(scratchType);
-                
+
                 if (!ScratchEngine.Instance.AddBlocksData(block))
                 {
                     Debug.LogError("Engine Add Block Error:" + block.Guid);
@@ -537,22 +537,23 @@ namespace ScratchFramework
 
             //Clear orginParentTrans
             ClearOrginData(block, orginParentTrans);
-            
+
             return SetNewParentTrans(block);
         }
 
         public static IEngineBlockBaseData FindPreBlock(int rootGuid, int CurGuid)
         {
-            var tempblock = ScratchEngine.Instance.GetBlocksDataRef(rootGuid);
+            ScratchEngine.Instance.Current.TryGetDataRef(rootGuid, out var tempblock);
 
             while (tempblock != null)
             {
-                if (tempblock.GetNextGuid() == CurGuid)
+                int next = tempblock.GetNextGuid();
+                if (next == CurGuid)
                 {
                     return tempblock;
                 }
 
-                tempblock = ScratchEngine.Instance.GetBlocksDataRef(tempblock.GetNextGuid());
+                if (!ScratchEngine.Instance.Current.TryGetDataRef(next, out tempblock)) return null;
             }
 
             return null;

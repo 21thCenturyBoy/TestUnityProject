@@ -33,11 +33,75 @@ namespace ScratchFramework
 
         public void RefreshDataGuids()
         {
+            GlobalCanvas.GetRefData();
+            for (int i = 0; i < Canvas.Count; i++)
+            {
+                Canvas[i].GetRefData();
+            }
+            
             GlobalCanvas.RefreshDataGuids();
             for (int i = 0; i < Canvas.Count; i++)
             {
                 Canvas[i].RefreshDataGuids();
             }
+        }
+
+        public bool ContainGuids(int guid)
+        {
+            if (GlobalCanvas.ContainGuids(guid)) return true;
+            for (int i = 0; i < Canvas.Count; i++)
+            {
+                if (Canvas[i].ContainGuids(guid)) return true;
+            }
+
+            return false;
+        }
+    }
+
+
+    public class EngineCanvasRefData
+    {
+        public bool IsRoot { get; set; }
+        public BVector2 CanvasPos { get; set; }
+        public bool Enable { get; set; }
+        public int GuidRef { get; set; }
+    }
+
+    [Serializable]
+    public class EngineVariableRef : IEngineBlockBaseDataRef
+    {
+        [JsonIgnore] private IEngineBlockBaseData m_Data;
+
+        public EngineVariableRef()
+        {
+        }
+
+        public EngineVariableRef(IEngineBlockBaseData mData)
+        {
+            m_Data = mData;
+        }
+
+        public bool IsRoot { get; set; }
+        public BVector2 CanvasPos { get; set; }
+        public bool Enable { get; set; }
+        public int GuidRef  { get; set; }
+        [JsonIgnore] public FucType FucType => m_Data.FucType;
+        [JsonIgnore] public BlockType BlockType => m_Data.BlockType;
+        [JsonIgnore] public ScratchBlockType Type => m_Data.Type;
+        public int[] GetGuids()=>m_Data.GetGuids();
+        public void RefreshGuids(Dictionary<int, int> map)=>m_Data.RefreshGuids(map);
+        
+        [JsonIgnore]
+        public int Guid
+        {
+            get => m_Data.Guid;
+            set => m_Data.Guid = value;
+        }
+        
+
+        public void RefreshRef(IEngineBlockBaseData mData)
+        {
+            m_Data = mData;
         }
     }
 
@@ -57,7 +121,9 @@ namespace ScratchFramework
 
         private Dictionary<int, IEngineBlockBaseData> m_BlockDataDicts = new Dictionary<int, IEngineBlockBaseData>();
 
+        private List<EngineVariableRef> m_VariableRefs = new List<EngineVariableRef>();
         [JsonIgnore] public Dictionary<int, IEngineBlockBaseData> RootBlock => m_RootBlock;
+        public List<EngineVariableRef> VariableRefs => m_VariableRefs;
         public Dictionary<int, IEngineBlockBaseData> BlockDataDicts => m_BlockDataDicts;
 
         public void RefreshDataGuids()
@@ -84,6 +150,14 @@ namespace ScratchFramework
             ScratchUtils.SetDirtyType(BlocksDataDirtyType.Refresh);
         }
 
+        public void GetRefData()
+        {
+            for (int i = 0; i < VariableRefs.Count; i++)
+            {
+                VariableRefs[i].RefreshRef(this[VariableRefs[i].GuidRef]);
+            }
+        }
+
         public void DrawCanvas()
         {
             HashSet<Block> blocks = new HashSet<Block>();
@@ -96,7 +170,7 @@ namespace ScratchFramework
                     blocks.Add(blockview[j]);
                 }
             }
-
+            
             ScratchUtils.FixedBindOperation(blocks);
         }
 
@@ -156,6 +230,11 @@ namespace ScratchFramework
 
                 return null;
             }
+        }
+
+        public bool ContainGuids(int guid)
+        {
+            return m_BlockDataDicts.ContainsKey(guid);
         }
 
         public int[] GetKeys() => m_BlockDataDicts.Keys.ToArray();

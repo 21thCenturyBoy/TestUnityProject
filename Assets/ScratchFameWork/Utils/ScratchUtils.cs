@@ -33,8 +33,8 @@ namespace ScratchFramework
         {
             guid = Guid.NewGuid();
             int hashCode = guid.GetHashCode();
-            var baseData = ScratchEngine.Instance.GetBlocksDataRef(hashCode);
-            while (hashCode == InvalidGuid || baseData != null)
+            var repeatGuid = ScratchEngine.Instance.ContainGuids(hashCode);
+            while (hashCode == InvalidGuid || repeatGuid)
             {
                 guid = Guid.NewGuid();
                 hashCode = guid.GetHashCode();
@@ -175,17 +175,7 @@ namespace ScratchFramework
 
             foreach (IEngineBlockBaseData baseData in blockDatas)
             {
-                var guids = baseData.GetGuids();
-                for (int i = 0; i < guids.Length; i++)
-                {
-                    var bGuid = guids[i];
-                    ref var ref_guid = ref bGuid.GetGuid();
-                    if (ref_guid == ScratchUtils.InvalidGuid) continue;
-                    if (guidMap.ContainsKey(ref_guid))
-                    {
-                        ref_guid = guidMap[ref_guid];
-                    }
-                }
+                baseData.RefreshGuids(guidMap);
             }
         }
 
@@ -423,15 +413,16 @@ namespace ScratchFramework
 
         public static IEngineBlockBaseData GetBlocksDataRef(int guid)
         {
-            return ScratchEngine.Instance.GetBlocksDataRef(guid);
+            return ScratchEngine.Instance.Current[guid];
         }
 
-        public static void ReplaceBlock(this Block block, IEngineBlockBaseData blockData)
+        public static void ReplaceBlock(this Block block, Block newBlock)
         {
-            if (blockData == null) return;
+            if (newBlock == null) return;
 
-            if (block.BlockFucType != blockData.FucType) return;
+            if (block.BlockFucType != newBlock.BlockFucType) return;
 
+            IEngineBlockBaseData blockData = newBlock.GetEngineBlockData();
             var parentBlock = block.ParentTrans.GetComponentInParent<Block>();
             var baseData = block.GetEngineBlockData();
             if (parentBlock != null)
@@ -466,14 +457,15 @@ namespace ScratchFramework
                 newPlug.NextGuid = orginnext;
             }
 
-            DestroyBlock(block, false);
+            DestroyBlock(block);
 
 
-            BlockCanvasManager.Instance.RefreshCanvas();
+            // BlockCanvasManager.Instance.RefreshCanvas();
         }
 
         public static IEngineBlockBaseData CreateBlockData(ScratchBlockType scratchType)
         {
+            // IEngineBlockBaseData block = null;
             IEngineBlockBaseData block = scratchType.CreateBlockData();
             block.Guid = CreateGuid();
 
@@ -489,6 +481,7 @@ namespace ScratchFramework
 
             return false;
         }
+
         /// <summary>
         /// 克隆Block
         /// </summary>
@@ -506,7 +499,7 @@ namespace ScratchFramework
             {
                 if (bNode.Value == InvalidGuid) return true;
 
-                IEngineBlockBaseData baseData = ScratchEngine.Instance.GetBlocksDataRef(bNode.Value);
+                IEngineBlockBaseData baseData = ScratchEngine.Instance.Current[bNode.Value];
 
                 if (baseData == null)
                 {
@@ -607,7 +600,7 @@ namespace ScratchFramework
 
                         foreach (int removeGuid in hashSet)
                         {
-                            var removeData = ScratchEngine.Instance.GetBlocksDataRef(removeGuid);
+                            ScratchEngine.Instance.Current.TryGetDataRef(removeGuid, out var removeData);
                             if (removeData != null)
                             {
                                 ScratchEngine.Instance.RemoveBlocksData(removeData);
@@ -620,14 +613,15 @@ namespace ScratchFramework
                             if (logicBlock != null)
                             {
                                 var logicBlockGuids = logicBlock.GetGuids();
+                                Dictionary<int, int> map = new Dictionary<int, int>();
                                 for (int i = 0; i < logicBlockGuids.Length; i++)
                                 {
-                                    if (hashSet.Contains(logicBlockGuids[i].GetGuid()))
+                                    if (hashSet.Contains(logicBlockGuids[i]))
                                     {
-                                        ref var ref_guid = ref logicBlockGuids[i].GetGuid();
-                                        ref_guid = InvalidGuid;
+                                        map[logicBlockGuids[i]] = InvalidGuid;
                                     }
                                 }
+                                logicBlock.RefreshGuids(map);
                             }
                         }
                     }

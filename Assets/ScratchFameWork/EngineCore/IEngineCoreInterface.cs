@@ -33,13 +33,16 @@ namespace ScratchFramework
 
             var orginGuids = data.GetGuids();
             var targetGuids = target.GetGuids();
+
             if (orginGuids.Length == targetGuids.Length)
             {
+                Dictionary<int, int> map = new Dictionary<int, int>();
                 for (int i = 0; i < orginGuids.Length; i++)
                 {
-                    BGuid guid = targetGuids[i];
-                    guid.SetGuid(orginGuids[i].GetGuid(), out guid);
+                    map[orginGuids[i]] = targetGuids[i];
                 }
+
+                target.RefreshGuids(map);
             }
 
 
@@ -102,15 +105,25 @@ namespace ScratchFramework
         }
     }
 
-    public interface IEngineBlockBaseData
+    public interface IEngineBlockCanvasData
     {
         public bool IsRoot { get; set; }
         public BVector2 CanvasPos { get; set; }
+        public bool Enable { get; set; }
+        public int Guid { get; set; }
+    }
+
+    public interface IEngineBlockBaseDataRef : IEngineBlockBaseData
+    {
+    }
+
+    public interface IEngineBlockBaseData : IEngineBlockCanvasData
+    {
         public FucType FucType { get; }
         public BlockType BlockType { get; }
         public ScratchBlockType Type { get; }
-        public int Guid { get; set; }
-        public BGuid[] GetGuids();
+        public int[] GetGuids();
+        public void RefreshGuids(Dictionary<int, int> map);
     }
 
     public interface IBlockPlug
@@ -185,6 +198,7 @@ namespace ScratchFramework
         public object VariableValue { get; set; }
         [BlockGuidRef] public int ReturnParentGuid { get; set; }
     }
+
 
     public interface IEngineCoreInterface
     {

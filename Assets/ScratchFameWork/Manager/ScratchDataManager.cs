@@ -14,8 +14,6 @@ namespace ScratchFramework
         private int m_DataCurrentIndex = ScratchVMData.UnallocatedId;
 
         private Dictionary<int, Guid> m_IdDict = new();
-        
-        private Dictionary<int, IEngineBlockBaseData> m_blocks = new Dictionary<int, IEngineBlockBaseData>();
 
         public bool Initialize()
         {
@@ -62,50 +60,11 @@ namespace ScratchFramework
             }
         }
 
-        public IEngineBlockBaseData GetKoalaBlockBase(int guid)
-        {
-            IEngineBlockBaseData baseData = ScratchEngine.Instance.GetBlocksDataRef(guid);
-
-            return baseData;
-        }
-
         #region VariableLabel Data
 
         private Dictionary<Guid, IBlockHeaderVariableLabel> m_VariableLabelRefDict = new Dictionary<Guid, IBlockHeaderVariableLabel>();
         public Dictionary<Guid, IBlockHeaderVariableLabel> VariableLabelRefDict => m_VariableLabelRefDict;
-
-        public IBlockHeaderVariableLabel[] GetVariableLabel(IEngineBlockVariableBase blockBase)
-        {
-            return m_VariableLabelRefDict.Where(item => item.Value.GetVariableData().VariableRef == blockBase.Guid.ToString())
-                .Select(item => item.Value).ToArray();
-        }
-
-        public bool IsReturnVariable(IEngineBlockBaseData blockBase)
-        {
-            if (blockBase is IEngineBlockVariableBase variableBase)
-            {
-                IBlockHeaderVariableLabel[] variableLabels = GetVariableLabel(variableBase);
-                return variableLabels[0].GetVariableData().DataType == DataType.RenturnVariableLabel;
-            }
-
-            return false;
-        }
-
-        public IHeaderParamVariable CreateVariable(IBlockHeaderVariableLabel variableLabel)
-        {
-            var data = variableLabel.GetVariableData() as ScratchVMData;
-
-            if (!m_VariableLabelRefDict.ContainsKey(data.Guid))
-            {
-                m_VariableLabelRefDict[data.Guid] = variableLabel;
-                return variableLabel.GetVariableData();
-            }
-            else
-            {
-                return null;
-            }
-        }
-
+        
         public void RemoveVariableLabelRef(IBlockHeaderVariableLabel variableLabel)
         {
             var data = variableLabel.GetVariableData() as ScratchVMData;
@@ -113,28 +72,6 @@ namespace ScratchFramework
             {
                 m_VariableLabelRefDict.Remove(data.Guid);
             }
-        }
-
-        public IHeaderParamVariable RefVariable(IBlockHeaderVariableLabel variableLabel)
-        {
-            var data = variableLabel.GetVariableData() as ScratchVMData;
-            if (!m_VariableLabelRefDict.ContainsKey(data.Guid))
-            {
-                m_VariableLabelRefDict[data.Guid] = variableLabel;
-            }
-
-            return variableLabel.GetVariableData();
-        }
-
-        public bool IsRefVariable(BlockHeaderItem_VariableLabel headerVariableLabel)
-        {
-            if (headerVariableLabel is IBlockHeaderVariableLabel variableLabel)
-            {
-                var data = variableLabel.GetVariableData() as ScratchVMData;
-                return m_VariableLabelRefDict.ContainsKey(data.Guid);
-            }
-
-            return false;
         }
 
         #endregion
