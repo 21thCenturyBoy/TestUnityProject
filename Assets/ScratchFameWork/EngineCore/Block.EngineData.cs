@@ -86,9 +86,22 @@ namespace ScratchFramework
             }
         }
 
-        public void DestoryKoalaData()
+        public void DestoryEngineData()
         {
             if (Type == BlockType.none) return;
+
+            //Is IsReturnVariable? Remove it
+            if (blockData is IEngineBlockVariableBase variableBase)
+            {
+                if (variableBase.IsReturnVariable())
+                {
+                    if (ScratchEngine.Instance.Current[variableBase.ReturnParentGuid] == null)
+                    {
+                        ScratchEngine.Instance.Current.RemoveBlocksData(blockData);
+                    }
+                }
+                
+            }
         }
 
         public void TransformParentChanged()

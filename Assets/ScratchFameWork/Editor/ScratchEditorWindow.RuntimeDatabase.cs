@@ -12,7 +12,7 @@ namespace ScratchFramework.Editor
     {
         public class Database : MenuTreeWindow<Database>
         {
-            public override string GetMenuPath() => "Runtime/Database";
+            public override string GetMenuPath() => "UI Runtime/Database";
 
 
             public enum EditorTabType

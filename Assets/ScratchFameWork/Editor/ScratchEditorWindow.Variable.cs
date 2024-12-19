@@ -12,7 +12,7 @@ namespace ScratchFramework.Editor
             private UnityEditor.Editor _editor;
 
             private bool ShowAll_VariableLabelRefDict =false;
-            public override string GetMenuPath() => "Runtime/Variable";
+            public override string GetMenuPath() => "UI Runtime/Variable";
 
             public override void ShowGUI()
             {
@@ -21,10 +21,16 @@ namespace ScratchFramework.Editor
                 ShowAll_VariableLabelRefDict = EditorGUILayout.Foldout(ShowAll_VariableLabelRefDict, "当前变量所有引用");
                 if (ShowAll_VariableLabelRefDict)
                 {
-                    var labels = ScratchDataManager.Instance.VariableLabelRefDict;
+                    var labels = GameObject.FindObjectsOfType<BlockHeaderItem_VariableLabel>();
                     foreach (var label in labels)
                     {
-                        GUILayout.Label($"[{label.Key}][{label.Value.GetVariableData()}]");
+                        GUILayout.Label($"[{label.ContextData.Guid}][{label.ContextData.VariableRef}]");
+                        GUILayout.Space(10);
+                    }
+                    var renturnLabels = GameObject.FindObjectsOfType<BlockHeaderItem_RenturnVariableLabel>();
+                    foreach (var label in renturnLabels)
+                    {
+                        GUILayout.Label($"[{label.ContextData.Guid}][{label.ContextData.VariableRef}]");
                         GUILayout.Space(10);
                     }
                 }

@@ -86,37 +86,27 @@ namespace ScratchFramework
             return ScratchEngine.Instance.Core.String2VariableValueTo(blockBase, str);
         }
 
-        public static void CreateVariableName(IEngineBlockVariableBase blockdata, IHeaderParamVariable variableData)
+        public static void CreateVariableName(IEngineBlockVariableBase blockdata)
         {
             //创建变量名
             if (string.IsNullOrEmpty(blockdata.VariableName))
             {
-                if (variableData is BlockHeaderParam_Data_VariableLabel variable)
+                string variableRef = blockdata.Guid.ToString();
+                switch (blockdata.Type)
                 {
-                    string variableRef = blockdata.Guid.ToString();
-                    switch (blockdata.Type)
-                    {
-                        case ScratchBlockType.IntegerValue:
-                            blockdata.VariableName = $"[int]{variableRef}";
-                            break;
-                        case ScratchBlockType.VectorValue:
-                            blockdata.VariableName = $"[Vector3]{variableRef}";
-                            break;
-                        case ScratchBlockType.EntityValue:
-                            blockdata.VariableName = $"[Entity]{variableRef}";
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-                else if (variableData is BlockHeaderParam_Data_RenturnVariableLabel returnVariable)
-                {
-                    blockdata.VariableName = $"[Entity]{returnVariable.VariableInfo}";
+                    case ScratchBlockType.IntegerValue:
+                        blockdata.VariableName = $"[int]{variableRef}";
+                        break;
+                    case ScratchBlockType.VectorValue:
+                        blockdata.VariableName = $"[Vector3]{variableRef}";
+                        break;
+                    case ScratchBlockType.EntityValue:
+                        blockdata.VariableName = $"[Entity]{variableRef}";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
-
-            //绑定数据
-            variableData.VariableRef = blockdata.Guid.ToString();
         }
 
         public static void RefreshVariableName(IEngineBlockVariableBase blockdata, IHeaderParamVariable variableData)
@@ -396,6 +386,10 @@ namespace ScratchFramework
                     else if (node.FucType == FucType.Variable)
                     {
                         var _node = node as IEngineBlockVariableBase;
+                        
+                        EngineVariableRef variableRef = new EngineVariableRef(_node);
+                        variableRef.UIGuid = blockUI.BlockId;
+                        ScratchEngine.Instance.Current.VariableRefs.Add(variableRef);
                     }
 
 
@@ -621,6 +615,7 @@ namespace ScratchFramework
                                         map[logicBlockGuids[i]] = InvalidGuid;
                                     }
                                 }
+
                                 logicBlock.RefreshGuids(map);
                             }
                         }

@@ -146,13 +146,6 @@ namespace ScratchFramework
             LabelText.text = ContextData.VariableInfo;
         }
 
-        protected override void OnDestroy()
-        {
-            ScratchDataManager.Instance.RemoveVariableLabelRef(this);
-
-            base.OnDestroy();
-        }
-
         public void UpdateVariablName(string name)
         {
             ContextData.VariableInfo = name;

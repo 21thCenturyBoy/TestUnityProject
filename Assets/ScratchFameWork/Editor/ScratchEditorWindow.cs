@@ -21,6 +21,7 @@ namespace ScratchFramework.Editor
             Variable.Instance,
             BlockBrowser.Instance,
             LogicTree.Instance,
+            CanvasData.Instance,
         };
 
         [MenuItem("Tools/Scratch/EditorWindow")]
@@ -34,7 +35,7 @@ namespace ScratchFramework.Editor
             Instance.Show();
             serializedObject = new SerializedObject(m_Instance);
         }
-
+        
         private void OnInspectorUpdate()
         {
             if (m_Instance != this)
@@ -46,35 +47,6 @@ namespace ScratchFramework.Editor
         protected override void OnRightGUI(CustomMenuTreeViewItem _selectedItem)
         {
             _selectedItem?.CustomWindow?.ShowGUI();
-        }
-
-        private void ShowBlcok(BlockTree tree)
-        {
-            int orginDep = EditorGUI.indentLevel;
-            EditorGUI.indentLevel = tree.Depth;
-            GUILayout.Label($"{tree}");
-            for (int j = 0; j < tree.BlockTreeNode.Count; j++)
-            {
-                EditorGUI.indentLevel++;
-                GUILayout.Label($"{tree.BlockTreeNode[j]}");
-                for (int k = 0; k < tree.BlockTreeNode[j].HeadBlocks.Count; k++)
-                {
-                    EditorGUI.indentLevel++;
-                    ShowBlcok(tree.BlockTreeNode[j].HeadBlocks[k]);
-                    EditorGUI.indentLevel--;
-                }
-
-                for (int k = 0; k < tree.BlockTreeNode[j].BodyBlocks.Count; k++)
-                {
-                    EditorGUI.indentLevel++;
-                    ShowBlcok(tree.BlockTreeNode[j].BodyBlocks[k]);
-                    EditorGUI.indentLevel--;
-                }
-
-                EditorGUI.indentLevel--;
-            }
-
-            EditorGUI.indentLevel = orginDep;
         }
 
         protected override CustomMenuTreeView BuildMenuTree(TreeViewState _treeViewState)

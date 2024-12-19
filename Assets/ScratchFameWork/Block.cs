@@ -251,7 +251,7 @@ namespace ScratchFramework
         {
             base.OnDestroy();
 
-            DestoryKoalaData();
+            DestoryEngineData();
             
             BlockCanvasManager.Instance.RemoveBlock(this);
         }

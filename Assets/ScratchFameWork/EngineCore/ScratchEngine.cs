@@ -41,10 +41,10 @@ namespace ScratchFramework
             return m_Current.ContainGuids(guid);
         }
         
-        public void SerachVariableData(out List<IEngineBlockBaseData> listGlobal, out List<IEngineBlockBaseData> listLocal)
+        public void SerachVariableData(out IEngineBlockBaseData[] listGlobal, out IEngineBlockBaseData[] listLocal)
         {
-            listGlobal = CurrentGroup.GlobalCanvas.BlockDataDicts.Where(pair => pair.Value is IEngineBlockVariableBase).Select(pair => pair.Value).ToList();
-            listLocal = Current.BlockDataDicts.Where(pair => pair.Value is IEngineBlockVariableBase).Select(pair => pair.Value).ToList();
+            listGlobal = CurrentGroup.GlobalCanvas.SelectBlockDatas<IEngineBlockVariableBase>();
+            listLocal = Current.SelectBlockDatas<IEngineBlockVariableBase>();
         }
 
         public bool AddBlocksData(IEngineBlockBaseData data)

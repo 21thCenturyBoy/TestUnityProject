@@ -199,7 +199,7 @@ namespace ScratchFramework
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            
+
             ContextComponent.Clear();
         }
 

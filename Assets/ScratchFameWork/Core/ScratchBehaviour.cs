@@ -100,7 +100,7 @@ namespace ScratchFramework
 
             return com;
         }
-        
+
         public T GetScratchComponent<T>() where T : ScratchBehaviour
         {
             if (IsDestroying)
@@ -112,7 +112,6 @@ namespace ScratchFramework
             T com = GetComponent<T>();
             return com;
         }
-        
     }
 
     public class ScratchSingleton<T> : ScratchBehaviour where T : ScratchSingleton<T>
@@ -178,16 +177,15 @@ namespace ScratchFramework
                     Debug.LogWarning("VMContext 已被释放！");
                     return;
                 }
-
+                
+                if (ViewModelProperty.Value != null)
+                {
+                    ScratchDataManager.Instance.RemoveData(ViewModelProperty.Value);
+                }
                 ViewModelProperty.Value = value;
             }
         }
-
-        public void BindData<TData>(string propertyName, IBindable<TData>.ValueChangedHandler onPropertyChanged)
-        {
-            Binder.Add<TData>(propertyName, onPropertyChanged);
-        }
-
+        
         private void OnBindingContextChanged(T oldValue, T newValue)
         {
             Binder.Unbind(oldValue);
@@ -196,16 +194,11 @@ namespace ScratchFramework
 
         public void Clear()
         {
+            BindContext = null;
+
             ViewModelProperty.OnValueChanged = null;
-            ViewModelProperty.Value = null;
 
             m_IsDispose = true;
-        }
-
-        public VMContextComponent<T> Init(Action<T, T> callback = null)
-        {
-            ViewModelProperty.OnValueChanged += (value, newValue) => { callback?.Invoke(value, newValue); };
-            return this;
         }
     }
 
@@ -218,7 +211,7 @@ namespace ScratchFramework
             get => ContextComponent.BindContext;
             set => ContextComponent.BindContext = value;
         }
-        
+
 
         protected override void OnEnable()
         {

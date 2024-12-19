@@ -38,7 +38,7 @@ namespace ScratchFramework
             {
                 Canvas[i].GetRefData();
             }
-            
+
             GlobalCanvas.RefreshDataGuids();
             for (int i = 0; i < Canvas.Count; i++)
             {
@@ -79,29 +79,33 @@ namespace ScratchFramework
         public EngineVariableRef(IEngineBlockBaseData mData)
         {
             m_Data = mData;
+            GuidRef = m_Data.Guid;
         }
 
         public bool IsRoot { get; set; }
         public BVector2 CanvasPos { get; set; }
         public bool Enable { get; set; }
-        public int GuidRef  { get; set; }
+        [JsonIgnore]
+        public Guid UIGuid { get; set; }
+        public int GuidRef { get; set; }
         [JsonIgnore] public FucType FucType => m_Data.FucType;
         [JsonIgnore] public BlockType BlockType => m_Data.BlockType;
         [JsonIgnore] public ScratchBlockType Type => m_Data.Type;
-        public int[] GetGuids()=>m_Data.GetGuids();
-        public void RefreshGuids(Dictionary<int, int> map)=>m_Data.RefreshGuids(map);
-        
+        public int[] GetGuids() => m_Data.GetGuids();
+        public void RefreshGuids(Dictionary<int, int> map) => m_Data.RefreshGuids(map);
+
         [JsonIgnore]
         public int Guid
         {
             get => m_Data.Guid;
             set => m_Data.Guid = value;
         }
-        
+
 
         public void RefreshRef(IEngineBlockBaseData mData)
         {
             m_Data = mData;
+            GuidRef = m_Data.Guid;
         }
     }
 
@@ -170,7 +174,7 @@ namespace ScratchFramework
                     blocks.Add(blockview[j]);
                 }
             }
-            
+
             ScratchUtils.FixedBindOperation(blocks);
         }
 
@@ -207,6 +211,16 @@ namespace ScratchFramework
             }
 
             return false;
+        }
+
+        public IEngineBlockBaseData[] SelectBlockDatas(Func<bool> func)
+        {
+            return m_BlockDataDicts.Values.Where(data => func()).ToArray();
+        }
+
+        public T[] SelectBlockDatas<T>()
+        {
+            return m_BlockDataDicts.Values.OfType<T>().ToArray();
         }
 
         public bool TryGetDataRef(int guid, out IEngineBlockBaseData data)

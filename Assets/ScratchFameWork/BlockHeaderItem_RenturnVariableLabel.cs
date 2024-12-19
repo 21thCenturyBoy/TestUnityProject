@@ -169,14 +169,7 @@ namespace ScratchFramework
         {
             LabelText.text = ContextData.VariableInfo;
         }
-
-        protected override void OnDestroy()
-        {
-            ScratchDataManager.Instance.RemoveVariableLabelRef(this);
-
-            base.OnDestroy();
-        }
-
+        
         public void UpdateVariablName(string name)
         {
             Debug.LogError("不允许改名！");
@@ -191,5 +184,6 @@ namespace ScratchFramework
                 ContextData.LanguageId = id;
             }
         }
+        
     }
 }

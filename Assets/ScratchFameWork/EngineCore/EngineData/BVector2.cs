@@ -68,6 +68,11 @@ namespace ScratchFramework
         {
             return new BVector2 { x = v.x, y = v.y };
         }
+
+        public override string ToString()
+        {
+            return $"({x},{y})";
+        }
     }
 }
 

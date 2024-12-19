@@ -165,7 +165,7 @@ namespace ScratchFramework
             {
                 ScratchEngine.Instance.SerachVariableData(out var globalVars, out var localVars);
 
-                for (int i = 0; i < globalVars.Count; i++)
+                for (int i = 0; i < globalVars.Length; i++)
                 {
                     //-----获取Koala数据层-----
                     var logicdata = globalVars[i];
@@ -202,7 +202,7 @@ namespace ScratchFramework
 
                 if (!isGlobal)
                 {
-                    for (int i = 0; i < localVars.Count; i++)
+                    for (int i = 0; i < localVars.Length; i++)
                     {
                         //-----获取Koala数据层-----
                         var logicdata = localVars[i];

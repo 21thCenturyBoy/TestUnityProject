@@ -97,7 +97,7 @@ namespace ScratchFramework
                 return;
             }
 
-            Debug.LogError("RemoveBlock Failed!");
+            Debug.LogError($"RemoveBlock Failed!{block.gameObject.name}");
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace ScratchFramework
             }
 
             ScratchUtils.FixedBindOperation(res);
-            
+
             ScratchResourcesManager.Instance.RefreshResources();
         }
 
@@ -152,7 +152,8 @@ namespace ScratchFramework
             for (int i = 0; i < childCount; i++)
             {
                 Block block = transform.GetChild(i).GetComponent<Block>();
-                if (block != null && block is not Block_GhostBlock)
+
+                if (block != null && block is not Block_GhostBlock && !block.IsDestroying)
                 {
                     res.Add(block);
                 }

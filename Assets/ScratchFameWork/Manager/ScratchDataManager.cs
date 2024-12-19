@@ -19,7 +19,6 @@ namespace ScratchFramework
         {
             //清除冗余数据
             DataDict.Clear();
-            m_VariableLabelRefDict.Clear();
             return true;
         }
 
@@ -57,25 +56,11 @@ namespace ScratchFramework
             if (m_Dict.ContainsKey(vmdata.Guid))
             {
                 m_Dict.Remove(vmdata.Guid);
+                
+                m_IdDict.Remove(vmdata.IdPtr);
             }
         }
-
-        #region VariableLabel Data
-
-        private Dictionary<Guid, IBlockHeaderVariableLabel> m_VariableLabelRefDict = new Dictionary<Guid, IBlockHeaderVariableLabel>();
-        public Dictionary<Guid, IBlockHeaderVariableLabel> VariableLabelRefDict => m_VariableLabelRefDict;
         
-        public void RemoveVariableLabelRef(IBlockHeaderVariableLabel variableLabel)
-        {
-            var data = variableLabel.GetVariableData() as ScratchVMData;
-            if (m_VariableLabelRefDict.ContainsKey(data.Guid))
-            {
-                m_VariableLabelRefDict.Remove(data.Guid);
-            }
-        }
-
-        #endregion
-
 
         public bool Active { get; set; }
 

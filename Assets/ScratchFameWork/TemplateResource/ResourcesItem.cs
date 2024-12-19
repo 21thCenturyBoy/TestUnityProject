@@ -48,6 +48,12 @@ namespace ScratchFramework
             {
                 block.InitKoalaData();
 
+                IEngineBlockBaseData baseData = block.GetEngineBlockData();
+                if (baseData is IEngineBlockVariableBase variableBase)
+                {
+                    ScratchUtils.CreateVariableName(variableBase);
+                }
+
                 block.TransformParentChanged();
                 var tag = block.GetComponentInParent<IScratchSectionChild>();
                 if (tag == null) block.FixedUIPosData();

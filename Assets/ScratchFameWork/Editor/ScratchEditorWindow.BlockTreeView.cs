@@ -315,7 +315,7 @@ namespace ScratchFramework.Editor
                 m_TreeView.OnGUI(rect);
             }
 
-            public override string GetMenuPath() => "Runtime/BlockTreeView";
+            public override string GetMenuPath() => "UI Runtime/BlockTreeView";
 
             public override void ShowGUI()
             {
