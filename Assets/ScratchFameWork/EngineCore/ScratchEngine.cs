@@ -1,10 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using TMPro;
-using UnityEngine;
-
 namespace ScratchFramework
 {
     public class ScratchEngine : Singleton<ScratchEngine>
@@ -12,12 +5,25 @@ namespace ScratchFramework
         IEngineCoreInterface m_engineCore;
         public IEngineCoreInterface Core => m_engineCore ??= new TestEngineCore();
 
+        private EngineBlockFileData m_FileData;
+
+        public EngineBlockFileData FileData
+        {
+            get => m_FileData;
+        }
+
         private EngineBlockCanvasGroup m_CurrentGroup;
 
         public EngineBlockCanvasGroup CurrentGroup
         {
             get => m_CurrentGroup;
-            set { m_CurrentGroup = value; }
+            set
+            {
+                if (m_CurrentGroup == value) return;
+                m_CurrentGroup = value;
+
+                Current = CurrentGroup.Canvas[0];
+            }
         }
 
         private EngineBlockCanvas m_Current;
@@ -34,16 +40,30 @@ namespace ScratchFramework
             }
         }
 
-        public bool CurrentIsGlobal => m_Current == m_CurrentGroup.GlobalCanvas;
+        public void SetFileData(EngineBlockFileData fileData)
+        {
+            m_FileData = fileData;
+            
+            m_CurrentGroup = fileData.Global;
+            Current = CurrentGroup.Canvas[0];
+
+            m_FileData.RefreshRef();
+            m_FileData.RefreshDataGuids();
+            BlockCanvasUIManager.Instance.RefreshCanvas();
+                
+            TempCanvasUIManager.Instance.TopCanvasGroup.Initialize();
+        }
+
+        public bool CurrentIsGlobal => CurrentGroup == FileData.Global;
 
         public bool ContainGuids(int guid)
         {
-            return m_Current.ContainGuids(guid);
+            return FileData.ContainGuids(guid);
         }
-        
+
         public void SerachVariableData(out IEngineBlockBaseData[] listGlobal, out IEngineBlockBaseData[] listLocal)
         {
-            listGlobal = CurrentGroup.GlobalCanvas.SelectBlockDatas<IEngineBlockVariableBase>();
+            listGlobal = FileData.Global.SelectBlockDatas<IEngineBlockVariableBase>();
             listLocal = Current.SelectBlockDatas<IEngineBlockVariableBase>();
         }
 
@@ -55,6 +75,16 @@ namespace ScratchFramework
         public bool RemoveBlocksData(IEngineBlockBaseData data)
         {
             return m_Current.RemoveBlocksData(data);
+        }
+        
+        public bool AddFragmentDataRef(BlockFragmentDataRef dataRef)
+        {
+            return m_Current.AddFragmentDataRef(dataRef);
+        }
+
+        public bool RemoveFragmentDataRef(BlockFragmentDataRef dataRef)
+        {
+            return m_Current.RemoveFragmentDataRef(dataRef);
         }
     }
 }

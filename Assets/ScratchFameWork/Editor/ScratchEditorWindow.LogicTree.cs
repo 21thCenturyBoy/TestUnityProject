@@ -19,9 +19,9 @@ namespace ScratchFramework.Editor
                     Reload();
                 }
 
-                private int Add(List<TreeViewItem> allItems, int index, bool isGlobal = false)
+                private int Add(List<TreeViewItem> allItems, EngineBlockCanvas canvas, int index)
                 {
-                    Dictionary<int, IEngineBlockBaseData> rootDict = isGlobal ? ScratchEngine.Instance.CurrentGroup.GlobalCanvas.RootBlock : ScratchEngine.Instance.Current.RootBlock;
+                    Dictionary<int, IEngineBlockBaseData> rootDict = canvas.RootBlock;
                     foreach (KeyValuePair<int, IEngineBlockBaseData> valuePair in rootDict)
                     {
                         ScratchUtils.GetBlockDataTree(valuePair.Value.Guid, out var tree, null, false);
@@ -29,7 +29,7 @@ namespace ScratchFramework.Editor
                         tree.TraverseTree((deep, bNode) =>
                         {
                             index++;
-                            IEngineBlockBaseData baseData =  ScratchEngine.Instance.Current[bNode.Value];
+                            IEngineBlockBaseData baseData = ScratchEngine.Instance.Current[bNode.Value];
 
                             string icon = null;
                             string name = $"[{bNode.Value}]";
@@ -71,7 +71,7 @@ namespace ScratchFramework.Editor
                             var item = new TreeViewItem
                             {
                                 id = index,
-                                depth = isGlobal ? deep + 1 : deep,
+                                depth = deep + 1,
                                 displayName = name,
                                 icon = EditorGUIUtility.FindTexture(icon)
                             };
@@ -88,19 +88,31 @@ namespace ScratchFramework.Editor
                 {
                     var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
 
-                    List<BlockTree> trees = new List<BlockTree>();
+                    List<EditorBlockTree> trees = new List<EditorBlockTree>();
                     var allItems = new List<TreeViewItem>();
                     if (Application.isPlaying)
                     {
                         if (ScratchEngine.Instance.Current != null)
                         {
-                            int id = 1;
-                            var global = new TreeViewItem { id = id, depth = 0, displayName = "[Global]" };
-                            allItems.Add(global);
-                            id = Add(allItems, id, true);
+                            int id = 0;
+
+                            foreach (EngineBlockCanvas canvas in ScratchEngine.Instance.FileData.Global.Canvas)
+                            {
+                                id++;
+                                var globalcanvas = new TreeViewItem { id = id, depth = 0, displayName = $"[Global]{canvas.Name}" };
+                                allItems.Add(globalcanvas);
+
+                                id = Add(allItems, canvas, id);
+                            }
+
+                            
                             if (!ScratchEngine.Instance.CurrentIsGlobal)
                             {
-                                id = Add(allItems, id);
+                                id++;
+                                var currentCanvas = new TreeViewItem { id = id, depth = 0, displayName = ScratchEngine.Instance.Current.Name };
+                                allItems.Add(currentCanvas);
+                                
+                                id = Add(allItems, ScratchEngine.Instance.Current, id);
                             }
                         }
                     }

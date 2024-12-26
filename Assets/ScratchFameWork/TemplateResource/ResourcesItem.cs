@@ -1,5 +1,6 @@
 using System;
-using Button = UnityEngine.UI.Button;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace ScratchFramework
 {
@@ -25,9 +26,9 @@ namespace ScratchFramework
         /// <returns></returns>
         public Block CreateBlock(IEngineBlockBaseData blockBase)
         {
-            Block block = ScratchUtils.DeserializeBlock(TemplateDatas, BlockCanvasManager.Instance.RectTrans);
+            Block block = ScratchUtils.DeserializeBlock(TemplateDatas, BlockCanvasUIManager.Instance.RectTrans);
 
-            block.Position = TempCanvasManager.Instance.CanvasCenter.Position;
+            block.Position = TempCanvasUIManager.Instance.CanvasCenter.Position;
 
             //创建数据
             if (blockBase == null)
@@ -46,12 +47,30 @@ namespace ScratchFramework
         {
             if (block.GetEngineBlockData() == null)
             {
-                block.InitKoalaData();
+                IEngineBlockBaseData baseData = ScratchUtils.CreateBlockData(block.scratchType);
+                ScratchEngine.Instance.AddBlocksData(baseData);
+                if (baseData == null)
+                {
+                    Debug.LogError("Engine Add Block Error:" + baseData.Guid);
+                }
 
-                IEngineBlockBaseData baseData = block.GetEngineBlockData();
                 if (baseData is IEngineBlockVariableBase variableBase)
                 {
+                    var variableLabel = block.VariableLabel;
+                    var variableData = variableLabel.GetVariableData();
+
                     ScratchUtils.CreateVariableName(variableBase);
+                    //绑定数据
+                    variableData.VariableRef = variableBase.Guid.ToString();
+
+                    BlockFragmentDataRef dataRef = BlockFragmentDataRef.Create(variableBase);
+                    ScratchEngine.Instance.AddFragmentDataRef(dataRef);
+
+                    block.SetKoalaBlock(dataRef);
+                }
+                else
+                {
+                    block.SetKoalaBlock(baseData);
                 }
 
                 block.TransformParentChanged();
@@ -94,10 +113,11 @@ namespace ScratchFramework
         {
             if (block.GetEngineBlockData() == null)
             {
-                block.SetKoalaBlock(blockBase);
-
                 if (blockBase is IEngineBlockVariableBase variableBase)
                 {
+                    BlockFragmentDataRef dataRef = BlockFragmentDataRef.Create(variableBase);
+                    block.SetKoalaBlock(dataRef);
+
                     var sections = block.GetChildSection();
                     for (int i = 0; i < sections.Count; i++)
                     {
@@ -115,6 +135,10 @@ namespace ScratchFramework
                             }
                         }
                     }
+                }
+                else
+                {
+                    block.SetKoalaBlock(blockBase);
                 }
             }
         }

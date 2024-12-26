@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using ScratchFramework;
 using UnityEngine;
 using Button = UnityEngine.UI.Button;
 
@@ -21,7 +17,6 @@ namespace ScratchFramework
         public void SetVariableData(IEngineBlockVariableBase variableBase)
         {
             m_VariableData = variableBase;
-            // Debug.LogError(variableBase.Guid);
         }
 
         protected override void OnInitialize()
@@ -59,23 +54,23 @@ namespace ScratchFramework
 
         private void OnRefBtn()
         {
-            if (ScratchResourcesManager.Instance.GetResourcesItemData(m_VariableData.Type) != null)
+            if (BlockResourcesManager.Instance.GetResourcesItemData(m_VariableData.Type) != null)
             {
-                Block block = ScratchUtils.DeserializeBlock(Data.TemplateDatas, BlockCanvasManager.Instance.RectTrans);
+                Block block = ScratchUtils.DeserializeBlock(Data.TemplateDatas, BlockCanvasUIManager.Instance.RectTrans);
 
-                block.Position = TempCanvasManager.Instance.CanvasCenter.Position;
-
-                block.SetKoalaBlock(m_VariableData);
+                block.Position = TempCanvasUIManager.Instance.CanvasCenter.Position;
 
                 var variableLabel = block.VariableLabel;
                 if (variableLabel != null)
                 {
-                    var variableData = variableLabel.GetVariableData() ;
+                    var variableData = variableLabel.GetVariableData();
                     //绑定数据
                     variableData.VariableRef = m_VariableData.Guid.ToString();
+
+                    BlockFragmentDataRef dataRef = BlockFragmentDataRef.Create(m_VariableData);
+                    ScratchEngine.Instance.AddFragmentDataRef(dataRef);
                     
-                    EngineVariableRef engineVariableRef = new EngineVariableRef(m_VariableData);
-                    ScratchEngine.Instance.Current.VariableRefs.Add(engineVariableRef);
+                    block.SetKoalaBlock(dataRef);
                 }
             }
             else
@@ -96,11 +91,11 @@ namespace ScratchFramework
 
         public virtual void OnNameFieldEndEdit(string strInfo)
         {
-            foreach (var scData in ScratchDataManager.Instance.DataDict.Values)
+            foreach (var scData in BlockDataUIManager.Instance.DataDict.Values)
             {
                 if (scData is IHeaderParamVariable paramData)
                 {
-                    if (m_VariableData.Guid.ToString() ==  paramData.VariableRef)
+                    if (m_VariableData.Guid.ToString() == paramData.VariableRef)
                     {
                         paramData.VariableInfo = strInfo;
                         m_VariableData.VariableName = strInfo;

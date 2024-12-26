@@ -82,7 +82,7 @@ namespace ScratchFramework.Editor
 
             private void Show_CanvasBlockDict()
             {
-                foreach (var block in BlockCanvasManager.Instance.BlockDict.Values)
+                foreach (var block in BlockCanvasUIManager.Instance.BlockDict.Values)
                 {
                     GUILayout.Label($"{block}");
                 }
@@ -90,7 +90,7 @@ namespace ScratchFramework.Editor
 
             private void Show_ScratchDataDict()
             {
-                foreach (ScratchVMData vmData in ScratchDataManager.Instance.DataDict.Values)
+                foreach (ScratchVMData vmData in BlockDataUIManager.Instance.DataDict.Values)
                 {
                     GUILayout.Label($"{vmData}");
                 }

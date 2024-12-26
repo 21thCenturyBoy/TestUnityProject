@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -47,7 +46,7 @@ namespace ScratchFramework
             if (Current != null)
             {
                 ScratchUtils.CloneBlock(Current);
-                ScratchMenuManager.Instance.Close(this);
+                MenuUIManager.Instance.Close(this);
             }
         }
 
@@ -56,7 +55,7 @@ namespace ScratchFramework
             if (Current != null)
             {
                 ScratchUtils.DestroyBlock(Current);
-                ScratchMenuManager.Instance.Close(this);
+                MenuUIManager.Instance.Close(this);
             }
         }
 
@@ -79,9 +78,14 @@ namespace ScratchFramework
 
             contentBtns.Clear();
 
+            if (Current.BlockFucType == FucType.Variable)
+            {
+                return;
+            }
+
             if (Current != null)
             {
-                var teledatas = ScratchResourcesManager.Instance.GetTemplateData(Current.BlockFucType);
+                var teledatas = BlockResourcesManager.Instance.GetTemplateData(Current.BlockFucType);
                 for (int i = 0; i < teledatas.Length; i++)
                 {
                     Button btn = GameObject.Instantiate(m_ButtonPrefab).GetComponent<Button>();
@@ -94,13 +98,13 @@ namespace ScratchFramework
                     btn.onClick.AddListener(() =>
                     {
                         Block newBlock = itemData.CreateBlock(null);
-                        
-                        newBlock.GetEngineBlockData().IsRoot = Current.GetEngineBlockData().IsRoot;
-                        newBlock.GetEngineBlockData().CanvasPos = Current.GetEngineBlockData().CanvasPos;
-                        
+
+                        newBlock.GetEngineBlockData().AsCanvasData().IsRoot = Current.GetEngineBlockData().AsCanvasData().IsRoot;
+                        newBlock.GetEngineBlockData().AsCanvasData().CanvasPos = Current.GetEngineBlockData().AsCanvasData().CanvasPos;
+
                         ScratchUtils.ReplaceBlock(Current, newBlock);
-                        
-                        ScratchMenuManager.Instance.Close(this);
+
+                        MenuUIManager.Instance.Close(this);
                     });
                     btn.gameObject.SetActive(true);
 

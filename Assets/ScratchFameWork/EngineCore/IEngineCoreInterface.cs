@@ -1,9 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
-using UnityEngine;
 
 namespace ScratchFramework
 {
@@ -25,11 +21,18 @@ namespace ScratchFramework
 
     public static class IEngineCoreInterfaceExtension
     {
+        public static IEngineBlockCanvasData AsCanvasData(this IEngineBlockBaseData data)
+        {
+            return data as IEngineBlockCanvasData;
+        }
+
         public static IEngineBlockBaseData CopyData(this IEngineBlockBaseData data, ref IEngineBlockBaseData target)
         {
-            //EditorData
-            target.IsRoot = data.IsRoot;
-            target.CanvasPos = data.CanvasPos;
+            if (data is IEngineBlockCanvasData canvas && target is IEngineBlockCanvasData targetCanvasData)
+            {
+                targetCanvasData.IsRoot = canvas.IsRoot;
+                targetCanvasData.CanvasPos = canvas.CanvasPos;
+            }
 
             var orginGuids = data.GetGuids();
             var targetGuids = target.GetGuids();
@@ -105,23 +108,24 @@ namespace ScratchFramework
         }
     }
 
-    public interface IEngineBlockCanvasData
+    public interface IEngineBlockCanvasData : IEngineBlockBaseData
     {
         public bool IsRoot { get; set; }
         public BVector2 CanvasPos { get; set; }
-        public bool Enable { get; set; }
-        public int Guid { get; set; }
     }
 
-    public interface IEngineBlockBaseDataRef : IEngineBlockBaseData
+    public interface IEngineBlockBaseDataRef : IEngineBlockBaseData, IEngineBlockCanvasData
     {
+        public IEngineBlockBaseData DataRef { get; }
     }
 
-    public interface IEngineBlockBaseData : IEngineBlockCanvasData
+    public interface IEngineBlockBaseData
     {
         public FucType FucType { get; }
         public BlockType BlockType { get; }
         public ScratchBlockType Type { get; }
+        public bool Enable { get; set; }
+        public int Guid { get; set; }
         public int[] GetGuids();
         public void RefreshGuids(Dictionary<int, int> map);
     }
@@ -170,24 +174,24 @@ namespace ScratchFramework
         public BGuidList BranchBlockBGuids { get; set; }
     }
 
-    public interface IEngineBlockTriggerBase : IEngineBlockBaseData, IBlockPlug, IBlockReturnVarGuid
+    public interface IEngineBlockTriggerBase : IEngineBlockCanvasData, IBlockPlug, IBlockReturnVarGuid
     {
     }
 
-    public interface IEngineBlockConditionBase : IEngineBlockBaseData, IBlockPlug, IEngineBlockBranch
+    public interface IEngineBlockConditionBase : IEngineBlockCanvasData, IBlockPlug, IEngineBlockBranch
     {
     }
 
-    public interface IEngineBlockLoopBase : IEngineBlockBaseData, IBlockPlug, IBlockVarGuid
+    public interface IEngineBlockLoopBase : IEngineBlockCanvasData, IBlockPlug, IBlockVarGuid
     {
         [BlockGuidRef] public int ChildRootGuid { get; set; }
     }
 
-    public interface IEngineBlockSimpleBase : IEngineBlockBaseData, IBlockPlug, IBlockVarGuid
+    public interface IEngineBlockSimpleBase : IEngineBlockCanvasData, IBlockPlug, IBlockVarGuid
     {
     }
 
-    public interface IEngineBlockOperationBase : IEngineBlockBaseData, IBlockVarGuid
+    public interface IEngineBlockOperationBase : IEngineBlockCanvasData, IBlockVarGuid
     {
     }
 
@@ -202,8 +206,18 @@ namespace ScratchFramework
 
     public interface IEngineCoreInterface
     {
-        public void LoadCanvasGroup(Action<EngineBlockCanvasGroup> callback = null);
-        public void SaveCanvasGroup(EngineBlockCanvasGroup group, Action<bool> callback = null);
+        /// <summary>
+        /// 加载画布组
+        /// </summary>
+        /// <param name="callback"></param>
+        public void LoadBlockFile(Action<EngineBlockFileData> callback = null);
+
+        /// <summary>
+        /// 保存画布组
+        /// </summary>
+        /// <param name="fileData"></param>
+        /// <param name="callback"></param>
+        public void SaveBlockFile(EngineBlockFileData fileData, Action<bool> callback = null);
 
         /// <summary>
         /// 变量值转字符串
@@ -218,5 +232,13 @@ namespace ScratchFramework
         /// <param name="blockBase"></param>
         /// <param name="value"></param>
         public bool String2VariableValueTo(IEngineBlockVariableBase blockBase, string value);
+    }
+
+    public class ScratchVirtualMachine
+    {
+        public void Run(EngineBlockCanvasGroup group)
+        {
+            //TODO
+        }
     }
 }

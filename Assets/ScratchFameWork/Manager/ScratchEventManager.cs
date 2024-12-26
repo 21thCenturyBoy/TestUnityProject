@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Object = System.Object;
 
 namespace ScratchFramework
 {
@@ -54,6 +52,9 @@ namespace ScratchFramework
         }
     }
 
+    /// <summary>
+    /// Scratch 事件管理器
+    /// </summary>
     public class ScratchEventManager : Singleton_Class<ScratchEventManager>, IScratchManager
     {
         private Dictionary<ScratchEventDefine, SafeListener> m_eventMap = new();

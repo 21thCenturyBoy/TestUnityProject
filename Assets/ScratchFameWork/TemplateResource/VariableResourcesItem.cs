@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
-
 namespace ScratchFramework
 {
     public class VariableResourcesItem : ResourcesItem
@@ -16,7 +11,7 @@ namespace ScratchFramework
                 IBlockHeaderVariableLabel variableLabel =  block.GetComponentInChildren<IBlockHeaderVariableLabel>();
                 variableLabel.GetVariableData().VariableRef = block.GetEngineBlockData().Guid.ToString();
                 
-                ScratchResourcesManager.Instance.RefreshResources();
+                BlockResourcesManager.Instance.RefreshResources();
             }
         }
     }

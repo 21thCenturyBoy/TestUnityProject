@@ -283,12 +283,14 @@ namespace ScratchFramework
             AddSummary("[Editor Data]UI类型", ref stringBuilder);
             stringBuilder.AppendLine($"\t\tpublic BlockType BlockType => BlockType.{blockData.Type};");
 
-            AddSummary("[Editor Data]是否为画布根", ref stringBuilder);
-            stringBuilder.AppendLine(string.Format($"\t\tpublic bool {nameof(IEngineBlockBaseData.IsRoot)} {{0}}", "{ get; set; } = false;"));
+            if (blockData.BlockFucType != FucType.Variable)
+            {
+                AddSummary("[Editor Data]是否为画布根", ref stringBuilder);
+                stringBuilder.AppendLine(string.Format($"\t\tpublic bool {nameof(IEngineBlockCanvasData.IsRoot)} {{0}}", "{ get; set; } = false;"));
 
-            AddSummary("[Editor Data]画布位置(需判断画布根时有效)", ref stringBuilder);
-            stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BVector2)} {nameof(IEngineBlockBaseData.CanvasPos)} {{0}} = {{1}}.zero;", "{ get; set; }", nameof(BVector2)));
-
+                AddSummary("[Editor Data]画布位置(需判断画布根时有效)", ref stringBuilder);
+                stringBuilder.AppendLine(string.Format($"\t\tpublic {nameof(BVector2)} {nameof(IEngineBlockCanvasData.CanvasPos)} {{0}} = {{1}}.zero;", "{ get; set; }", nameof(BVector2)));
+            }
 
             stringBuilder.AppendLine($"\t\tprivate bool m_Enable = true;");
             AddSummary("[Editor Data]编辑器逻辑是否Enable", ref stringBuilder);
@@ -519,7 +521,7 @@ namespace ScratchFramework
                 num++;
                 temp_1.AppendLine("\t\t\t\tindex++;");
                 temp_1.AppendLine($"\t\t\t\tm_Guids[index] = NextGuid;");
-                
+
                 temp_2.AppendLine("\t\t\tif (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];");
             }
 
@@ -534,7 +536,7 @@ namespace ScratchFramework
                     num++;
                     temp_1.AppendLine("\t\t\t\tindex++;");
                     temp_1.AppendLine($"\t\t\t\tm_Guids[index] = VarGuid_{i};");
-                    
+
                     temp_2.AppendLine($"\t\t\tif (VarGuid_{i} != ScratchUtils.InvalidGuid && map.ContainsKey(VarGuid_{i})) VarGuid_{i} = map[VarGuid_{i}];");
                 }
             }
@@ -546,7 +548,7 @@ namespace ScratchFramework
                     num++;
                     temp_1.AppendLine("\t\t\t\tindex++;");
                     temp_1.AppendLine($"\t\t\t\tm_Guids[index] = ReturnVarGuid_{i};");
-                    
+
                     temp_2.AppendLine($"\t\t\tif (ReturnVarGuid_{i} != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnVarGuid_{i})) ReturnVarGuid_{i} = map[ReturnVarGuid_{i}];");
                 }
             }
@@ -568,13 +570,13 @@ namespace ScratchFramework
                 temp_2.AppendLine("\t\t\t{");
                 temp_2.AppendLine("\t\t\t\tif (BranchOperationBGuids[i] != ScratchUtils.InvalidGuid && map.ContainsKey(BranchOperationBGuids[i])) BranchOperationBGuids[i] = map[BranchOperationBGuids[i]];");
                 temp_2.AppendLine("\t\t\t}");
-                
+
                 temp_2.AppendLine("\t\t\tfor (int i = 0; i < BranchBlockBGuids.Length; i++)");
                 temp_2.AppendLine("\t\t\t{");
                 temp_2.AppendLine("\t\t\t\tif (BranchBlockBGuids[i] != ScratchUtils.InvalidGuid && map.ContainsKey(BranchBlockBGuids[i])) BranchBlockBGuids[i] = map[BranchBlockBGuids[i]];");
                 temp_2.AppendLine("\t\t\t}");
-                
-                
+
+
                 temp_guidLen = ($"\t\t\t\tint guidLen = {num} + BranchOperationBGuids.Length + BranchBlockBGuids.Length;");
             }
             else
@@ -609,7 +611,7 @@ namespace ScratchFramework
 
             stringBuilder.AppendLine("\t\t\t\tint index = 0;");
             stringBuilder.AppendLine(temp_1.ToString());
-            
+
             stringBuilder.AppendLine("\t\t\t}");
 
             stringBuilder.AppendLine("\t\t\treturn m_Guids;");
@@ -619,7 +621,7 @@ namespace ScratchFramework
             stringBuilder.AppendLine("\t\t{");
 
             stringBuilder.AppendLine(temp_2.ToString());
-            
+
             stringBuilder.AppendLine("\t\t}");
         }
 

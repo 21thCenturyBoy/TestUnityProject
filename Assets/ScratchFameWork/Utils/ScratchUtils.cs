@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -176,7 +175,7 @@ namespace ScratchFramework
         /// <param name="parentTrans"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public static List<Block> DrawNodeRoot(IEngineBlockBaseData rootNode, Transform parentTrans, int index = -1)
+        public static List<Block> DrawNodeRoot(IEngineBlockCanvasData rootNode, Transform parentTrans, int index = -1)
         {
             List<Block> res = new List<Block>();
             var blockview = DrawNode(rootNode, parentTrans, index);
@@ -215,7 +214,7 @@ namespace ScratchFramework
         {
             if (node == null) return null;
 
-            var ResourceItem = ScratchResourcesManager.Instance.GetResourcesItemData(node.Type);
+            var ResourceItem = BlockResourcesManager.Instance.GetResourcesItemData(node.Type);
             Block blockUI = ResourceItem.CreateBlock(node);
 
             if (index == -1)
@@ -258,9 +257,12 @@ namespace ScratchFramework
                         for (int i = 0; i < variableLen; i++)
                         {
                             int guid = _node.GetReturnValueGuid(i);
+                            
+                            //引用
                             if (headerOperations[i].OperationBlock.GetEngineBlockData() == null)
                             {
                                 var operationBlock = GetBlocksDataRef(guid);
+                                
                                 headerOperations[i].OperationBlock.SetKoalaBlock(operationBlock);
                             }
                         }
@@ -268,7 +270,7 @@ namespace ScratchFramework
 
                     if (sections[0].Body != null)
                     {
-                        var childBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), sections[0].Body.RectTrans);
+                        var childBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), sections[0].Body.RectTrans, 0);
                     }
 
                     break;
@@ -293,7 +295,7 @@ namespace ScratchFramework
                         }
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans,0);
                     break;
                 }
                 case BlockType.Loop:
@@ -318,10 +320,10 @@ namespace ScratchFramework
 
                     if (sections[0].Body != null)
                     {
-                        var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), sections[0].Body.RectTrans);
+                        var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), sections[0].Body.RectTrans,0);
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans,0);
                     break;
                 }
                 case BlockType.Condition:
@@ -353,11 +355,11 @@ namespace ScratchFramework
                         var section = sections[i];
                         if (section.Body != null)
                         {
-                            var branchBlock = DrawNode(GetBlocksDataRef(_node.BranchBlockBGuids[i]), section.Body.RectTrans);
+                            var branchBlock = DrawNode(GetBlocksDataRef(_node.BranchBlockBGuids[i]), section.Body.RectTrans,i);
                         }
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans,0);
                     break;
                 }
                 case BlockType.Operation:
@@ -385,14 +387,14 @@ namespace ScratchFramework
                     }
                     else if (node.FucType == FucType.Variable)
                     {
-                        var _node = node as IEngineBlockVariableBase;
-                        
-                        EngineVariableRef variableRef = new EngineVariableRef(_node);
-                        variableRef.UIGuid = blockUI.BlockId;
-                        ScratchEngine.Instance.Current.VariableRefs.Add(variableRef);
+                        //ref
+                        if (node is BlockFragmentDataRef blockFragmentDataRef)
+                        {
+                            var variableLabel = blockUI.VariableLabel;
+                            var variableData = variableLabel.GetVariableData();
+                            variableData.VariableRef = blockFragmentDataRef.DataRef.Guid.ToString();
+                        }
                     }
-
-
                     break;
                 }
 
@@ -528,7 +530,7 @@ namespace ScratchFramework
 
             for (int i = 0; i < newblockDatas.Count; i++)
             {
-                if (!ScratchEngine.Instance.AddBlocksData(newblockDatas[i]))
+                if (ScratchEngine.Instance.AddBlocksData(newblockDatas[i]))
                 {
                     Debug.LogError("Engine Add Block Error:" + newblockDatas[i].Guid);
                 }
@@ -536,7 +538,7 @@ namespace ScratchFramework
 
             RefreshDataGuids(newblockDatas, dataMapGuids);
 
-            BlockCanvasManager.Instance.RefreshCanvas();
+            BlockCanvasUIManager.Instance.RefreshCanvas();
             return null;
         }
 
@@ -555,8 +557,9 @@ namespace ScratchFramework
 
         public static void DestroyBlock(Block block, bool refreshCanvas = true, bool recursion = true)
         {
-            var m_blocks = ScratchEngine.Instance.Current.GetKeys();
+            var m_blocks = ScratchEngine.Instance.Current.GetBlockKeys();
             var blockBaseData = block.GetEngineBlockData();
+            
             if (blockBaseData != null)
             {
                 if (m_blocks.Contains(blockBaseData.Guid))
@@ -627,7 +630,7 @@ namespace ScratchFramework
 
                     if (refreshCanvas)
                     {
-                        BlockCanvasManager.Instance.RefreshCanvas();
+                        BlockCanvasUIManager.Instance.RefreshCanvas();
                     }
                 }
             }

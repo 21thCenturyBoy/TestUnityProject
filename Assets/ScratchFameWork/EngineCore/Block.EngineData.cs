@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -60,7 +57,7 @@ namespace ScratchFramework
             {
                 IEngineBlockBaseData block = ScratchUtils.CreateBlockData(scratchType);
 
-                if (!ScratchEngine.Instance.AddBlocksData(block))
+                if (ScratchEngine.Instance.AddBlocksData(block))
                 {
                     Debug.LogError("Engine Add Block Error:" + block.Guid);
                     return;
@@ -100,13 +97,12 @@ namespace ScratchFramework
                         ScratchEngine.Instance.Current.RemoveBlocksData(blockData);
                     }
                 }
-                
             }
         }
 
         public void TransformParentChanged()
         {
-            if (!transform.IsChildOf(BlockCanvasManager.Instance.RectTrans)) return;
+            if (!transform.IsChildOf(BlockCanvasUIManager.Instance.RectTrans)) return;
 
             ChangeBlockData(this, lastParent, transform.parent);
 
@@ -115,25 +111,27 @@ namespace ScratchFramework
 
         public void FixedUIPosData()
         {
-            if (!transform.IsChildOf(BlockCanvasManager.Instance.RectTrans)) return;
-            blockData.IsRoot = GetComponentInParent<IScratchSectionChild>() == null;
+            if (!transform.IsChildOf(BlockCanvasUIManager.Instance.RectTrans)) return;
+            if (blockData.AsCanvasData() == null) return;
 
-            if (blockData.IsRoot)
+            var canvasData = blockData.AsCanvasData();
+            canvasData.IsRoot = GetComponentInParent<IScratchSectionChild>() == null;
+
+            if (canvasData.IsRoot)
             {
-                blockData.CanvasPos = transform.position;
+                canvasData.CanvasPos = transform.position;
                 ScratchEngine.Instance.Current.RootBlock[blockData.Guid] = blockData;
             }
             else
             {
-                blockData.CanvasPos = Vector3.zero;
+                canvasData.CanvasPos = Vector3.zero;
                 ScratchEngine.Instance.Current.RootBlock.Remove(blockData.Guid);
             }
         }
 
-
         public void OnSiblingIndexChanged()
         {
-            if (!transform.IsChildOf(BlockCanvasManager.Instance.RectTrans)) return;
+            if (!transform.IsChildOf(BlockCanvasUIManager.Instance.RectTrans)) return;
 
             Debug.Log("Sibling index changed to: " + transform.GetSiblingIndex());
             lastSiblingIndex = transform.GetSiblingIndex();
@@ -504,6 +502,7 @@ namespace ScratchFramework
 
                         break;
                     }
+
                     case BlockType.Operation:
                     {
                         var parentOperation = ParentBlockBase as IEngineBlockOperationBase;
@@ -532,10 +531,24 @@ namespace ScratchFramework
 
                         break;
                     }
+
                     case BlockType.Define:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            if (block.GetEngineBlockData() is BlockFragmentDataRef dataRef)
+            {
+                var parentBlock = block.ParentTrans.GetComponentInParent<Block>();
+                if (parentBlock != null)
+                {
+                    ScratchEngine.Instance.RemoveFragmentDataRef(dataRef);
+                }
+                else
+                {
+                    ScratchEngine.Instance.AddFragmentDataRef(dataRef);
                 }
             }
 
@@ -552,6 +565,14 @@ namespace ScratchFramework
             ClearOrginData(block, orginParentTrans);
 
             return SetNewParentTrans(block);
+        }
+
+        public void GetParentBlock(out Block parentBlock)
+        {
+            parentBlock = null;
+            if (ParentTrans == null) return;
+
+            var tag = ParentTrans.GetComponentInParent<Block>();
         }
 
         public static IEngineBlockBaseData FindPreBlock(int rootGuid, int CurGuid)

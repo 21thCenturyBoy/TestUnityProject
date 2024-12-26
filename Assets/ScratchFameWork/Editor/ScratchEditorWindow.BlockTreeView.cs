@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ScratchFramework;
 using UnityEditor;
@@ -6,6 +7,37 @@ using UnityEngine;
 
 namespace ScratchFramework.Editor
 {
+    public class EditorBlockTree
+    {
+        public Guid BlockGuid;
+
+        public List<BlockTreeNode> BlockTreeNode = new List<BlockTreeNode>();
+
+        public int Index { get; set; }
+        public int Depth { get; set; }
+
+        public string DisplayName
+        {
+            get
+            {
+                string rex = IsRoot ? "" : Header ? "[H]" : "[B]";
+                return $"{rex}{BlockCanvasUIManager.Instance.BlockDict[BlockGuid].name}";
+            }
+        }
+
+        public bool IsRoot;
+        public bool Header;
+    }
+
+    public class BlockTreeNode
+    {
+        public string DisplayName => nameof(BlockTreeNode) + SectionIndex.ToString();
+        public int SectionIndex;
+
+        public List<EditorBlockTree> HeadBlocks = new List<EditorBlockTree>();
+        public List<EditorBlockTree> BodyBlocks = new List<EditorBlockTree>();
+    }
+
     public partial class ScratchEditorWindow
     {
         class SimpleTreeView : TreeView
@@ -19,11 +51,11 @@ namespace ScratchFramework.Editor
             {
                 var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
 
-                List<BlockTree> trees = new List<BlockTree>();
+                List<EditorBlockTree> trees = new List<EditorBlockTree>();
                 var allItems = new List<TreeViewItem>();
                 if (Application.isPlaying)
                 {
-                    BlockCanvasManager canvasManager = GameObject.FindObjectOfType<BlockCanvasManager>();
+                    BlockCanvasUIManager canvasManager = GameObject.FindObjectOfType<BlockCanvasUIManager>();
 
                     if (canvasManager != null && canvasManager.Inited)
                     {
@@ -45,9 +77,9 @@ namespace ScratchFramework.Editor
                 return root;
             }
 
-            private void GetAllTreeview(ref List<TreeViewItem> allTreeViewItems, ref int index, ref int depthVal, BlockTree tree)
+            private void GetAllTreeview(ref List<TreeViewItem> allTreeViewItems, ref int index, ref int depthVal, EditorBlockTree tree)
             {
-                var block = BlockCanvasManager.Instance.BlockDict[tree.BlockGuid];
+                var block = BlockCanvasUIManager.Instance.BlockDict[tree.BlockGuid];
                 index++;
                 var item = new TreeViewItem
                 {
@@ -88,13 +120,13 @@ namespace ScratchFramework.Editor
                 depthVal--;
             }
 
-            private List<BlockTree> GetBlockTree()
+            private List<EditorBlockTree> GetBlockTree()
             {
-                List<BlockTree> trees = new List<BlockTree>();
-                BlockCanvasManager blockCanvas = FindObjectOfType<BlockCanvasManager>();
-                if (blockCanvas == null) return trees;
+                List<EditorBlockTree> trees = new List<EditorBlockTree>();
+                BlockCanvasUIManager blockCanvasUI = FindObjectOfType<BlockCanvasUIManager>();
+                if (blockCanvasUI == null) return trees;
 
-                var transform = blockCanvas.transform;
+                var transform = blockCanvasUI.transform;
                 trees.Clear();
                 int childCount = transform.childCount;
                 int index = 0;
@@ -105,7 +137,7 @@ namespace ScratchFramework.Editor
 
                     if (block != null && block.Active && block.Visible)
                     {
-                        BlockTree tree = new BlockTree();
+                        EditorBlockTree tree = new EditorBlockTree();
                         tree.BlockGuid = block.BlockId;
                         tree.Depth = deep;
                         tree.Index = index;
@@ -121,15 +153,15 @@ namespace ScratchFramework.Editor
                 return trees;
             }
 
-            private void GetBlockDeep(BlockTree block, int deep)
+            private void GetBlockDeep(EditorBlockTree editorBlock, int deep)
             {
-                var blockDict = BlockCanvasManager.Instance.BlockDict;
-                var sections = blockDict[block.BlockGuid].Layout.SectionsArray;
+                var blockDict = BlockCanvasUIManager.Instance.BlockDict;
+                var sections = blockDict[editorBlock.BlockGuid].Layout.SectionsArray;
                 for (int j = 0; j < sections.Length; j++)
                 {
                     BlockTreeNode treeNode = new BlockTreeNode();
                     treeNode.SectionIndex = j;
-                    block.BlockTreeNode.Add(treeNode);
+                    editorBlock.BlockTreeNode.Add(treeNode);
                     if (sections[j].Header != null)
                     {
                         int headChildCount = sections[j].Header.transform.childCount;
@@ -139,15 +171,15 @@ namespace ScratchFramework.Editor
                             Block childBlock = sections[j].Header.transform.GetChild(k).GetComponent<Block>();
                             if (childBlock != null)
                             {
-                                BlockTree blockTree_headBlock = new BlockTree();
-                                blockTree_headBlock.BlockGuid = childBlock.BlockId;
-                                blockTree_headBlock.Depth = deep;
-                                blockTree_headBlock.Index = index_head;
-                                blockTree_headBlock.Header = true;
+                                EditorBlockTree editorBlockTreeHeadEditorBlock = new EditorBlockTree();
+                                editorBlockTreeHeadEditorBlock.BlockGuid = childBlock.BlockId;
+                                editorBlockTreeHeadEditorBlock.Depth = deep;
+                                editorBlockTreeHeadEditorBlock.Index = index_head;
+                                editorBlockTreeHeadEditorBlock.Header = true;
 
-                                treeNode.HeadBlocks.Add(blockTree_headBlock);
+                                treeNode.HeadBlocks.Add(editorBlockTreeHeadEditorBlock);
 
-                                GetBlockDeep(blockTree_headBlock, deep + 1);
+                                GetBlockDeep(editorBlockTreeHeadEditorBlock, deep + 1);
 
                                 index_head++;
                             }
@@ -165,15 +197,15 @@ namespace ScratchFramework.Editor
                             if (childBlock != null)
                             {
                                 index_body++;
-                                BlockTree blockTree_bodyBlock = new BlockTree();
-                                blockTree_bodyBlock.BlockGuid = childBlock.BlockId;
-                                blockTree_bodyBlock.Depth = deep;
-                                blockTree_bodyBlock.Index = index_body;
-                                blockTree_bodyBlock.Header = false;
+                                EditorBlockTree editorBlockTreeBodyEditorBlock = new EditorBlockTree();
+                                editorBlockTreeBodyEditorBlock.BlockGuid = childBlock.BlockId;
+                                editorBlockTreeBodyEditorBlock.Depth = deep;
+                                editorBlockTreeBodyEditorBlock.Index = index_body;
+                                editorBlockTreeBodyEditorBlock.Header = false;
 
-                                treeNode.BodyBlocks.Add(blockTree_bodyBlock);
+                                treeNode.BodyBlocks.Add(editorBlockTreeBodyEditorBlock);
 
-                                GetBlockDeep(blockTree_bodyBlock, deep + 1);
+                                GetBlockDeep(editorBlockTreeBodyEditorBlock, deep + 1);
                             }
                         }
                     }

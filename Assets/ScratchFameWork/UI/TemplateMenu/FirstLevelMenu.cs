@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace ScratchFramework
@@ -42,19 +41,19 @@ namespace ScratchFramework
                     {
                         m_CurrentShowType = type;
                         
-                        ScratchResourcesManager.Instance.ShowFirstLevel(type);
-                        ScratchResourcesManager.Instance.Active = true;
+                        BlockResourcesManager.Instance.ShowFirstLevel(type);
+                        BlockResourcesManager.Instance.Active = true;
            
                     }
                     else
                     {
                         m_CurrentShowType = FirstLevelType.None;
-                        ScratchResourcesManager.Instance.Active = false;
+                        BlockResourcesManager.Instance.Active = false;
                     }
                 });
             }
 
-            ScratchResourcesManager.Instance.Active = false;
+            BlockResourcesManager.Instance.Active = false;
         }
 
         private FirstLevelType[] GetFirstLevelMenuTypes()

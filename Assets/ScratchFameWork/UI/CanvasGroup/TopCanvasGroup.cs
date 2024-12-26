@@ -1,7 +1,6 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine;
 
 namespace ScratchFramework
 {
@@ -10,58 +9,101 @@ namespace ScratchFramework
         public override bool Initialize()
         {
             base.Initialize();
-            var group = ScratchEngine.Instance.CurrentGroup;
-            TMP_Dropdown dropdown = TempCanvasManager.Instance.TopCanvasGroup.GetComponentInChildren<TMP_Dropdown>();
-            var options = new List<TMP_Dropdown.OptionData>();
-            options.Add(new TMP_Dropdown.OptionData(nameof(EngineBlockCanvasGroup.GlobalCanvas)));
-            for (int i = 0; i < group.Canvas.Count; i++)
-            {
-                options.Add(new TMP_Dropdown.OptionData(group.Canvas[i].Name));
-            }
 
-            dropdown.options = options;
-            dropdown.onValueChanged.RemoveAllListeners();
-            dropdown.onValueChanged.AddListener((index) =>
-            {
-                if (index == 0)
-                {
-                    ScratchEngine.Instance.Current = ScratchEngine.Instance.CurrentGroup.GlobalCanvas;
-                }
-                else
-                {
-                    ScratchEngine.Instance.Current = ScratchEngine.Instance.CurrentGroup.Canvas[index - 1];
-                }
-
-                BlockCanvasManager.Instance.RefreshCanvas();
-            });
-
+            RefreshGroupDropdown();
+            RefreshCanvasDropdown();
+            
+            
             return true;
         }
 
         public void Save()
         {
-            ScratchDataManager.Instance.Save();
+            BlockDataUIManager.Instance.Save();
+        }
+
+        private void RefreshGroupDropdown()
+        {
+            var fileData = ScratchEngine.Instance.FileData;
+          
+            TMP_Dropdown groupDropdown = TempCanvasUIManager.Instance.TopCanvasGroup.transform.Find("GroupDropdown").GetComponent<TMP_Dropdown>();
+            var options = new List<TMP_Dropdown.OptionData>();
+            options.Add(new TMP_Dropdown.OptionData(nameof(EngineBlockFileData.Global)));
+            for (int i = 0; i < fileData.CanvasGroups.Count; i++)
+            {
+                options.Add(new TMP_Dropdown.OptionData(fileData.CanvasGroups[i].Name));
+            }
+
+            groupDropdown.options = options;
+            groupDropdown.onValueChanged.RemoveAllListeners();
+            groupDropdown.onValueChanged.AddListener((index) =>
+            {
+                if (index == 0)
+                {
+                    ScratchEngine.Instance.CurrentGroup = ScratchEngine.Instance.FileData.Global;
+                }
+                else
+                {
+                    ScratchEngine.Instance.CurrentGroup = ScratchEngine.Instance.FileData.CanvasGroups[index - 1];
+                }
+
+                RefreshCanvasDropdown();
+                
+                BlockCanvasUIManager.Instance.RefreshCanvas();
+            });
+
+            if (ScratchEngine.Instance.CurrentIsGlobal)
+            {
+                groupDropdown.SetValueWithoutNotify(0);
+            }
+            else
+            {
+                groupDropdown.SetValueWithoutNotify(fileData.CanvasGroups.IndexOf(ScratchEngine.Instance.CurrentGroup) + 1);
+            }
+        }
+
+        private void RefreshCanvasDropdown()
+        {
+            var group = ScratchEngine.Instance.CurrentGroup;
+            TMP_Dropdown canvasDropdown = TempCanvasUIManager.Instance.TopCanvasGroup.transform.Find("CanvasDropdown").GetComponent<TMP_Dropdown>();
+            var canvasOptions = new List<TMP_Dropdown.OptionData>();
+            for (int i = 0; i < group.Canvas.Count; i++)
+            {
+                canvasOptions.Add(new TMP_Dropdown.OptionData(group.Canvas[i].Name));
+            }
+
+            canvasDropdown.options = canvasOptions;
+            canvasDropdown.onValueChanged.RemoveAllListeners();
+            canvasDropdown.onValueChanged.AddListener((index) =>
+            {
+                ScratchEngine.Instance.Current = ScratchEngine.Instance.CurrentGroup.Canvas[index];
+                BlockCanvasUIManager.Instance.RefreshCanvas();
+            });
+            
+            canvasDropdown.SetValueWithoutNotify(group.Canvas.IndexOf(ScratchEngine.Instance.Current));
+        }
+
+        public void AddGroups()
+        {
+            var group = EngineBlockFileData.CreateNewGroup();
+            ScratchEngine.Instance.FileData.CanvasGroups.Add(group);
+            ScratchEngine.Instance.CurrentGroup = group;
+
+            RefreshGroupDropdown();
+            RefreshCanvasDropdown();
+            
+            BlockCanvasUIManager.Instance.RefreshCanvas();
         }
         
         public void AddCanvans()
         {
-            var canvas = EngineBlockCanvasGroup.CreateNewCanvas();
+            var canvas = EngineBlockFileData.CreateNewCanvas();
             ScratchEngine.Instance.CurrentGroup.Canvas.Add(canvas);
             ScratchEngine.Instance.Current = canvas;
-
-            TempCanvasManager.Instance.TopCanvasGroup.Initialize();
-            BlockCanvasManager.Instance.RefreshCanvas();
-        }
-        
-        public void AddCanvans(EngineBlockCanvas canvas)
-        {
-            ScratchEngine.Instance.CurrentGroup.Canvas.Add(canvas);
-            ScratchEngine.Instance.Current = canvas;
-
-            ScratchEngine.Instance.Current.RefreshDataGuids();
-
-            TempCanvasManager.Instance.TopCanvasGroup.Initialize();
-            BlockCanvasManager.Instance.RefreshCanvas();
+            
+            RefreshCanvasDropdown();
+            
+            BlockCanvasUIManager.Instance.RefreshCanvas();
         }
     }
 }

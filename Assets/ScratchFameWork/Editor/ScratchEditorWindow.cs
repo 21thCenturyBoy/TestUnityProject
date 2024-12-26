@@ -30,17 +30,30 @@ namespace ScratchFramework.Editor
             if (m_Instance == null)
             {
                 m_Instance = GetWindow<ScratchEditorWindow>();
-
             }
+
             Instance.Show();
             serializedObject = new SerializedObject(m_Instance);
         }
-        
-        private void OnInspectorUpdate()
+
+        private void Update()
         {
             if (m_Instance != this)
             {
                 OpenWindow();
+            }
+            
+            IList<int> selection = menuTreeView.GetSelection();
+            if (selection.Count > 0)
+            {
+                CustomMenuTreeViewItem treeViewItem = menuTreeView.Find(selection[0]) as CustomMenuTreeViewItem;
+                if (treeViewItem != null)
+                {
+                    if (treeViewItem.CustomWindow.IsFrameUpdate())
+                    {
+                        Repaint();
+                    }
+                }
             }
         }
 
@@ -71,6 +84,7 @@ namespace ScratchFramework.Editor
         {
             string GetMenuPath();
             void ShowGUI();
+            bool IsFrameUpdate();
         }
 
         public abstract class MenuTreeWindow<T> : IMenuTreeWindow where T : MenuTreeWindow<T>, new()
@@ -89,6 +103,7 @@ namespace ScratchFramework.Editor
             public static T FindInstance() => _instance;
             public abstract string GetMenuPath();
             public abstract void ShowGUI();
+            public virtual bool IsFrameUpdate() => false;
         }
     }
 }

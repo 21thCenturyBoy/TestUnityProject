@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -17,9 +16,9 @@ namespace ScratchFramework
         private readonly string tempJsonfileUrl = "file://" + tempJsonfilePath;
         private static readonly string tempJsonfilePath = Application.streamingAssetsPath + "/TempCanvas/TestCanvas.json";
 
-        public void LoadCanvasGroup(Action<EngineBlockCanvasGroup> callback = null)
+        public void LoadBlockFile(Action<EngineBlockFileData> callback = null)
         {
-            IEnumerator GetJsonFile(string pathUrl, Action<Stream> callback = null)
+            IEnumerator GetJsonFile(string pathUrl, Action<Stream> fileDatacallback = null)
             {
                 UnityWebRequest request = UnityWebRequest.Get(pathUrl);
                 request.downloadHandler = new DownloadHandlerBuffer();
@@ -28,26 +27,28 @@ namespace ScratchFramework
                 if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogError($"Get Error: {request.error}");
-                    callback?.Invoke(null);
+                    EngineBlockFileData fileData = new EngineBlockFileData();
+                    fileData.CreateGlobal();
+                    callback?.Invoke(fileData);
                 }
                 else
                 {
                     if (request.downloadHandler.data != null)
                     {
                         var stream = new MemoryStream(request.downloadHandler.data);
-                        callback?.Invoke(stream);
+                        fileDatacallback?.Invoke(stream);
                     }
                 }
             }
 
             ScratchEngine.Instance.StartCoroutine(GetJsonFile(tempJsonfileUrl, (stream) =>
             {
-                EngineBlockCanvasGroup group = null;
+                EngineBlockFileData fileData = null;
 
                 if (stream == null)
                 {
-                    group = new EngineBlockCanvasGroup();
-                    group.GlobalCanvas = EngineBlockCanvasGroup.CreateNewCanvas(nameof(EngineBlockCanvasGroup.GlobalCanvas));
+                    fileData = new EngineBlockFileData();
+                    fileData.CreateGlobal();
                 }
                 else
                 {
@@ -59,7 +60,7 @@ namespace ScratchFramework
                             JsonSerializerSettings settings = new JsonSerializerSettings();
                             settings.TypeNameHandling = TypeNameHandling.All;
                             settings.Converters = new List<JsonConverter> { new GuidListConverter() };
-                            group = JsonConvert.DeserializeObject<EngineBlockCanvasGroup>(json, settings);
+                            fileData = JsonConvert.DeserializeObject<EngineBlockFileData>(json, settings);
                         }
                         catch (Exception e)
                         {
@@ -67,20 +68,20 @@ namespace ScratchFramework
                             return;
                         }
 
-                        if (group == null)
+                        if (fileData == null)
                         {
-                            group = new EngineBlockCanvasGroup();
-                            group.GlobalCanvas = EngineBlockCanvasGroup.CreateNewCanvas(nameof(EngineBlockCanvasGroup.GlobalCanvas));
+                            fileData = new EngineBlockFileData();
+                            fileData.CreateGlobal();
                         }
                     }
                 }
 
-                callback?.Invoke(group);
+                callback?.Invoke(fileData);
             }));
         }
 
 
-        public void SaveCanvasGroup(EngineBlockCanvasGroup group, Action<bool> callback = null)
+        public void SaveBlockFile(EngineBlockFileData fileData, Action<bool> callback = null)
         {
             var filepath = tempJsonfilePath;
             if (string.IsNullOrEmpty(filepath))
@@ -96,8 +97,8 @@ namespace ScratchFramework
                 settings.TypeNameHandling = TypeNameHandling.All;
                 settings.Converters = new List<JsonConverter> { new GuidListConverter() };
                 settings.Formatting = Formatting.Indented;
-                
-                var json = JsonConvert.SerializeObject(group, settings);
+
+                var json = JsonConvert.SerializeObject(fileData, settings);
                 var bytes = System.Text.Encoding.UTF8.GetBytes(json);
                 stream.Write(bytes, 0, bytes.Length);
             }
@@ -232,6 +233,7 @@ namespace ScratchFramework
                         blockBase.VariableValue = intresult;
                         return true;
                     }
+
                     break;
                 case ScratchValueType.Float:
                     if (float.TryParse(value, out float floatresult))

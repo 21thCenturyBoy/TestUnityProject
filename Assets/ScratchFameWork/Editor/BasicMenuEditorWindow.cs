@@ -14,7 +14,7 @@ namespace ScratchFramework.Editor
 
         string searchText;
         SearchField searchField;
-        CustomMenuTreeView menuTreeView;
+        protected CustomMenuTreeView menuTreeView;
         TreeViewState treeViewState = new TreeViewState();
 
         Rect rightRect;
@@ -93,6 +93,7 @@ namespace ScratchFramework.Editor
 
             GUILayout.EndArea();
         }
+
 
         protected abstract CustomMenuTreeView BuildMenuTree(TreeViewState _treeViewState);
 

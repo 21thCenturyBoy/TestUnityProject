@@ -17,6 +17,8 @@ namespace ScratchFramework.Editor
                 Inited = true;
             }
 
+            public override bool IsFrameUpdate() => true;
+
             public override void ShowGUI()
             {
                 if (EditorApplication.isPlaying)
@@ -36,9 +38,7 @@ namespace ScratchFramework.Editor
 
 
             private bool m_GlobalCanvas = false;
-            private bool m_RefGlobalCanvas = false;
             private bool m_CurrentCanvas = true;
-            private bool m_RefCurrentCanvas = true;
 
             private Vector2 m_ScrollPosition;
 
@@ -48,19 +48,20 @@ namespace ScratchFramework.Editor
                 GUILayout.BeginVertical();
 
                 m_GlobalCanvas = EditorGUILayout.Foldout(m_GlobalCanvas, "GlobalCanvas");
+
                 if (m_GlobalCanvas)
                 {
-                    foreach (KeyValuePair<int, IEngineBlockBaseData> valuePair in ScratchEngine.Instance.CurrentGroup.GlobalCanvas.BlockDataDicts)
+                    foreach (var globalCanvas in ScratchEngine.Instance.FileData.Global.Canvas)
                     {
-                        GUILayout.Label($"[{valuePair.Key}]:{valuePair.Value.Type}");
-                    }
-
-                    m_RefGlobalCanvas = EditorGUILayout.Foldout(m_RefGlobalCanvas, "RefGlobalCanvas");
-                    if (m_RefGlobalCanvas)
-                    {
-                        foreach (var variableRef in ScratchEngine.Instance.CurrentGroup.GlobalCanvas.VariableRefs)
+                        GUILayout.Label($"[Global][{globalCanvas.Name}]");
+                        foreach (KeyValuePair<int, IEngineBlockBaseData> valuePair in globalCanvas.BlockDataDicts)
                         {
-                            GUILayout.Label($"[{variableRef.GuidRef}]:{variableRef.CanvasPos}");
+                            GUILayout.Label($"[{valuePair.Key}]:{valuePair.Value.Type}");
+                        }
+
+                        foreach (var variableRef in globalCanvas.FragmentDataRefs)
+                        {
+                            GUILayout.Label($"[{variableRef.Key}](Ref:{variableRef.Value.Guid}):{variableRef.Value.CanvasPos}");
                         }
                     }
                 }
@@ -74,15 +75,11 @@ namespace ScratchFramework.Editor
                         {
                             GUILayout.Label($"[{valuePair.Key}]:{valuePair.Value.Type}");
                         }
-                        m_RefCurrentCanvas = EditorGUILayout.Foldout(m_RefCurrentCanvas, "RefCurrentCanvas");
-                        if (m_RefCurrentCanvas)
+
+                        foreach (var variableRef in ScratchEngine.Instance.Current.FragmentDataRefs)
                         {
-                            foreach (var variableRef in ScratchEngine.Instance.Current.VariableRefs)
-                            {
-                                GUILayout.Label($"[{variableRef.GuidRef}]:{variableRef.CanvasPos.x}");
-                            }
+                            GUILayout.Label($"[{variableRef.Key}](Ref:{variableRef.Value.Guid}):{variableRef.Value.CanvasPos}");
                         }
-             
                     }
                 }
 

@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -41,8 +37,8 @@ namespace ScratchFramework
             }
         }
 
-        private TempCanvasManager m_TempCanvas;
-        private ScratchResourcesManager m_ResourcesManager;
+        private TempCanvasUIManager _mTempCanvasUI;
+        private BlockResourcesManager m_ResourcesManager;
 
         private void Awake()
         {
@@ -53,10 +49,10 @@ namespace ScratchFramework
         {
             if (base.Initialize())
             {
-                m_TempCanvas = GetComponentInChildren<TempCanvasManager>();
-                m_TempCanvas.Initialize();
+                _mTempCanvasUI = GetComponentInChildren<TempCanvasUIManager>();
+                _mTempCanvasUI.Initialize();
 
-                m_ResourcesManager = GetComponentInChildren<ScratchResourcesManager>();
+                m_ResourcesManager = GetComponentInChildren<BlockResourcesManager>();
             }
 
             m_ResourcesManager.Initialize();
@@ -68,25 +64,25 @@ namespace ScratchFramework
         private void LoadResourceFinish()
         {
             //ScratchDataManager
-            ScratchDataManager.Instance.Initialize();
+            BlockDataUIManager.Instance.Initialize();
 
             //ScratchEventManager
             ScratchEventManager.Instance.Initialize();
 
             //BlockCanvasManager
-            BlockCanvasManager.Instance.SetParent(transform);
-            BlockCanvasManager.Instance.transform.localPosition = Vector3.zero;
-            BlockCanvasManager.Instance.Initialize();
+            BlockCanvasUIManager.Instance.SetParent(transform);
+            BlockCanvasUIManager.Instance.transform.localPosition = Vector3.zero;
+            BlockCanvasUIManager.Instance.Initialize();
 
             //BlockDragManager
-            BlockDragManager.Instance.SetParent(transform);
-            BlockDragManager.Instance.transform.localPosition = Vector3.zero;
-            BlockDragManager.Instance.Initialize();
+            BlockDragUIManager.Instance.SetParent(transform);
+            BlockDragUIManager.Instance.transform.localPosition = Vector3.zero;
+            BlockDragUIManager.Instance.Initialize();
 
             //ScratchMenuManager
-            ScratchMenuManager.Instance.SetParent(transform);
-            ScratchMenuManager.Instance.transform.localPosition = Vector3.zero;
-            ScratchMenuManager.Instance.Initialize();
+            MenuUIManager.Instance.SetParent(transform);
+            MenuUIManager.Instance.transform.localPosition = Vector3.zero;
+            MenuUIManager.Instance.Initialize();
 
 
             //ScratchDebug
@@ -94,15 +90,9 @@ namespace ScratchFramework
 
 
             //从引擎可视化数据中加载
-            ScratchEngine.Instance.Core.LoadCanvasGroup((group) =>
+            ScratchEngine.Instance.Core.LoadBlockFile((fileData) =>
             {
-                ScratchEngine.Instance.CurrentGroup = group;
-                ScratchEngine.Instance.Current = group.GlobalCanvas;
-
-                ScratchEngine.Instance.CurrentGroup.RefreshDataGuids();
-                ScratchEngine.Instance.Current.DrawCanvas();
-                
-                TempCanvasManager.Instance.TopCanvasGroup.Initialize();
+                ScratchEngine.Instance.SetFileData(fileData);
             });
 
             m_isInitialized = true;
@@ -121,7 +111,7 @@ namespace ScratchFramework
         public void OnUpdate()
         {
             ScratchEventManager.Instance.OnUpdate();
-            BlockDragManager.Instance.OnUpdate();
+            BlockDragUIManager.Instance.OnUpdate();
             ScratchDebugManager.Instance.OnUpdate();
         }
 
@@ -133,22 +123,22 @@ namespace ScratchFramework
         public bool Clear()
         {
             //TempCanvasManager
-            TempCanvasManager.Instance.Clear();
+            TempCanvasUIManager.Instance.Clear();
 
             //ScratchDataManager
-            ScratchDataManager.Instance.Clear();
+            BlockDataUIManager.Instance.Clear();
 
             //ScratchEventManager
             ScratchEventManager.Instance.Clear();
 
             //BlockCanvasManager
-            BlockCanvasManager.Instance.Clear();
+            BlockCanvasUIManager.Instance.Clear();
 
             //BlockDragManager
-            BlockDragManager.Instance.Clear();
+            BlockDragUIManager.Instance.Clear();
 
             //ScratchMenuManager
-            ScratchMenuManager.Instance.Clear();
+            MenuUIManager.Instance.Clear();
             return true;
         }
 
