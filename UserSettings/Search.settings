@@ -1,34 +1,49 @@
 trackSelection = true
 refreshSearchWindowsInPlayMode = false
+pickerAdvancedUI = false
 fetchPreview = true
 defaultFlags = 0
-keepOpen = false
+keepOpen = true
 queryFolder = "Assets"
 onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.756173B0" = ""
-	"OpenInspectorPreview.756173B0" = "0"
-	"currentGroup.756173B0" = "asset"
-	"last_search.053608A6" = "p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" prefab:any"
-	"OpenInspectorPreview.053608A6" = "0"
-	"currentGroup.053608A6" = "asset"
 }
 providers = {
-	archetype = {
+	asset = {
 		active = true
+		priority = 25
+		defaultAction = null
+	}
+	scene = {
+		active = true
+		priority = 50
+		defaultAction = null
+	}
+	adb = {
+		active = false
 		priority = 2500
 		defaultAction = null
 	}
-	journal = {
+	presets_provider = {
+		active = false
+		priority = -10
+		defaultAction = null
+	}
+	find = {
 		active = true
-		priority = 2500
+		priority = 25
 		defaultAction = null
 	}
 	packages = {
-		active = true
+		active = false
 		priority = 90
+		defaultAction = null
+	}
+	performance = {
+		active = false
+		priority = 100
 		defaultAction = null
 	}
 	profilermarkers = {
@@ -37,7 +52,7 @@ providers = {
 		defaultAction = null
 	}
 	store = {
-		active = true
+		active = false
 		priority = 100
 		defaultAction = null
 	}
@@ -46,64 +61,19 @@ providers = {
 		priority = 210
 		defaultAction = null
 	}
-	scene = {
-		active = true
-		priority = 50
-		defaultAction = null
-	}
-	find = {
-		active = true
-		priority = 25
-		defaultAction = null
-	}
-	performance = {
-		active = false
-		priority = 100
-		defaultAction = null
-	}
-	adb = {
-		active = false
-		priority = 2500
-		defaultAction = null
-	}
-	asset = {
-		active = true
-		priority = 25
-		defaultAction = null
-	}
 }
 objectSelectors = {
 }
 recentSearches = [
-	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" prefab:any"
-	"p: dir=\"Assets/ScratchFameWork/Resources/BlockPrefab\" prefab:any"
-	"p: dir=\"Assets/ScratchFameWork/Resources/BlockPrefab\""
-	"p: dir=\"Assets/ScratchFameWork/Resources/BlockPrefab\" t:Block"
-	"p: dir=\"Assets/ScratchFameWork/ResourcesDatas\" t:Block"
-	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" t:Block"
-	"p: t:Block dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\""
-	"p: dir=\"Assets/ScratchFameWork/Resources\" t:Block"
-	"p: dir=\"Assets/ScratchFameWork/Resources/\" t:prefab"
-	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" t:prefab"
-	""
-	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateDatas\" "
-	"p: dir=\"Assets/ScratchFameWork/Resources/\" "
-	"p: dir=\"Assets/ScratchFameWork/Resources/TemplateResource\" "
-	"p: dir=\"Assets/ScratchFameWork/Resources\" "
-	"p: dir=\"Assets/ScratchFameWork\" "
-	"p: dir=\"A\" "
-	"p: dir=\"Resources\" "
-	"p: dir=\"TemplateDatas\" "
-	"p: dir=\"TemplateDatas\" t =prefab"
 ]
 searchItemFavorites = [
 ]
 savedSearchesSortOrder = 0
-showSavedSearchPanel = true
+showSavedSearchPanel = false
 hideTabs = false
 expandedQueries = [
 ]
-queryBuilder = false
+queryBuilder = true
 ignoredProperties = "id;name;classname;imagecontentshash"
 helperWidgetCurrentArea = "all"
 disabledIndexers = ""
