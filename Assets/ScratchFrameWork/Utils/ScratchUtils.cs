@@ -257,12 +257,12 @@ namespace ScratchFramework
                         for (int i = 0; i < variableLen; i++)
                         {
                             int guid = _node.GetReturnValueGuid(i);
-                            
+
                             //引用
                             if (headerOperations[i].OperationBlock.GetEngineBlockData() == null)
                             {
                                 var operationBlock = GetBlocksDataRef(guid);
-                                
+
                                 headerOperations[i].OperationBlock.SetKoalaBlock(operationBlock);
                             }
                         }
@@ -295,7 +295,7 @@ namespace ScratchFramework
                         }
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans,0);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans, 0);
                     break;
                 }
                 case BlockType.Loop:
@@ -320,10 +320,10 @@ namespace ScratchFramework
 
                     if (sections[0].Body != null)
                     {
-                        var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), sections[0].Body.RectTrans,0);
+                        var childBlock = DrawNode(GetBlocksDataRef(_node.ChildRootGuid), sections[0].Body.RectTrans, 0);
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans,0);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans, 0);
                     break;
                 }
                 case BlockType.Condition:
@@ -355,11 +355,11 @@ namespace ScratchFramework
                         var section = sections[i];
                         if (section.Body != null)
                         {
-                            var branchBlock = DrawNode(GetBlocksDataRef(_node.BranchBlockBGuids[i]), section.Body.RectTrans,i);
+                            var branchBlock = DrawNode(GetBlocksDataRef(_node.BranchBlockBGuids[i]), section.Body.RectTrans, i);
                         }
                     }
 
-                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans,0);
+                    var nextBlock = DrawNode(GetBlocksDataRef(node.GetNextGuid()), parentTrans, 0);
                     break;
                 }
                 case BlockType.Operation:
@@ -395,6 +395,7 @@ namespace ScratchFramework
                             variableData.VariableRef = blockFragmentDataRef.DataRef.Guid.ToString();
                         }
                     }
+
                     break;
                 }
 
@@ -557,83 +558,117 @@ namespace ScratchFramework
 
         public static void DestroyBlock(Block block, bool refreshCanvas = true, bool recursion = true)
         {
-            var m_blocks = ScratchEngine.Instance.Current.GetBlockKeys();
             var blockBaseData = block.GetEngineBlockData();
-            
-            if (blockBaseData != null)
+            var blockTree = GetBlockDatas(block);
+
+            if (blockBaseData is BlockFragmentDataRef dataRef)
             {
-                if (m_blocks.Contains(blockBaseData.Guid))
+                if (dataRef.IsRoot)
                 {
-                    if (recursion)
-                    {
-                        HashSet<int> hashSet = new HashSet<int>();
-                        GetBlockDataTree(blockBaseData.Guid, out var tree);
-                        tree.TraverseTree((deep, bNode) =>
-                        {
-                            hashSet.Add(bNode.Value);
-                            return true;
-                        });
-
-                        var needSave = new List<int>();
-                        foreach (int guid in hashSet)
-                        {
-                            if (m_blocks.Contains(guid) && ScratchEngine.Instance.Current[guid] is IEngineBlockVariableBase variableBase)
-                            {
-                                if (variableBase.IsReturnVariable())
-                                {
-                                    if (!hashSet.Contains(variableBase.ReturnParentGuid))
-                                    {
-                                        needSave.Add(variableBase.Guid);
-                                    }
-                                }
-                            }
-                        }
-
-                        for (int i = 0; i < needSave.Count; i++)
-                        {
-                            hashSet.Remove(needSave[i]);
-                        }
-
-
-                        foreach (int removeGuid in hashSet)
-                        {
-                            ScratchEngine.Instance.Current.TryGetDataRef(removeGuid, out var removeData);
-                            if (removeData != null)
-                            {
-                                ScratchEngine.Instance.RemoveBlocksData(removeData);
-                            }
-                        }
-
-                        for (int j = 0; j < m_blocks.Length; j++)
-                        {
-                            var logicBlock = ScratchEngine.Instance.Current[m_blocks[j]];
-                            if (logicBlock != null)
-                            {
-                                var logicBlockGuids = logicBlock.GetGuids();
-                                Dictionary<int, int> map = new Dictionary<int, int>();
-                                for (int i = 0; i < logicBlockGuids.Length; i++)
-                                {
-                                    if (hashSet.Contains(logicBlockGuids[i]))
-                                    {
-                                        map[logicBlockGuids[i]] = InvalidGuid;
-                                    }
-                                }
-
-                                logicBlock.RefreshGuids(map);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ScratchEngine.Instance.RemoveBlocksData(blockBaseData);
-                    }
-
-                    if (refreshCanvas)
-                    {
-                        BlockCanvasUIManager.Instance.RefreshCanvas();
-                    }
+                    ScratchEngine.Instance.RemoveFragmentDataRef(dataRef);
                 }
             }
+
+            if (recursion)
+            {
+                HashSet<int> hashSet = new HashSet<int>();
+                blockTree.TraverseTree((deep, bNode) =>
+                {
+                    if (bNode.Value is not BlockFragmentDataRef) return true;
+                    hashSet.Add(bNode.Value.Guid);
+                    return true;
+                });
+            }
+            else
+            {
+                ScratchEngine.Instance.RemoveBlocksData(blockBaseData);
+            }
+
+            if (refreshCanvas)
+            {
+                BlockCanvasUIManager.Instance.RefreshCanvas();
+            }
+
+            // var m_blocks = ScratchEngine.Instance.Current.GetBlockKeys();
+            // if (m_blocks.Contains(blockBaseData.Guid))
+            // {
+            //     if (recursion)
+            //     {
+            //         HashSet<int> hashSet = new HashSet<int>();
+            //         GetBlockDataTree(blockBaseData.Guid, out var tree, baseData =>
+            //         {
+            //             if (blockBaseData is BlockFragmentDataRef dataRef)
+            //             {
+            //             }
+            //             else
+            //             {
+            //             }
+            //         });
+            //         tree.TraverseTree((deep, bNode) =>
+            //         {
+            //             hashSet.Add(bNode.Value);
+            //             return true;
+            //         });
+            //
+            //         var needSave = new List<int>();
+            //         foreach (int guid in hashSet)
+            //         {
+            //             if (m_blocks.Contains(guid) && ScratchEngine.Instance.Current[guid] is IEngineBlockVariableBase variableBase)
+            //             {
+            //                 if (variableBase.IsReturnVariable())
+            //                 {
+            //                     if (!hashSet.Contains(variableBase.ReturnParentGuid))
+            //                     {
+            //                         needSave.Add(variableBase.Guid);
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //
+            //         for (int i = 0; i < needSave.Count; i++)
+            //         {
+            //             hashSet.Remove(needSave[i]);
+            //         }
+            //
+            //
+            //         foreach (int removeGuid in hashSet)
+            //         {
+            //             ScratchEngine.Instance.Current.TryGetDataRef(removeGuid, out var removeData);
+            //             if (removeData != null)
+            //             {
+            //                 ScratchEngine.Instance.RemoveBlocksData(removeData);
+            //             }
+            //         }
+            //
+            //         for (int j = 0; j < m_blocks.Length; j++)
+            //         {
+            //             var logicBlock = ScratchEngine.Instance.Current[m_blocks[j]];
+            //             if (logicBlock != null)
+            //             {
+            //                 var logicBlockGuids = logicBlock.GetGuids();
+            //                 Dictionary<int, int> map = new Dictionary<int, int>();
+            //                 for (int i = 0; i < logicBlockGuids.Length; i++)
+            //                 {
+            //                     if (hashSet.Contains(logicBlockGuids[i]))
+            //                     {
+            //                         map[logicBlockGuids[i]] = InvalidGuid;
+            //                     }
+            //                 }
+            //
+            //                 logicBlock.RefreshGuids(map);
+            //             }
+            //         }
+            //     }
+            //     else
+            //     {
+            //         ScratchEngine.Instance.RemoveBlocksData(blockBaseData);
+            //     }
+            //
+            //     if (refreshCanvas)
+            //     {
+            //         BlockCanvasUIManager.Instance.RefreshCanvas();
+            //     }
+            // }
         }
 
         public static Vector3 ScreenPos2WorldPos(this ScratchUIBehaviour transform, Vector2 screenPos)

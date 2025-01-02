@@ -42,13 +42,15 @@ namespace ScratchFramework.Editor
             {
                 OpenWindow();
             }
-            
+
             IList<int> selection = menuTreeView.GetSelection();
             if (selection.Count > 0)
             {
                 CustomMenuTreeViewItem treeViewItem = menuTreeView.Find(selection[0]) as CustomMenuTreeViewItem;
                 if (treeViewItem != null)
                 {
+                    if (treeViewItem.CustomWindow == null) return;
+
                     if (treeViewItem.CustomWindow.IsFrameUpdate())
                     {
                         Repaint();

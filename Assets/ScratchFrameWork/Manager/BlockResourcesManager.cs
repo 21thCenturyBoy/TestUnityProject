@@ -30,15 +30,15 @@ namespace ScratchFramework
         public override bool Initialize()
         {
             m_TemplateHeader = GameObject.Instantiate(HeaderPrefab, TemplatePanelContent);
-            m_TemplateHeader.GetComponent<TMP_Text>().text = "-----积木模版-----";
+            m_TemplateHeader.GetComponent<TMP_Text>().text = "-----Template-----";
             m_TemplateHeader.gameObject.SetActive(true);
 
             m_GlobalHeader = GameObject.Instantiate(HeaderPrefab, TemplatePanelContent);
-            m_GlobalHeader.GetComponent<TMP_Text>().text = "-----全局变量-----";
+            m_GlobalHeader.GetComponent<TMP_Text>().text = "-----Global-----";
             m_GlobalHeader.gameObject.SetActive(true);
 
             m_LocalHeader = GameObject.Instantiate(HeaderPrefab, TemplatePanelContent);
-            m_LocalHeader.GetComponent<TMP_Text>().text = "-----局部变量-----";
+            m_LocalHeader.GetComponent<TMP_Text>().text = "-----Local-----";
             m_LocalHeader.gameObject.SetActive(true);
 
             foreach (KeyValuePair<ScratchBlockType, ResourcesItem> resourcesItem in m_TemplateResourcesDict)

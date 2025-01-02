@@ -61,8 +61,17 @@ namespace ScratchFramework
         {
             _instance = this;
 
-            m_GhostBlock = transform.GetComponentInChildren<Block_GhostBlock>(true);
-            m_GhostBlock.Active = false;
+            if (m_GhostBlock == null)
+            {
+                ScratchConfig.ResourceLoad<GameObject>(ScratchConfig.RES_GhostBlock, obj =>
+                {
+                    if (obj != null)
+                    {
+                        m_GhostBlock = Instantiate(obj, transform).GetComponent<Block_GhostBlock>();
+                        m_GhostBlock.Active = false;
+                    }
+                });
+            }
 
             m_MenuMask = transform.GetComponentInChildren<MenuMask>(true);
             m_MenuMask.Active = false;

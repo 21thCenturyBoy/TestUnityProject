@@ -349,6 +349,43 @@ namespace ScratchFramework
             m_DirtyTreeType = BlocksDataDirtyType.None;
         }
 
+        public static BTreeNode<IEngineBlockBaseData> GetBlockDatas(Block blockNode, Action<IEngineBlockBaseData> callback = null)
+        {
+            IEngineBlockBaseData blockBaseData = blockNode.GetEngineBlockData();
+            var node = BTreeNode<IEngineBlockBaseData>.CreateNode(blockBaseData);
+
+            var sections = blockNode.GetChildSection();
+            for (int i = 0; i < sections.Count; i++)
+            {
+                int childCount = sections[i].transform.childCount;
+                BlockSectionHeader sectionheader = sections[i].transform.GetChild(0).GetComponent<BlockSectionHeader>();
+                int childCountHead = sectionheader.transform.childCount;
+                for (int j = 0; j < childCountHead; j++)
+                {
+                    Block blockHeadr = sectionheader.transform.GetChild(j).GetComponent<Block>();
+                    if (blockHeadr == null) continue;
+
+                    node.AddChild(GetBlockDatas(blockHeadr, callback));
+                }
+
+                if (childCount == 2)
+                {
+                    BlockSectionBody sectionBody = sections[i].transform.GetChild(1).GetComponent<BlockSectionBody>();
+                    int childCountBody = sectionheader.transform.childCount;
+                    for (int j = 0; j < childCountBody; j++)
+                    {
+                        Block blockBody = sectionBody.transform.GetChild(j).GetComponent<Block>();
+                        if (blockBody == null) continue;
+
+                        node.AddChild(GetBlockDatas(blockBody, callback));
+                    }
+                }
+            }
+
+            callback?.Invoke(blockBaseData);
+            return node;
+        }
+
         private static BTreeNode<int> m_cache = null;
 
         public static void GetBlockDataTree(int guid, out BTreeNode<int> root, Action<IEngineBlockBaseData> callback = null, bool useCache = true)
