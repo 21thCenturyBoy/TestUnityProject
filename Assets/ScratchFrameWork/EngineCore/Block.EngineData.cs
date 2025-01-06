@@ -322,9 +322,12 @@ namespace ScratchFramework
                                             if (headerOperations[i].OperationBlock == block)
                                             {
                                                 parentTrigger.SetReturnValueGuid(i, engineBlockData.Guid);
-                                                if (engineBlockData is IEngineBlockVariableBase variableBase)
+                                                if (engineBlockData.IsDataRef() && engineBlockData is BlockFragmentDataRef fragmentDataRef)
                                                 {
-                                                    variableBase.ReturnParentGuid = parentTrigger.Guid;
+                                                    if (fragmentDataRef.DataRef is IEngineBlockVariableBase variableBase)
+                                                    {
+                                                        variableBase.ReturnParentGuid = parentTrigger.Guid;
+                                                    }
                                                 }
                                             }
                                         }
@@ -539,7 +542,7 @@ namespace ScratchFramework
                 }
             }
 
-            if (block.GetEngineBlockData() is BlockFragmentDataRef dataRef)
+            if (block.GetEngineBlockData().IsDataRef() && block.GetEngineBlockData() is BlockFragmentDataRef dataRef)
             {
                 var parentBlock = block.ParentTrans.GetComponentInParent<Block>();
                 if (parentBlock != null)

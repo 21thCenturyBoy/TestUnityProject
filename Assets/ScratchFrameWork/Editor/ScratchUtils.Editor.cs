@@ -525,6 +525,15 @@ namespace ScratchFramework
                 temp_2.AppendLine("\t\t\tif (NextGuid != ScratchUtils.InvalidGuid && map.ContainsKey(NextGuid)) NextGuid = map[NextGuid];");
             }
 
+            if (typeof(IEngineBlockVariableBase).IsAssignableFrom(type))
+            {
+                num++;
+                temp_1.AppendLine("\t\t\t\tindex++;");
+                temp_1.AppendLine($"\t\t\t\tm_Guids[index] = {nameof(IEngineBlockVariableBase.ReturnParentGuid)};");
+
+                temp_2.AppendLine($"\t\t\tif ({nameof(IEngineBlockVariableBase.ReturnParentGuid)} != ScratchUtils.InvalidGuid && map.ContainsKey({nameof(IEngineBlockVariableBase.ReturnParentGuid)})) {nameof(IEngineBlockVariableBase.ReturnParentGuid)} = map[{nameof(IEngineBlockVariableBase.ReturnParentGuid)}];");
+            }
+            
             List<string> inputs = new List<string>();
             List<KeyValuePair<ScratchValueType, string>> returns = new List<KeyValuePair<ScratchValueType, string>>();
 

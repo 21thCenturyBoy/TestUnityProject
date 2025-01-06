@@ -371,7 +371,7 @@ namespace ScratchFramework
                 if (childCount == 2)
                 {
                     BlockSectionBody sectionBody = sections[i].transform.GetChild(1).GetComponent<BlockSectionBody>();
-                    int childCountBody = sectionheader.transform.childCount;
+                    int childCountBody = sectionBody.transform.childCount;
                     for (int j = 0; j < childCountBody; j++)
                     {
                         Block blockBody = sectionBody.transform.GetChild(j).GetComponent<Block>();
@@ -384,6 +384,23 @@ namespace ScratchFramework
 
             callback?.Invoke(blockBaseData);
             return node;
+        }
+        
+        public static BTreeNode<IEngineBlockBaseData> GetBlockDatas(IEngineBlockBaseData blockBaseData, Action<IEngineBlockBaseData> callback = null)
+        {
+            Block blockNode = BlockCanvasUIManager.Instance.FindBlock(block =>
+            {
+                return block.GetEngineBlockData() == blockBaseData;
+            });
+
+            if (blockNode == null)
+            {
+                return null;
+            }
+            else
+            {
+                return GetBlockDatas(blockNode, callback);
+            }
         }
 
         private static BTreeNode<int> m_cache = null;

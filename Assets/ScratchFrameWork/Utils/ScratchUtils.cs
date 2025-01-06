@@ -210,12 +210,20 @@ namespace ScratchFramework
             }
         }
 
-        private static Block DrawNode(IEngineBlockBaseData node, Transform parentTrans, int index = -1)
+        private static Block DrawNode(IEngineBlockBaseData node, Transform parentTrans, int index = -1, Block blockUI = null)
         {
             if (node == null) return null;
 
             var ResourceItem = BlockResourcesManager.Instance.GetResourcesItemData(node.Type);
-            Block blockUI = ResourceItem.CreateBlock(node);
+            if (blockUI == null)
+            {
+                blockUI = ResourceItem.CreateBlock(node);
+            }
+            else
+            {
+                ResourceItem.SetKoalaBlockData(blockUI, node);
+                node = blockUI.GetEngineBlockData();
+            }
 
             if (index == -1)
             {
@@ -261,9 +269,14 @@ namespace ScratchFramework
                             //引用
                             if (headerOperations[i].OperationBlock.GetEngineBlockData() == null)
                             {
+                                int indexTrans = headerOperations[i].RectTrans.GetSiblingIndex();
                                 var operationBlock = GetBlocksDataRef(guid);
 
-                                headerOperations[i].OperationBlock.SetKoalaBlock(operationBlock);
+                                DrawNode(operationBlock, sections[0].Header.RectTrans, indexTrans, headerOperations[i].OperationBlock);
+                            }
+                            else
+                            {
+                                Debug.LogError("Not Null");
                             }
                         }
                     }
@@ -387,15 +400,17 @@ namespace ScratchFramework
                     }
                     else if (node.FucType == FucType.Variable)
                     {
-                        //ref
-                        if (node is BlockFragmentDataRef blockFragmentDataRef)
+                        if (node is IEngineBlockVariableBase variableBase)
                         {
                             var variableLabel = blockUI.VariableLabel;
                             var variableData = variableLabel.GetVariableData();
-                            variableData.VariableRef = blockFragmentDataRef.DataRef.Guid.ToString();
+
+                            ScratchUtils.CreateVariableName(variableBase);
+                            //绑定数据
+                            variableData.VariableRef = variableBase.Guid.ToString();
                         }
                     }
-
+                    
                     break;
                 }
 
@@ -407,6 +422,7 @@ namespace ScratchFramework
 
             return blockUI;
         }
+
 
         public static IEngineBlockBaseData GetBlocksDataRef(int guid)
         {
@@ -469,6 +485,30 @@ namespace ScratchFramework
             return block;
         }
 
+        public static IEngineBlockBaseData CloneBlockData(IEngineBlockBaseData engineData)
+        {
+            var tree = GetBlockDatas(engineData, blockData => { });
+            Dictionary<int, int> dataMapGuids = new Dictionary<int, int>();
+
+            IEngineBlockBaseData newData = null;
+
+            if (engineData.IsDataRef())
+            {
+                newData = DataRefDirector.Create(engineData);
+            }
+            else
+            {
+                newData = CreateBlockData(engineData.Type);
+                int newGuid = newData.Guid;
+
+                engineData.CopyData(ref newData);
+
+                newData.Guid = newGuid;
+            }
+
+            return newData;
+        }
+
         public static bool IsReturnVariable(this IEngineBlockBaseData blockBase)
         {
             if (blockBase is IEngineBlockVariableBase variableBase)
@@ -486,58 +526,48 @@ namespace ScratchFramework
         /// <returns></returns>
         public static Block CloneBlock(Block block)
         {
-            GetBlockDataTree(block.GetEngineBlockData().Guid, out var tree);
+            Dictionary<int, IEngineBlockBaseData> blockDataGuids = new Dictionary<int, IEngineBlockBaseData>();
 
-            Dictionary<int, int> dataMapGuids = new Dictionary<int, int>();
-            HashSet<int> newblockGuids = new HashSet<int>();
-            List<IEngineBlockBaseData> newblockDatas = new List<IEngineBlockBaseData>();
-
-            tree.TraverseTree((deep, bNode) =>
+            var tree = GetBlockDatas(block.GetEngineBlockData(), blockData =>
             {
-                if (bNode.Value == InvalidGuid) return true;
+                if (blockData.Guid == InvalidGuid) return;
 
-                IEngineBlockBaseData baseData = ScratchEngine.Instance.Current[bNode.Value];
-
-                if (baseData == null)
+                if (blockDataGuids.ContainsKey(blockData.Guid)) return;
+                if (blockData.IsDataRef())
                 {
-                    Debug.LogError("baseData is null");
-                    return true;
+                    BlockFragmentDataRef dataRef = blockData as BlockFragmentDataRef;
+                    if (!dataRef.DataRef.IsReturnVariable())return;
+                    blockDataGuids[dataRef.Guid] = dataRef.DataRef;
                 }
-
-                if (newblockGuids.Contains(baseData.Guid))
+                else
                 {
-                    Debug.LogError("baseData Contains");
-                    return true;
+                    blockDataGuids[blockData.Guid] = blockData;
                 }
-
-                if (bNode.Parent != null && baseData is IEngineBlockVariableBase variableBase)
-                {
-                    if (variableBase.ReturnParentGuid != bNode.Parent.Value) return true; //Ref
-                }
-
-                IEngineBlockBaseData newData = ScratchUtils.CreateBlockData(baseData.Type);
-
-                dataMapGuids[baseData.Guid] = newData.Guid;
-
-                baseData.CopyData(ref newData);
-
-                newData.Guid = dataMapGuids[baseData.Guid];
-
-                newblockGuids.Add(newData.Guid);
-                newblockDatas.Add(newData);
-
-                return true;
+ 
             });
 
-            for (int i = 0; i < newblockDatas.Count; i++)
+            Dictionary<int, int> dataMapGuids = new Dictionary<int, int>();
+            Dictionary<int, IEngineBlockBaseData> newblockDataGuids = new Dictionary<int, IEngineBlockBaseData>();
+            foreach (var orginBlockData in blockDataGuids.Values)
             {
-                if (ScratchEngine.Instance.AddBlocksData(newblockDatas[i]))
+                IEngineBlockBaseData newData = ScratchUtils.CreateBlockData(orginBlockData.Type);
+                
+                //Store Guid
+                dataMapGuids[orginBlockData.Guid] = newData.Guid;
+
+                orginBlockData.CopyData(ref newData);
+
+                newData.Guid = dataMapGuids[orginBlockData.Guid];
+
+                newblockDataGuids[newData.Guid] = newData;
+
+                if (!ScratchEngine.Instance.AddBlocksData(newData))
                 {
-                    Debug.LogError("Engine Add Block Error:" + newblockDatas[i].Guid);
+                    Debug.LogError("Engine Add Block Error:" + newData.Guid);
                 }
             }
 
-            RefreshDataGuids(newblockDatas, dataMapGuids);
+            RefreshDataGuids(newblockDataGuids.Values.ToList(), dataMapGuids);
 
             BlockCanvasUIManager.Instance.RefreshCanvas();
             return null;
@@ -561,8 +591,9 @@ namespace ScratchFramework
             var blockBaseData = block.GetEngineBlockData();
             var blockTree = GetBlockDatas(block);
 
-            if (blockBaseData is BlockFragmentDataRef dataRef)
+            if (blockBaseData.IsDataRef())
             {
+                BlockFragmentDataRef dataRef = blockBaseData as BlockFragmentDataRef;
                 if (dataRef.IsRoot)
                 {
                     ScratchEngine.Instance.RemoveFragmentDataRef(dataRef);
@@ -574,7 +605,7 @@ namespace ScratchFramework
                 HashSet<int> hashSet = new HashSet<int>();
                 blockTree.TraverseTree((deep, bNode) =>
                 {
-                    if (bNode.Value is not BlockFragmentDataRef) return true;
+                    if (!blockBaseData.IsDataRef()) return true;
                     hashSet.Add(bNode.Value.Guid);
                     return true;
                 });
@@ -588,87 +619,6 @@ namespace ScratchFramework
             {
                 BlockCanvasUIManager.Instance.RefreshCanvas();
             }
-
-            // var m_blocks = ScratchEngine.Instance.Current.GetBlockKeys();
-            // if (m_blocks.Contains(blockBaseData.Guid))
-            // {
-            //     if (recursion)
-            //     {
-            //         HashSet<int> hashSet = new HashSet<int>();
-            //         GetBlockDataTree(blockBaseData.Guid, out var tree, baseData =>
-            //         {
-            //             if (blockBaseData is BlockFragmentDataRef dataRef)
-            //             {
-            //             }
-            //             else
-            //             {
-            //             }
-            //         });
-            //         tree.TraverseTree((deep, bNode) =>
-            //         {
-            //             hashSet.Add(bNode.Value);
-            //             return true;
-            //         });
-            //
-            //         var needSave = new List<int>();
-            //         foreach (int guid in hashSet)
-            //         {
-            //             if (m_blocks.Contains(guid) && ScratchEngine.Instance.Current[guid] is IEngineBlockVariableBase variableBase)
-            //             {
-            //                 if (variableBase.IsReturnVariable())
-            //                 {
-            //                     if (!hashSet.Contains(variableBase.ReturnParentGuid))
-            //                     {
-            //                         needSave.Add(variableBase.Guid);
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //
-            //         for (int i = 0; i < needSave.Count; i++)
-            //         {
-            //             hashSet.Remove(needSave[i]);
-            //         }
-            //
-            //
-            //         foreach (int removeGuid in hashSet)
-            //         {
-            //             ScratchEngine.Instance.Current.TryGetDataRef(removeGuid, out var removeData);
-            //             if (removeData != null)
-            //             {
-            //                 ScratchEngine.Instance.RemoveBlocksData(removeData);
-            //             }
-            //         }
-            //
-            //         for (int j = 0; j < m_blocks.Length; j++)
-            //         {
-            //             var logicBlock = ScratchEngine.Instance.Current[m_blocks[j]];
-            //             if (logicBlock != null)
-            //             {
-            //                 var logicBlockGuids = logicBlock.GetGuids();
-            //                 Dictionary<int, int> map = new Dictionary<int, int>();
-            //                 for (int i = 0; i < logicBlockGuids.Length; i++)
-            //                 {
-            //                     if (hashSet.Contains(logicBlockGuids[i]))
-            //                     {
-            //                         map[logicBlockGuids[i]] = InvalidGuid;
-            //                     }
-            //                 }
-            //
-            //                 logicBlock.RefreshGuids(map);
-            //             }
-            //         }
-            //     }
-            //     else
-            //     {
-            //         ScratchEngine.Instance.RemoveBlocksData(blockBaseData);
-            //     }
-            //
-            //     if (refreshCanvas)
-            //     {
-            //         BlockCanvasUIManager.Instance.RefreshCanvas();
-            //     }
-            // }
         }
 
         public static Vector3 ScreenPos2WorldPos(this ScratchUIBehaviour transform, Vector2 screenPos)

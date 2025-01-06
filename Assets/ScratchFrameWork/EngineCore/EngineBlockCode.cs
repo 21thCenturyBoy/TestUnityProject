@@ -553,21 +553,25 @@ namespace ScratchFramework
 		{
 			if (m_Guids == null)
 			{
-				int guidLen = 1;
+				int guidLen = 2;
 				m_Guids = new int[guidLen];
 				int index = 0;
 				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = ReturnParentGuid;
 
 			}
 			else
 			{
-				int guidLen = 1;
+				int guidLen = 2;
 				if (guidLen != m_Guids.Length)
 				{
 					m_Guids = new int[guidLen];
 				}
 				int index = 0;
 				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = ReturnParentGuid;
 
 			}
 			return m_Guids;
@@ -575,6 +579,7 @@ namespace ScratchFramework
 		public void RefreshGuids(Dictionary<int, int> map)
 		{
 			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (ReturnParentGuid != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnParentGuid)) ReturnParentGuid = map[ReturnParentGuid];
 
 		}
 	}
@@ -994,21 +999,25 @@ namespace ScratchFramework
 		{
 			if (m_Guids == null)
 			{
-				int guidLen = 1;
+				int guidLen = 2;
 				m_Guids = new int[guidLen];
 				int index = 0;
 				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = ReturnParentGuid;
 
 			}
 			else
 			{
-				int guidLen = 1;
+				int guidLen = 2;
 				if (guidLen != m_Guids.Length)
 				{
 					m_Guids = new int[guidLen];
 				}
 				int index = 0;
 				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = ReturnParentGuid;
 
 			}
 			return m_Guids;
@@ -1016,6 +1025,7 @@ namespace ScratchFramework
 		public void RefreshGuids(Dictionary<int, int> map)
 		{
 			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (ReturnParentGuid != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnParentGuid)) ReturnParentGuid = map[ReturnParentGuid];
 
 		}
 	}
@@ -1942,21 +1952,25 @@ namespace ScratchFramework
 		{
 			if (m_Guids == null)
 			{
-				int guidLen = 1;
+				int guidLen = 2;
 				m_Guids = new int[guidLen];
 				int index = 0;
 				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = ReturnParentGuid;
 
 			}
 			else
 			{
-				int guidLen = 1;
+				int guidLen = 2;
 				if (guidLen != m_Guids.Length)
 				{
 					m_Guids = new int[guidLen];
 				}
 				int index = 0;
 				m_Guids[index] = Guid;
+				index++;
+				m_Guids[index] = ReturnParentGuid;
 
 			}
 			return m_Guids;
@@ -1964,6 +1978,7 @@ namespace ScratchFramework
 		public void RefreshGuids(Dictionary<int, int> map)
 		{
 			if (Guid != ScratchUtils.InvalidGuid && map.ContainsKey(Guid)) Guid = map[Guid];
+			if (ReturnParentGuid != ScratchUtils.InvalidGuid && map.ContainsKey(ReturnParentGuid)) ReturnParentGuid = map[ReturnParentGuid];
 
 		}
 	}

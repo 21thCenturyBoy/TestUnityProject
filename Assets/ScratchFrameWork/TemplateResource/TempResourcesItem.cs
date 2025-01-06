@@ -66,10 +66,10 @@ namespace ScratchFramework
                     var variableData = variableLabel.GetVariableData();
                     //绑定数据
                     variableData.VariableRef = m_VariableData.Guid.ToString();
-
-                    BlockFragmentDataRef dataRef = BlockFragmentDataRef.Create(m_VariableData);
-                    ScratchEngine.Instance.AddFragmentDataRef(dataRef);
                     
+                    BlockFragmentDataRef dataRef = DataRefDirector.Create(m_VariableData);
+                    ScratchEngine.Instance.AddFragmentDataRef(dataRef);
+
                     block.SetKoalaBlock(dataRef);
                 }
             }

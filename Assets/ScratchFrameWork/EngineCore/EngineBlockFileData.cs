@@ -159,71 +159,7 @@ namespace ScratchFramework
             return list.ToArray();
         }
     }
-
-
-    [Serializable]
-    public class BlockFragmentDataRef : IEngineBlockBaseDataRef
-    {
-        public BVector2 CanvasPos { get; set; }
-        public bool Enable { get; set; }
-        public bool IsRoot { get; set; }
-        private int m_Guid;
-
-        public int Guid
-        {
-            get
-            {
-                if (DataRef != null)
-                {
-                    return DataRef.Guid;
-                }
-
-                return ScratchUtils.InvalidGuid;
-            }
-            set
-            {
-                if (DataRef == null)
-                {
-                    m_Guid = value;
-                }
-            }
-        }
-
-        public void RefreshRef(EngineBlockCanvas canvas)
-        {
-            IEngineBlockBaseData baseData = canvas[m_Guid];
-            m_Data = baseData;
-        }
-
-        [JsonIgnore] private IEngineBlockBaseData m_Data;
-
-        public BlockFragmentDataRef()
-        {
-        }
-        
-        public static BlockFragmentDataRef Create(IEngineBlockBaseData mData)
-        {
-            //decorate 
-            BlockFragmentDataRef blockFragmentDataRef = new BlockFragmentDataRef();
-            
-            blockFragmentDataRef.DataRefGuid = ScratchUtils.CreateGuid();
-            blockFragmentDataRef.m_Data = mData;
-            
-            
-            return blockFragmentDataRef;
-        }
-
-        [JsonIgnore] public FucType FucType => m_Data.FucType;
-        [JsonIgnore] public BlockType BlockType => m_Data.BlockType;
-        [JsonIgnore] public ScratchBlockType Type => m_Data.Type;
-        public int[] GetGuids() => m_Data.GetGuids();
-        public void RefreshGuids(Dictionary<int, int> map) => m_Data.RefreshGuids(map);
-
-        public int DataRefGuid;
-
-        [JsonIgnore] public IEngineBlockBaseData DataRef => m_Data;
-    }
-
+    
     [Serializable]
     public partial class EngineBlockCanvas
     {

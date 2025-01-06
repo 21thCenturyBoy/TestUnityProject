@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -32,6 +33,11 @@ namespace ScratchFramework
             }
 
             m_BlockDict.Clear();
+        }
+
+        public Block FindBlock(Func<Block, bool> blockFunc)
+        {
+            return m_BlockDict.Values.FirstOrDefault(blockFunc);
         }
 
         public void AddBlock(Block block)

@@ -43,6 +43,62 @@ namespace ScratchFramework
             return block;
         }
 
+        public IEngineBlockBaseData DecorateRef(Block block, IEngineBlockBaseData baseData)
+        {
+            DataRefDirector.DataRefType dataRefType = DataRefDirector.DataRefType.None;
+            var blockDataRef = baseData.AsDataRef(out dataRefType);
+            if (blockDataRef == null)
+            {
+                switch (dataRefType)
+                {
+                    case DataRefDirector.DataRefType.None:
+                        break;
+                    case DataRefDirector.DataRefType.Variable:
+                        if (baseData is IEngineBlockVariableBase variableBase)
+                        {
+                            var variableLabel = block.VariableLabel;
+                            var variableData = variableLabel.GetVariableData();
+
+                            ScratchUtils.CreateVariableName(variableBase);
+                            //绑定数据
+                            variableData.VariableRef = variableBase.Guid.ToString();
+
+                            BlockFragmentDataRef dataRef = DataRefDirector.Create(variableBase);
+
+                            return dataRef;
+                        }
+
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                return baseData;
+            }
+            else
+            {
+                switch (dataRefType)
+                {
+                    case DataRefDirector.DataRefType.None:
+                        break;
+                    case DataRefDirector.DataRefType.Variable:
+                        if (blockDataRef.DataRef is IEngineBlockVariableBase variableBase)
+                        {
+                            var variableLabel = block.VariableLabel;
+                            var variableData = variableLabel.GetVariableData();
+                            //绑定数据
+                            variableData.VariableRef = variableBase.Guid.ToString();
+                        }
+
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                return baseData;
+            }
+        }
+
         private void SetKoalaBlockData(Block block)
         {
             if (block.GetEngineBlockData() == null)
@@ -54,30 +110,8 @@ namespace ScratchFramework
                     Debug.LogError("Engine Add Block Error:" + baseData.Guid);
                 }
 
-                if (baseData is IEngineBlockVariableBase variableBase)
-                {
-                    var variableLabel = block.VariableLabel;
-                    var variableData = variableLabel.GetVariableData();
+                block.SetKoalaBlock(DecorateRef(block, baseData));
 
-                    ScratchUtils.CreateVariableName(variableBase);
-                    //绑定数据
-                    variableData.VariableRef = variableBase.Guid.ToString();
-
-                    BlockFragmentDataRef dataRef = BlockFragmentDataRef.Create(variableBase);
-                    ScratchEngine.Instance.AddFragmentDataRef(dataRef);
-
-                    block.SetKoalaBlock(dataRef);
-                }
-                else
-                {
-                    block.SetKoalaBlock(baseData);
-                }
-
-                block.TransformParentChanged();
-                var tag = block.GetComponentInParent<IScratchSectionChild>();
-                if (tag == null) block.FixedUIPosData();
-
-                block.OnSiblingIndexChanged();
                 var sections = block.GetChildSection();
 
                 for (int i = 0; i < sections.Count; i++)
@@ -87,7 +121,8 @@ namespace ScratchFramework
                         Block[] heads = sections[i].Header.GetComponentsInChildren<Block>();
                         for (int j = 0; j < heads.Length; j++)
                         {
-                            SetKoalaBlockData(heads[j]);
+                            Block headBlock = heads[j];
+                            SetKoalaBlockData(headBlock);
                         }
 
                         IBlockScratch_Head[] headDatas = sections[i].Header.GetComponentsInChildren<IBlockScratch_Head>();
@@ -102,44 +137,27 @@ namespace ScratchFramework
                         Block[] bodys = sections[i].Body.GetComponentsInChildren<Block>();
                         for (int j = 0; j < bodys.Length; j++)
                         {
-                            SetKoalaBlockData(bodys[j]);
+                            Block bodyBlock = bodys[j];
+                            SetKoalaBlockData(bodyBlock);
                         }
                     }
                 }
+
+
+                block.TransformParentChanged();
+                var tag = block.GetComponentInParent<IScratchSectionChild>();
+                if (tag == null) block.FixedUIPosData();
+
+                block.OnSiblingIndexChanged();
             }
         }
 
-        private void SetKoalaBlockData(Block block, IEngineBlockBaseData blockBase)
+        public void SetKoalaBlockData(Block block, IEngineBlockBaseData blockBase)
         {
             if (block.GetEngineBlockData() == null)
             {
-                if (blockBase is IEngineBlockVariableBase variableBase)
-                {
-                    BlockFragmentDataRef dataRef = BlockFragmentDataRef.Create(variableBase);
-                    block.SetKoalaBlock(dataRef);
-
-                    var sections = block.GetChildSection();
-                    for (int i = 0; i < sections.Count; i++)
-                    {
-                        if (sections[i].Header != null)
-                        {
-                            IBlockScratch_Head[] heads = sections[i].Header.GetComponentsInChildren<IBlockScratch_Head>();
-                            for (int j = 0; j < heads.Length; j++)
-                            {
-                                if (heads[j].DataRef() is IHeaderParamVariable paramVariable)
-                                {
-                                    ScratchUtils.RefreshVariableName(variableBase, paramVariable);
-                                }
-
-                                heads[j].RefreshUI();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    block.SetKoalaBlock(blockBase);
-                }
+                var newData = DecorateRef(block, blockBase);
+                block.SetKoalaBlock(newData);
             }
         }
     }

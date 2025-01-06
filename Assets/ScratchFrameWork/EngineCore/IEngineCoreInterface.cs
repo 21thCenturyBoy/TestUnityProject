@@ -19,6 +19,7 @@ namespace ScratchFramework
         }
     }
 
+
     public static class IEngineCoreInterfaceExtension
     {
         public static IEngineBlockCanvasData AsCanvasData(this IEngineBlockBaseData data)
@@ -99,7 +100,6 @@ namespace ScratchFramework
 
             if (data is IEngineBlockVariableBase blockVariableBase && target is IEngineBlockVariableBase targetVariableBase)
             {
-                targetVariableBase.VariableName = blockVariableBase.VariableName;
                 targetVariableBase.VariableValue = blockVariableBase.VariableValue;
                 targetVariableBase.ReturnParentGuid = blockVariableBase.ReturnParentGuid;
             }
@@ -114,10 +114,6 @@ namespace ScratchFramework
         public BVector2 CanvasPos { get; set; }
     }
 
-    public interface IEngineBlockBaseDataRef : IEngineBlockBaseData, IEngineBlockCanvasData
-    {
-        public IEngineBlockBaseData DataRef { get; }
-    }
 
     public interface IEngineBlockBaseData
     {
@@ -202,8 +198,7 @@ namespace ScratchFramework
         public object VariableValue { get; set; }
         [BlockGuidRef] public int ReturnParentGuid { get; set; }
     }
-
-
+    
     public interface IEngineCoreInterface
     {
         /// <summary>
