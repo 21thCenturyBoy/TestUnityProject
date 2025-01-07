@@ -58,6 +58,25 @@ namespace ScratchFramework
             return false;
         }
 
+        public bool RemoveAllFragmentDataRef(IEngineBlockBaseData data)
+        {
+            bool res = true;
+            foreach (var canva in Global.Canvas)
+            {
+                res = canva.RemoveFragmentDataRef(data, out var removeArrays) && res;
+            }
+
+            foreach (var group in CanvasGroups)
+            {
+                foreach (var canva in group.Canvas)
+                {
+                    res = canva.RemoveFragmentDataRef(data, out var removeArrays) && res;
+                }
+            }
+
+            return res;
+        }
+
         public static EngineBlockCanvasGroup CreateNewGroup(string name = null)
         {
             EngineBlockCanvasGroup group = new EngineBlockCanvasGroup();
@@ -159,7 +178,7 @@ namespace ScratchFramework
             return list.ToArray();
         }
     }
-    
+
     [Serializable]
     public partial class EngineBlockCanvas
     {
@@ -261,6 +280,22 @@ namespace ScratchFramework
             return false;
         }
 
+        public bool RemoveBlocksData(int[] dataGuids)
+        {
+            bool res = true;
+            foreach (int dataGuid in dataGuids)
+            {
+                var data = m_BlockDataDicts[dataGuid];
+                if (data != null)
+                {
+                    res = RemoveBlocksData(data) && res;
+                }
+                else res = false;
+            }
+
+            return res;
+        }
+
         public bool AddFragmentDataRef(BlockFragmentDataRef dataRef)
         {
             if (_mFragmentDataRefs.ContainsKey(dataRef.DataRefGuid))
@@ -290,6 +325,29 @@ namespace ScratchFramework
             return _mFragmentDataRefs.Remove(dataRef.DataRefGuid);
         }
 
+        public bool RemoveFragmentDataRef(IEngineBlockBaseData data, out BlockFragmentDataRef[] removeArrays)
+        {
+            BlockFragmentDataRef dataRef = data.AsDataRef(out var refType);
+            if (dataRef != null)
+            {
+                removeArrays = new BlockFragmentDataRef[] { dataRef };
+                return RemoveFragmentDataRef(dataRef);
+            }
+            else
+            {
+                var dataGuid = data.Guid;
+                removeArrays = _mFragmentDataRefs.Where(pair => pair.Value.Guid == dataGuid).Select(pair => pair.Value).ToArray();
+
+                bool res = true;
+
+                for (int i = 0; i < removeArrays.Length; i++)
+                {
+                    res = RemoveFragmentDataRef(removeArrays[i]) && res;
+                }
+
+                return res;
+            }
+        }
 
         public IEngineBlockBaseData[] SelectBlockDatas(Func<bool> func)
         {

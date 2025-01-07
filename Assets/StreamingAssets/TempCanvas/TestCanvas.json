@@ -11,23 +11,11 @@
           "$type": "ScratchFramework.EngineBlockCanvas, Assembly-CSharp",
           "Name": "New Canvas",
           "FragmentDataRefs": {
-            "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[ScratchFramework.BlockFragmentDataRef, Assembly-CSharp]], mscorlib",
-            "-511637193": {
-              "$type": "ScratchFramework.BlockFragmentDataRef, Assembly-CSharp",
-              "DataRefGuid": -511637193,
-              "CanvasPos": {
-                "$type": "ScratchFramework.BVector2, Assembly-CSharp",
-                "x": 1289.37036,
-                "y": 285.353577
-              },
-              "Enable": false,
-              "IsRoot": true,
-              "Guid": 226964876
-            }
+            "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[ScratchFramework.BlockFragmentDataRef, Assembly-CSharp]], mscorlib"
           },
           "BlockDataDicts": {
             "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[ScratchFramework.IEngineBlockBaseData, Assembly-CSharp]], mscorlib",
-            "-2138043394": {
+            "-211188422": {
               "$type": "ScratchFramework.BlockLogic_OnCollisionStay, Assembly-CSharp",
               "FucType": 1,
               "Type": 10002,
@@ -35,40 +23,40 @@
               "IsRoot": true,
               "CanvasPos": {
                 "$type": "ScratchFramework.BVector2, Assembly-CSharp",
-                "x": 434.05835,
-                "y": 999.8613
+                "x": 683.2025,
+                "y": 876.0731
               },
               "Enable": true,
-              "Guid": -2138043394,
-              "NextGuid": -2071705874,
-              "ReturnVarGuid_0": 226964876,
-              "ReturnVarGuid_1": -422870072
+              "Guid": -211188422,
+              "NextGuid": 1564364639,
+              "ReturnVarGuid_0": 1904328230,
+              "ReturnVarGuid_1": -910339593
             },
-            "226964876": {
+            "1904328230": {
               "$type": "ScratchFramework.BlockLogic_EntityValue, Assembly-CSharp",
               "FucType": 6,
               "Type": 60003,
               "BlockType": 5,
               "Enable": true,
-              "Guid": 226964876,
+              "Guid": 1904328230,
               "ValueType": 7,
-              "VariableName": "[Entity]-392388009",
+              "VariableName": "[Entity]2011837026",
               "VariableValue": null,
-              "ReturnParentGuid": -2138043394
+              "ReturnParentGuid": -211188422
             },
-            "-422870072": {
+            "-910339593": {
               "$type": "ScratchFramework.BlockLogic_EntityValue, Assembly-CSharp",
               "FucType": 6,
               "Type": 60003,
               "BlockType": 5,
               "Enable": true,
-              "Guid": -422870072,
+              "Guid": -910339593,
               "ValueType": 7,
-              "VariableName": "[Entity]640697158",
+              "VariableName": "[Entity]-1109444809",
               "VariableValue": null,
-              "ReturnParentGuid": -2138043394
+              "ReturnParentGuid": -211188422
             },
-            "-2071705874": {
+            "1564364639": {
               "$type": "ScratchFramework.BlockLogic_IfElse, Assembly-CSharp",
               "FucType": 3,
               "Type": 30001,
@@ -80,12 +68,12 @@
                 "y": 0.0
               },
               "Enable": true,
-              "Guid": -2071705874,
+              "Guid": 1564364639,
               "NextGuid": 0,
-              "BranchOperationBGuids": "[-1670917474]",
-              "BranchBlockBGuids": "[0,0]"
+              "BranchOperationBGuids": "[-753351060]",
+              "BranchBlockBGuids": "[185306856,-1691232229]"
             },
-            "-1670917474": {
+            "-753351060": {
               "$type": "ScratchFramework.BlockLogic_CompareValues, Assembly-CSharp",
               "FucType": 4,
               "Type": 40001,
@@ -97,39 +85,15 @@
                 "y": 0.0
               },
               "Enable": true,
-              "Guid": -1670917474,
-              "VarGuid_0": 226964876,
-              "VarGuid_1": -422870072
+              "Guid": -753351060,
+              "VarGuid_0": -910339593,
+              "VarGuid_1": 1904328230
             },
-            "-1820663343": {
-              "$type": "ScratchFramework.BlockLogic_EntityValue, Assembly-CSharp",
-              "FucType": 6,
-              "Type": 60003,
-              "BlockType": 5,
-              "Enable": true,
-              "Guid": -1820663343,
-              "ValueType": 7,
-              "VariableName": "[Entity]-927849268",
-              "VariableValue": null,
-              "ReturnParentGuid": 1214917523
-            },
-            "-2020432077": {
-              "$type": "ScratchFramework.BlockLogic_EntityValue, Assembly-CSharp",
-              "FucType": 6,
-              "Type": 60003,
-              "BlockType": 5,
-              "Enable": true,
-              "Guid": -2020432077,
-              "ValueType": 7,
-              "VariableName": "[Entity]1402452375",
-              "VariableValue": null,
-              "ReturnParentGuid": 1214917523
-            },
-            "-1058823364": {
-              "$type": "ScratchFramework.BlockLogic_CompareValues, Assembly-CSharp",
-              "FucType": 4,
-              "Type": 40001,
-              "BlockType": 5,
+            "185306856": {
+              "$type": "ScratchFramework.BlockLogic_DestroyObject, Assembly-CSharp",
+              "FucType": 2,
+              "Type": 20002,
+              "BlockType": 2,
               "IsRoot": false,
               "CanvasPos": {
                 "$type": "ScratchFramework.BVector2, Assembly-CSharp",
@@ -137,110 +101,48 @@
                 "y": 0.0
               },
               "Enable": true,
-              "Guid": -1058823364,
-              "VarGuid_0": -1820663343,
-              "VarGuid_1": -2020432077
-            },
-            "1152972643": {
-              "$type": "ScratchFramework.BlockLogic_IfElse, Assembly-CSharp",
-              "FucType": 3,
-              "Type": 30001,
-              "BlockType": 3,
-              "IsRoot": false,
-              "CanvasPos": {
-                "$type": "ScratchFramework.BVector2, Assembly-CSharp",
-                "x": 0.0,
-                "y": 0.0
-              },
-              "Enable": true,
-              "Guid": 1152972643,
+              "Guid": 185306856,
               "NextGuid": 0,
-              "BranchOperationBGuids": "[-1058823364]",
-              "BranchBlockBGuids": "[0,0]"
+              "VarGuid_0": -910339593
             },
-            "1214917523": {
-              "$type": "ScratchFramework.BlockLogic_OnCollisionStay, Assembly-CSharp",
-              "FucType": 1,
-              "Type": 10002,
-              "BlockType": 1,
-              "IsRoot": true,
+            "-1691232229": {
+              "$type": "ScratchFramework.BlockLogic_ApplyForce, Assembly-CSharp",
+              "FucType": 2,
+              "Type": 20001,
+              "BlockType": 2,
+              "IsRoot": false,
               "CanvasPos": {
                 "$type": "ScratchFramework.BVector2, Assembly-CSharp",
-                "x": 1093.143,
-                "y": 977.3926
+                "x": 0.0,
+                "y": 0.0
               },
               "Enable": true,
-              "Guid": 1214917523,
-              "NextGuid": 1152972643,
-              "ReturnVarGuid_0": -1820663343,
-              "ReturnVarGuid_1": -2020432077
+              "Guid": -1691232229,
+              "NextGuid": 0,
+              "VarGuid_0": 1904328230,
+              "VarGuid_1": -138814956
+            },
+            "-138814956": {
+              "$type": "ScratchFramework.BlockLogic_VectorValue, Assembly-CSharp",
+              "FucType": 6,
+              "Type": 60002,
+              "BlockType": 5,
+              "Enable": true,
+              "Guid": -138814956,
+              "ValueType": 6,
+              "VariableName": "Burst Force",
+              "VariableValue": null,
+              "ReturnParentGuid": 0
             }
           },
-          "Count": 10
-        },
-        {
-          "$type": "ScratchFramework.EngineBlockCanvas, Assembly-CSharp",
-          "Name": "New Canvas",
-          "FragmentDataRefs": {
-            "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[ScratchFramework.BlockFragmentDataRef, Assembly-CSharp]], mscorlib",
-            "-1157720689": {
-              "$type": "ScratchFramework.BlockFragmentDataRef, Assembly-CSharp",
-              "DataRefGuid": -1157720689,
-              "CanvasPos": {
-                "$type": "ScratchFramework.BVector2, Assembly-CSharp",
-                "x": 1446.6521,
-                "y": 859.0568
-              },
-              "Enable": false,
-              "IsRoot": true,
-              "Guid": -2020432077
-            }
-          },
-          "BlockDataDicts": {
-            "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[ScratchFramework.IEngineBlockBaseData, Assembly-CSharp]], mscorlib"
-          },
-          "Count": 0
+          "Count": 8
         }
       ]
     },
-    "Count": 10
+    "Count": 8
   },
   "CanvasGroups": {
     "$type": "System.Collections.Generic.List`1[[ScratchFramework.EngineBlockCanvasGroup, Assembly-CSharp]], mscorlib",
-    "$values": [
-      {
-        "$type": "ScratchFramework.EngineBlockCanvasGroup, Assembly-CSharp",
-        "Name": "New CanvasGroup",
-        "Canvas": {
-          "$type": "System.Collections.Generic.List`1[[ScratchFramework.EngineBlockCanvas, Assembly-CSharp]], mscorlib",
-          "$values": [
-            {
-              "$type": "ScratchFramework.EngineBlockCanvas, Assembly-CSharp",
-              "Name": "New Canvas",
-              "FragmentDataRefs": {
-                "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[ScratchFramework.BlockFragmentDataRef, Assembly-CSharp]], mscorlib",
-                "-1137520239": {
-                  "$type": "ScratchFramework.BlockFragmentDataRef, Assembly-CSharp",
-                  "DataRefGuid": -1137520239,
-                  "CanvasPos": {
-                    "$type": "ScratchFramework.BVector2, Assembly-CSharp",
-                    "x": 652.754761,
-                    "y": 883.02356
-                  },
-                  "Enable": false,
-                  "IsRoot": true,
-                  "Guid": -2020432077
-                }
-              },
-              "BlockDataDicts": {
-                "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[ScratchFramework.IEngineBlockBaseData, Assembly-CSharp]], mscorlib"
-              },
-              "Count": 0
-            }
-          ]
-        },
-        "Count": 0
-      }
-    ]
+    "$values": []
   }
 }

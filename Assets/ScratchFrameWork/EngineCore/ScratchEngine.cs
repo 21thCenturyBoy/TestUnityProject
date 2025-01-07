@@ -43,14 +43,14 @@ namespace ScratchFramework
         public void SetFileData(EngineBlockFileData fileData)
         {
             m_FileData = fileData;
-            
+
             m_CurrentGroup = fileData.Global;
             Current = CurrentGroup.Canvas[0];
 
             m_FileData.RefreshRef();
             m_FileData.RefreshDataGuids();
             BlockCanvasUIManager.Instance.RefreshCanvas();
-                
+
             TempCanvasUIManager.Instance.TopCanvasGroup.Initialize();
         }
 
@@ -67,16 +67,33 @@ namespace ScratchFramework
             listLocal = Current.SelectBlockDatas<IEngineBlockVariableBase>();
         }
 
-        public bool AddBlocksData(IEngineBlockBaseData data)
+        public bool AddBlocksData(params IEngineBlockBaseData[] datas)
         {
-            return m_Current.AddBlocksData(data);
+            bool res = true;
+            for (int i = 0; i < datas.Length; i++)
+            {
+                res = m_Current.AddBlocksData(datas[i]) && res;
+            }
+
+            return res;
         }
 
-        public bool RemoveBlocksData(IEngineBlockBaseData data)
+        public bool RemoveCurrentCanvasData(params IEngineBlockBaseData[] datas)
         {
-            return m_Current.RemoveBlocksData(data);
+            bool res = true;
+            for (int i = 0; i < datas.Length; i++)
+            {
+                res = m_Current.RemoveBlocksData(datas[i]) && res;
+            }
+
+            return res;
         }
-        
+
+        public bool RemoveCurrentCanvasData(params int[] datas)
+        {
+            return m_Current.RemoveBlocksData(datas);
+        }
+
         public bool AddFragmentDataRef(BlockFragmentDataRef dataRef)
         {
             return m_Current.AddFragmentDataRef(dataRef);
@@ -85,6 +102,34 @@ namespace ScratchFramework
         public bool RemoveFragmentDataRef(BlockFragmentDataRef dataRef)
         {
             return m_Current.RemoveFragmentDataRef(dataRef);
+        }
+
+        public bool RemoveFileFragmentRef(IEngineBlockBaseData dataRef)
+        {
+            return FileData.RemoveAllFragmentDataRef(dataRef);
+        }
+
+        public void RemoveFileData(IEngineBlockBaseData dataRef)
+        {
+            foreach (var canvas in FileData.Global.Canvas)
+            {
+                if (canvas.ContainGuids(dataRef.Guid))
+                {
+                    canvas.RemoveBlocksData(dataRef);
+                }
+            }
+
+            foreach (var group in FileData.CanvasGroups)
+            {
+                foreach (var canvas in group.Canvas)
+                {
+                    if (canvas.ContainGuids(dataRef.Guid))
+                    {
+                        canvas.RemoveBlocksData(dataRef);
+                    }
+                }
+            }
+            
         }
     }
 }

@@ -65,39 +65,71 @@ namespace ScratchFramework
             return null;
         }
 
-        public static void DestroyBlock(Block block, bool refreshCanvas = true, bool recursion = true)
+        public static bool DestroyBlock(Block block, bool refreshCanvas = true, bool recursion = true)
         {
             var blockBaseData = block.GetEngineBlockData();
-            var blockTree = GetBlockDatas(block);
-
-            if (blockBaseData.IsDataRef())
+            BlockFragmentDataRef dataRef = blockBaseData.AsDataRef(out var type);
+            if (dataRef != null)
             {
-                BlockFragmentDataRef dataRef = blockBaseData as BlockFragmentDataRef;
                 if (dataRef.IsRoot)
                 {
                     ScratchEngine.Instance.RemoveFragmentDataRef(dataRef);
                 }
-            }
-
-            if (recursion)
-            {
-                HashSet<int> hashSet = new HashSet<int>();
-                blockTree.TraverseTree((deep, bNode) =>
-                {
-                    if (!blockBaseData.IsDataRef()) return true;
-                    hashSet.Add(bNode.Value.Guid);
-                    return true;
-                });
+                if (dataRef.DataRef.IsReturnVariable()) return false;
             }
             else
             {
-                ScratchEngine.Instance.RemoveBlocksData(blockBaseData);
+                var blockTree = GetBlockDatas(block);
+                if (recursion)
+                {
+                    HashSet<int> removeHashSet = new HashSet<int>();
+                    HashSet<int> returnVariables = new HashSet<int>();
+                    blockTree.TraverseTree((deep, bNode) =>
+                    {
+                        var nodeRef = bNode.Value.AsDataRef(out var nodeType);
+                        if (nodeRef == null)
+                        {
+                            removeHashSet.Add(bNode.Value.Guid);
+                        }
+                        else
+                        {
+                            if (nodeRef.DataRef.IsReturnVariable())
+                            {
+                                returnVariables.Add(nodeRef.Guid);
+                            }
+                        }
+
+                        return true;
+                    });
+
+                    foreach (int returnVariableGuid in returnVariables)
+                    {
+                        var returnVariableData = ScratchEngine.Instance.Current[returnVariableGuid];
+                        if (returnVariableData != null)
+                        {
+                            IEngineBlockVariableBase returnVariable = returnVariableData as IEngineBlockVariableBase;
+                            if (removeHashSet.Contains(returnVariable.ReturnParentGuid))
+                            {
+                                removeHashSet.Add(returnVariableGuid);
+                                ScratchEngine.Instance.RemoveFileFragmentRef(returnVariable);
+                            }
+                        }
+                    }
+
+                    ScratchEngine.Instance.RemoveCurrentCanvasData(removeHashSet.ToArray());
+                }
+                else
+                {
+                    ScratchEngine.Instance.RemoveCurrentCanvasData(blockBaseData);
+                }
             }
 
             if (refreshCanvas)
             {
                 BlockCanvasUIManager.Instance.RefreshCanvas();
             }
+
+            return true;
         }
 
         public static void ReplaceBlock(this Block block, Block newBlock)

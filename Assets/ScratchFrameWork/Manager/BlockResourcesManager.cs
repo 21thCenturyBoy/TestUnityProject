@@ -148,13 +148,35 @@ namespace ScratchFramework
             ShowVariable(showVar);
         }
 
+        private TempResourcesItem CreateTempResourcesItem(IEngineBlockVariableBase blockdata)
+        {
+            //----- Create TempResourcesItem UI-----
+            GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
+            TempResourcesItem resourcesItem = obj.AddComponent<TempResourcesItem>();
+            resourcesItem.SetVariableData(blockdata);
+            
+            var datas = BlockResourcesManager.Instance.GetResourcesItemData(blockdata.Type).TemplateDatas;
+
+            ResourcesItemData data = new ResourcesItemData(datas, blockdata.Guid.ToString());
+            data.ScratchType = blockdata.Type;
+            data.Type = blockdata.BlockType;
+            data.BlockFucType = blockdata.FucType;
+            
+            resourcesItem.Data = data;
+            
+            resourcesItem.Active = true;
+            resourcesItem.Initialize();
+            
+            return resourcesItem;
+        }
+
         private void ShowVariable(bool show)
         {
             bool isGlobal = ScratchEngine.Instance.CurrentIsGlobal;
 
             m_GlobalHeader.gameObject.SetActive(show);
 
-            m_LocalHeader.gameObject.SetActive(show && !isGlobal);
+            m_LocalHeader.gameObject.SetActive(show);
 
             for (int i = 0; i < m_VarResourcesItem.Count; i++)
             {
@@ -166,41 +188,40 @@ namespace ScratchFramework
             {
                 ScratchEngine.Instance.SerachVariableData(out var globalVars, out var localVars);
 
+                //Global
                 for (int i = 0; i < globalVars.Length; i++)
                 {
-                    //-----获取Koala数据层-----
+                    //-----Get Engine Data -----
                     var logicdata = globalVars[i];
                     IEngineBlockVariableBase blockdata = logicdata as IEngineBlockVariableBase;
 
-                    //-----创建TempResourcesItem UI-----
-                    GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
-                    TempResourcesItem resourcesItem = obj.AddComponent<TempResourcesItem>();
-                    resourcesItem.SetVariableData(blockdata);
-
-                    var datas = BlockResourcesManager.Instance.GetResourcesItemData(blockdata.Type).TemplateDatas;
-
-                    ResourcesItemData data = new ResourcesItemData(datas, blockdata.Guid.ToString());
-                    data.ScratchType = blockdata.Type;
-                    data.Type = blockdata.BlockType;
-                    data.BlockFucType = blockdata.FucType;
-
-                    resourcesItem.Data = data;
-                    resourcesItem.Active = true;
-                    resourcesItem.Initialize();
-
+                    //IsReturnVariable Is Local
                     if (blockdata.IsReturnVariable())
                     {
-                        resourcesItem.NameField.interactable = false;
-                        resourcesItem.ValueField.gameObject.SetActive(false);
-                        resourcesItem.DeleteBtn.gameObject.SetActive(false);
+                        //Current
+                        if (ScratchEngine.Instance.Current.ContainGuids(blockdata.Guid))
+                        {
+                            //----- Create TempResourcesItem UI-----
+                            TempResourcesItem resourcesItem = CreateTempResourcesItem(blockdata);
+                            
+                            resourcesItem.NameField.interactable = false;
+                            resourcesItem.ValueField.gameObject.SetActive(false);
+                            resourcesItem.DeleteBtn.gameObject.SetActive(false);
+                            
+                            resourcesItem.SetParent(TemplatePanelContent, m_LocalHeader.GetSiblingIndex() + 1);
+                            m_VarResourcesItem.Add(resourcesItem);
+                        }
                     }
-
-                    resourcesItem.SetParent(TemplatePanelContent, m_GlobalHeader.GetSiblingIndex() + 1);
-
-                    m_VarResourcesItem.Add(resourcesItem);
+                    else
+                    {
+                        //----- Create TempResourcesItem UI-----
+                        TempResourcesItem resourcesItem = CreateTempResourcesItem(blockdata);
+                        
+                        resourcesItem.SetParent(TemplatePanelContent, m_GlobalHeader.GetSiblingIndex() + 1);
+                        m_VarResourcesItem.Add(resourcesItem);
+                    }
                 }
-
-
+                
                 if (!isGlobal)
                 {
                     for (int i = 0; i < localVars.Length; i++)
@@ -209,21 +230,8 @@ namespace ScratchFramework
                         var logicdata = localVars[i];
                         IEngineBlockVariableBase blockdata = logicdata as IEngineBlockVariableBase;
 
-                        //-----创建TempResourcesItem UI-----
-                        GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
-                        TempResourcesItem resourcesItem = obj.AddComponent<TempResourcesItem>();
-                        resourcesItem.SetVariableData(blockdata);
-
-                        var datas = BlockResourcesManager.Instance.GetResourcesItemData(blockdata.Type).TemplateDatas;
-
-                        ResourcesItemData data = new ResourcesItemData(datas, blockdata.Guid.ToString());
-                        data.ScratchType = blockdata.Type;
-                        data.Type = blockdata.BlockType;
-                        data.BlockFucType = blockdata.FucType;
-
-                        resourcesItem.Data = data;
-                        resourcesItem.Active = true;
-                        resourcesItem.Initialize();
+                        //----- Create TempResourcesItem UI-----
+                        TempResourcesItem resourcesItem = CreateTempResourcesItem(blockdata);
 
                         if (blockdata.IsReturnVariable())
                         {

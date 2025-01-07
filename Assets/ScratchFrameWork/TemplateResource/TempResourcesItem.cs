@@ -86,7 +86,9 @@ namespace ScratchFramework
 
         public virtual void OnDelete()
         {
-            Debug.LogError("还没做！");
+            ScratchEngine.Instance.RemoveFileData(m_VariableData);
+            ScratchEngine.Instance.RemoveFileFragmentRef(m_VariableData);
+            BlockCanvasUIManager.Instance.RefreshCanvas();
         }
 
         public virtual void OnNameFieldEndEdit(string strInfo)

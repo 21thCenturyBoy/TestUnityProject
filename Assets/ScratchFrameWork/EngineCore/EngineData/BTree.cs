@@ -60,7 +60,7 @@ namespace ScratchFramework
             return this;
         }
         
-        /// <param name="callback">return 是否中断遍历</param>
+        /// <param name="callback">return 遍历状态,false中断</param>
         /// <param name="level"></param>
         /// <returns></returns>
         public bool TraverseTree(Func<int, BTreeNode<T>, bool> callback, int level = 0)
