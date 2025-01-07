@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Newtonsoft.Json;
@@ -349,6 +350,61 @@ namespace ScratchFramework
             m_DirtyTreeType = BlocksDataDirtyType.None;
         }
 
+        /// <summary>
+        /// 反序列化UI模版
+        /// </summary>
+        /// <param name="datas"></param>
+        /// <param name="parentTrans"></param>
+        /// <returns></returns>
+        public static Block DeserializeBlock(byte[] datas, RectTransform parentTrans = null)
+        {
+            MemoryStream memoryStream = CreateMemoryStream(datas);
+
+            BlockData newBlockData = new BlockData();
+            newBlockData.BlockData_Deserialize(memoryStream, ScratchConfig.Instance.Version, true);
+
+            Block newblock = null;
+
+            newblock = BlockCreator.CreateBlock(newBlockData, parentTrans);
+
+            return newblock;
+        }
+
+        /// <summary>
+        /// 刷新Guid
+        /// </summary>
+        /// <param name="blockDatas"></param>
+        public static void RefreshDataGuids(List<IEngineBlockBaseData> blockDatas, Dictionary<int, int> guidMap = null)
+        {
+            bool autoRefresh = guidMap == null;
+            if (autoRefresh)
+            {
+                guidMap = new Dictionary<int, int>();
+
+                foreach (IEngineBlockBaseData baseData in blockDatas)
+                {
+                    if (guidMap.ContainsKey(baseData.Guid) || baseData.Guid == ScratchUtils.InvalidGuid)
+                    {
+                        Debug.LogError("failed to get guid Fixed：" + baseData.Guid);
+                        baseData.Guid = ScratchUtils.CreateGuid();
+                    }
+
+                    guidMap[baseData.Guid] = baseData.Guid;
+                }
+
+                int[] orginkeys = guidMap.Keys.ToArray();
+                foreach (int key in orginkeys)
+                {
+                    guidMap[key] = ScratchUtils.CreateGuid();
+                }
+            }
+
+            foreach (IEngineBlockBaseData baseData in blockDatas)
+            {
+                baseData.RefreshGuids(guidMap);
+            }
+        }
+
         public static BTreeNode<IEngineBlockBaseData> GetBlockDatas(Block blockNode, Action<IEngineBlockBaseData> callback = null)
         {
             IEngineBlockBaseData blockBaseData = blockNode.GetEngineBlockData();
@@ -385,13 +441,10 @@ namespace ScratchFramework
             callback?.Invoke(blockBaseData);
             return node;
         }
-        
+
         public static BTreeNode<IEngineBlockBaseData> GetBlockDatas(IEngineBlockBaseData blockBaseData, Action<IEngineBlockBaseData> callback = null)
         {
-            Block blockNode = BlockCanvasUIManager.Instance.FindBlock(block =>
-            {
-                return block.GetEngineBlockData() == blockBaseData;
-            });
+            Block blockNode = BlockCanvasUIManager.Instance.FindBlock(block => { return block.GetEngineBlockData() == blockBaseData; });
 
             if (blockNode == null)
             {

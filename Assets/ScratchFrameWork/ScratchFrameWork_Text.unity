@@ -2472,7 +2472,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 856354299}
         m_TargetAssemblyTypeName: ScratchFramework.TopCanvasGroup, Assembly-CSharp
-        m_MethodName: AddCanvans
+        m_MethodName: AddGroups
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

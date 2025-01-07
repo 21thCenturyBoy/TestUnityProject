@@ -47,7 +47,7 @@ namespace ScratchFramework
 
             if (m_VariableData != null)
             {
-                ValueField.text = ScratchUtils.VariableKoalaBlockToString(m_VariableData);
+                ValueField.text = ScratchUtils.EngineVariableToString(m_VariableData);
                 NameField.text = m_VariableData.VariableName;
             }
         }
@@ -106,7 +106,7 @@ namespace ScratchFramework
 
         public virtual void OnValueFieldEndEdit(string strInfo)
         {
-            if (ScratchUtils.String2VariableKoalaBlock(strInfo, m_VariableData))
+            if (ScratchUtils.String2VariableEngine(strInfo, m_VariableData))
             {
             }
             else
