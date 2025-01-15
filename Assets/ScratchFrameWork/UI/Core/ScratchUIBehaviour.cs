@@ -17,7 +17,7 @@ namespace ScratchFramework
     }
 
 
-    public abstract class ScratchUIBehaviour : ScratchBehaviour, IScratchLayout
+    public abstract class ScratchUIBehaviour : ScratchBehaviour
     {
         private RectTransform m_rectTrans;
 

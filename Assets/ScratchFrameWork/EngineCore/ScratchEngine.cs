@@ -1,3 +1,6 @@
+using System;
+using UnityEngine;
+
 namespace ScratchFramework
 {
     public class ScratchEngine : Singleton<ScratchEngine>
@@ -40,6 +43,28 @@ namespace ScratchFramework
             }
         }
 
+        public bool CurrentIsGlobal => CurrentGroup == FileData.Global;
+
+        private void Start()
+        {
+            ScratchUtils.ResourcePreLoad();
+            // ScratchProgrammingManager.Instance.Initialize();
+            ScratchMenuManager.Instance.Initialize();
+        }
+        float timer = 0f;
+        private void Update()
+        {
+            timer += Time.deltaTime;
+            if (timer >= Core.GetVirtualMachine().TickDelta)
+            {
+                timer = 0f;
+                Core?.GetVirtualMachine()?.Tick();
+            }
+            Core?.GetVirtualMachine()?.RenderUpdate(Time.deltaTime);
+        }
+
+        #region ProgrammingCanvas
+
         public void SetFileData(EngineBlockFileData fileData)
         {
             m_FileData = fileData;
@@ -53,8 +78,6 @@ namespace ScratchFramework
 
             TempCanvasUIManager.Instance.TopCanvasGroup.Initialize();
         }
-
-        public bool CurrentIsGlobal => CurrentGroup == FileData.Global;
 
         public bool ContainGuids(int guid)
         {
@@ -129,7 +152,8 @@ namespace ScratchFramework
                     }
                 }
             }
-            
         }
+
+        #endregion
     }
 }

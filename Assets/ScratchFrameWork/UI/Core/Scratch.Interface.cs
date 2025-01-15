@@ -5,12 +5,6 @@ using UnityEngine.EventSystems;
 
 namespace ScratchFramework
 {
-    public interface IScratchLayout
-    {
-        Vector2 GetSize();
-        void OnUpdateLayout();
-    }
-
     public interface IScratchModifyLayout
     {
         void UpdateLayout();

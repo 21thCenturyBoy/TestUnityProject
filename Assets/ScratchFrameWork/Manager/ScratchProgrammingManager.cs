@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ScratchFramework
 {
-    public class ScratchManager : ScratchSingleton<ScratchManager>, IScratchManager
+    public class ScratchProgrammingManager : ScratchSingleton<ScratchProgrammingManager>, IScratchManager
     {
         private Canvas m_Canvas;
 
@@ -40,21 +40,15 @@ namespace ScratchFramework
         private TempCanvasUIManager _mTempCanvasUI;
         private BlockResourcesManager m_ResourcesManager;
 
-        private void Awake()
-        {
-            Initialize();
-        }
-
         public override bool Initialize()
         {
             if (base.Initialize())
             {
                 _mTempCanvasUI = GetComponentInChildren<TempCanvasUIManager>();
                 _mTempCanvasUI.Initialize();
-
-                m_ResourcesManager = GetComponentInChildren<BlockResourcesManager>();
             }
-
+            
+            m_ResourcesManager = BlockResourcesManager.Instance;
             m_ResourcesManager.Initialize();
             m_ResourcesManager.LoadAllResource(LoadResourceFinish);
 
@@ -86,6 +80,7 @@ namespace ScratchFramework
 
 
             //ScratchDebug
+            ScratchDebugManager.Instance.SetParent(transform);
             ScratchDebugManager.Instance.Initialize();
 
 
@@ -96,9 +91,10 @@ namespace ScratchFramework
             });
 
             m_isInitialized = true;
+            
         }
 
-        public bool Active { get; set; }
+ 
 
 
         private void Update()

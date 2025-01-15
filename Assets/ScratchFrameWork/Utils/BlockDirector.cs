@@ -521,7 +521,7 @@ namespace ScratchFramework
                     var sections = block.Layout.SectionsArray;
                     for (int i = 0; i < sections.Length; i++)
                     {
-                        sections[i].Body.Image.Visible = false;
+                        sections[i].Body.Image.LockedInVisible();
                     }
 
                     break;

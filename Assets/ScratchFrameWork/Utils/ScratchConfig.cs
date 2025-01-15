@@ -57,6 +57,7 @@ namespace ScratchFramework
                 if (!_instance)
                 {
                     _instance = Resources.Load<ScratchConfig>("ScratchConfig");
+
                     // if (_instance == null)
                     // {
                     //     QGResManager.LoadAsync<ScratchConfig>(KoalaUIPaths.ScratchConfig, false, gameObject =>
@@ -79,7 +80,20 @@ namespace ScratchFramework
             }
         }
 
+
+        public static T PreResourceLoad<T>(string assetName) where T : UnityEngine.Object
+        {
+            T obj = Resources.Load<T>(assetName);
+            if (obj == null)
+            {
+                Debug.LogError($"找不到此路径下的资源：{typeof(T).Name}！！！");
+            }
+
+            return obj;
+        }
+
         public const string RES_GhostBlock = "GhostBlock";
+
         public static void ResourceLoad<T>(string assetName, Action<T> callback) where T : UnityEngine.Object
         {
             T obj = Resources.Load<T>(assetName);

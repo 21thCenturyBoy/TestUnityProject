@@ -5,6 +5,7 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 namespace ScratchFramework
 {
@@ -15,6 +16,10 @@ namespace ScratchFramework
     {
         private readonly string tempJsonfileUrl = "file://" + tempJsonfilePath;
         private static readonly string tempJsonfilePath = Application.streamingAssetsPath + "/TempCanvas/TestCanvas.json";
+
+
+        TestVirtualMachine m_VirtualMachine = new TestVirtualMachine().Run();
+
 
         public void LoadBlockFile(Action<EngineBlockFileData> callback = null)
         {
@@ -43,6 +48,8 @@ namespace ScratchFramework
 
             ScratchEngine.Instance.StartCoroutine(GetJsonFile(tempJsonfileUrl, (stream) =>
             {
+                m_VirtualMachine.PreInit();
+
                 EngineBlockFileData fileData = null;
 
                 if (stream == null)
@@ -75,6 +82,7 @@ namespace ScratchFramework
                         }
                     }
                 }
+
 
                 callback?.Invoke(fileData);
             }));
@@ -269,5 +277,8 @@ namespace ScratchFramework
 
             return false;
         }
+
+        public IVirtualMachine GetVirtualMachine() => m_VirtualMachine;
     }
+    
 }

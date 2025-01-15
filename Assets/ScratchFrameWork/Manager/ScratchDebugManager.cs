@@ -18,7 +18,7 @@ namespace ScratchFramework
                 {
                     if (m_CameraDragDebug == null)
                     {
-                        m_CameraDragDebug = ScratchManager.Instance.CanvasCamera.gameObject.AddComponent<CameraDragDebug>();
+                        m_CameraDragDebug = ScratchProgrammingManager.Instance.CanvasCamera.gameObject.AddComponent<CameraDragDebug>();
                     }
                 }
                 else

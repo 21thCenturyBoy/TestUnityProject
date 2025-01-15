@@ -23,12 +23,31 @@ namespace ScratchFramework
             }
         }
 
+        private bool m_lockedInVisible;
+
+        public void LockedInVisible()
+        {
+            m_lockedInVisible = true;
+            Visible = false;
+        }
+
+        protected override void OnEnable()
+        {
+            if (m_lockedInVisible) return;
+            Visible = true;
+        }
+
+        protected override void OnDisable()
+        {
+            if (m_lockedInVisible) return;
+            Visible = false;
+        }
+
         protected override void OnVisible()
         {
             base.OnVisible();
 
             if (IsDestroying) return;
-
             Image.enabled = true;
         }
 
@@ -37,10 +56,9 @@ namespace ScratchFramework
             base.OnInVisible();
 
             if (IsDestroying) return;
-
             Image.enabled = false;
         }
-        
+
         public void SetColor(Color color)
         {
             if (IsDestroying) return;

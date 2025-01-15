@@ -11,42 +11,15 @@ namespace ScratchFramework
     /// <summary>
     /// 积木素材资源管理类
     /// </summary>
-    public class BlockResourcesManager : ScratchUISingleton<BlockResourcesManager>, IScratchManager
+    public class BlockResourcesManager : ScratchSingleton<BlockResourcesManager>, IScratchManager
     {
-        private Dictionary<ScratchBlockType, ResourcesItem> m_TemplateResourcesDict = new Dictionary<ScratchBlockType, ResourcesItem>();
-        private List<TempResourcesItem> m_VarResourcesItem = new List<TempResourcesItem>();
         private Dictionary<ScratchBlockType, ResourcesItemData> m_TemplateTextDatas = new Dictionary<ScratchBlockType, ResourcesItemData>();
 
-        public Transform TemplatePanelContent;
-        public GameObject ResourcesItemPrefab;
-
-
-        public Transform HeaderPrefab;
-
-        private Transform m_TemplateHeader;
-        private Transform m_GlobalHeader;
-        private Transform m_LocalHeader;
+        public Dictionary<ScratchBlockType, ResourcesItemData> TemplateData => m_TemplateTextDatas;
 
         public override bool Initialize()
         {
-            m_TemplateHeader = GameObject.Instantiate(HeaderPrefab, TemplatePanelContent);
-            m_TemplateHeader.GetComponent<TMP_Text>().text = "-----Template-----";
-            m_TemplateHeader.gameObject.SetActive(true);
-
-            m_GlobalHeader = GameObject.Instantiate(HeaderPrefab, TemplatePanelContent);
-            m_GlobalHeader.GetComponent<TMP_Text>().text = "-----Global-----";
-            m_GlobalHeader.gameObject.SetActive(true);
-
-            m_LocalHeader = GameObject.Instantiate(HeaderPrefab, TemplatePanelContent);
-            m_LocalHeader.GetComponent<TMP_Text>().text = "-----Local-----";
-            m_LocalHeader.gameObject.SetActive(true);
-
-            foreach (KeyValuePair<ScratchBlockType, ResourcesItem> resourcesItem in m_TemplateResourcesDict)
-            {
-                GameObject.DestroyImmediate(resourcesItem.Value.gameObject);
-            }
-
-            m_TemplateResourcesDict.Clear();
+            m_TemplateTextDatas.Clear();
 
             if (m_isInitialized) return false;
 
@@ -96,190 +69,6 @@ namespace ScratchFramework
             return m_TemplateTextDatas.Values.Where(data => data.BlockFucType == type).ToArray();
         }
 
-        public void ShowFirstLevel(FirstLevelType firstLevelType)
-        {
-            foreach (KeyValuePair<ScratchBlockType, ResourcesItem> resourcesItem in m_TemplateResourcesDict)
-            {
-                GameObject.DestroyImmediate(resourcesItem.Value.gameObject);
-            }
-
-            m_TemplateResourcesDict.Clear();
-
-            ResourcesItemData[] datas = null;
-            FucType fucType = FucType.Undefined;
-            switch (firstLevelType)
-            {
-                case FirstLevelType.Event:
-                    fucType = FucType.Event;
-                    break;
-                case FirstLevelType.Action:
-                    fucType = FucType.Action;
-                    break;
-                case FirstLevelType.Control:
-                    fucType = FucType.Control;
-                    break;
-                case FirstLevelType.Condition:
-                    fucType = FucType.Condition;
-                    break;
-                case FirstLevelType.GetValue:
-                    fucType = FucType.GetValue;
-                    break;
-                case FirstLevelType.Variable:
-                    fucType = FucType.Variable;
-                    break;
-                case FirstLevelType.Custom:
-                    fucType = FucType.Undefined;
-                    break;
-                case FirstLevelType.Search:
-                    fucType = FucType.Undefined;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(firstLevelType), firstLevelType, null);
-            }
-
-
-            bool showVar = firstLevelType == FirstLevelType.Variable || firstLevelType == FirstLevelType.Search;
-
-
-            datas = m_TemplateTextDatas.Where(data => data.Value.BlockFucType == fucType)
-                .Select(data => data.Value).ToArray();
-
-            ShowBlockTemplate(datas);
-            ShowVariable(showVar);
-        }
-
-        private TempResourcesItem CreateTempResourcesItem(IEngineBlockVariableBase blockdata)
-        {
-            //----- Create TempResourcesItem UI-----
-            GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
-            TempResourcesItem resourcesItem = obj.AddComponent<TempResourcesItem>();
-            resourcesItem.SetVariableData(blockdata);
-            
-            var datas = BlockResourcesManager.Instance.GetResourcesItemData(blockdata.Type).TemplateDatas;
-
-            ResourcesItemData data = new ResourcesItemData(datas, blockdata.Guid.ToString());
-            data.ScratchType = blockdata.Type;
-            data.Type = blockdata.BlockType;
-            data.BlockFucType = blockdata.FucType;
-            
-            resourcesItem.Data = data;
-            
-            resourcesItem.Active = true;
-            resourcesItem.Initialize();
-            
-            return resourcesItem;
-        }
-
-        private void ShowVariable(bool show)
-        {
-            bool isGlobal = ScratchEngine.Instance.CurrentIsGlobal;
-
-            m_GlobalHeader.gameObject.SetActive(show);
-
-            m_LocalHeader.gameObject.SetActive(show);
-
-            for (int i = 0; i < m_VarResourcesItem.Count; i++)
-            {
-                DestroyImmediate(m_VarResourcesItem[i].gameObject);
-            }
-
-            m_VarResourcesItem.Clear();
-            if (show)
-            {
-                ScratchEngine.Instance.SerachVariableData(out var globalVars, out var localVars);
-
-                //Global
-                for (int i = 0; i < globalVars.Length; i++)
-                {
-                    //-----Get Engine Data -----
-                    var logicdata = globalVars[i];
-                    IEngineBlockVariableBase blockdata = logicdata as IEngineBlockVariableBase;
-
-                    //IsReturnVariable Is Local
-                    if (blockdata.IsReturnVariable())
-                    {
-                        //Current
-                        if (ScratchEngine.Instance.Current.ContainGuids(blockdata.Guid))
-                        {
-                            //----- Create TempResourcesItem UI-----
-                            TempResourcesItem resourcesItem = CreateTempResourcesItem(blockdata);
-                            
-                            resourcesItem.NameField.interactable = false;
-                            resourcesItem.ValueField.gameObject.SetActive(false);
-                            resourcesItem.DeleteBtn.gameObject.SetActive(false);
-                            
-                            resourcesItem.SetParent(TemplatePanelContent, m_LocalHeader.GetSiblingIndex() + 1);
-                            m_VarResourcesItem.Add(resourcesItem);
-                        }
-                    }
-                    else
-                    {
-                        //----- Create TempResourcesItem UI-----
-                        TempResourcesItem resourcesItem = CreateTempResourcesItem(blockdata);
-                        
-                        resourcesItem.SetParent(TemplatePanelContent, m_GlobalHeader.GetSiblingIndex() + 1);
-                        m_VarResourcesItem.Add(resourcesItem);
-                    }
-                }
-                
-                if (!isGlobal)
-                {
-                    for (int i = 0; i < localVars.Length; i++)
-                    {
-                        //-----获取Koala数据层-----
-                        var logicdata = localVars[i];
-                        IEngineBlockVariableBase blockdata = logicdata as IEngineBlockVariableBase;
-
-                        //----- Create TempResourcesItem UI-----
-                        TempResourcesItem resourcesItem = CreateTempResourcesItem(blockdata);
-
-                        if (blockdata.IsReturnVariable())
-                        {
-                            resourcesItem.NameField.interactable = false;
-                            resourcesItem.ValueField.gameObject.SetActive(false);
-                            resourcesItem.DeleteBtn.gameObject.SetActive(false);
-                        }
-
-                        resourcesItem.SetParent(TemplatePanelContent, m_LocalHeader.GetSiblingIndex() + 1);
-
-                        m_VarResourcesItem.Add(resourcesItem);
-                    }
-                }
-            }
-        }
-
-        public void ShowBlockTemplate(params ResourcesItemData[] templateDatas)
-        {
-            for (int i = 0; i < templateDatas.Length; i++)
-            {
-                GameObject obj = GameObject.Instantiate(ResourcesItemPrefab, TemplatePanelContent);
-
-                ResourcesItemData data = templateDatas[i];
-
-                ResourcesItem resourcesItem = null;
-
-                if (data.BlockFucType == FucType.Variable)
-                {
-                    resourcesItem = obj.AddComponent<VariableResourcesItem>();
-                }
-                else
-                {
-                    resourcesItem = obj.AddComponent<ResourcesItem>();
-                }
-
-                resourcesItem.Data = templateDatas[i];
-
-                resourcesItem.Active = true;
-
-                resourcesItem.SetParent(TemplatePanelContent, m_TemplateHeader.GetSiblingIndex() + 1);
-
-                resourcesItem.Initialize();
-
-                m_TemplateResourcesDict[data.ScratchType] = resourcesItem;
-            }
-        }
-
-
         public void OnCanvasAddBlock(Block block)
         {
             if (block.BlockFucType == FucType.Variable)
@@ -323,9 +112,10 @@ namespace ScratchFramework
 
         public void RefreshResources()
         {
-            if (FirstLevelMenu.Instance.CurrentShow == FirstLevelType.None) return;
-
-            ShowFirstLevel(FirstLevelMenu.Instance.CurrentShow);
+            if (WindowManager.Instance.SingletonIsOpen<MaterialBoxView>(out MaterialBoxView materialBoxView))
+            {
+                materialBoxView.Refresh();
+            }
         }
     }
 }

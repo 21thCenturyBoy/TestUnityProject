@@ -120,8 +120,8 @@ namespace ScratchFramework
         public static Vector3 ScreenPos2WorldPos(this ScratchUIBehaviour transform, Vector2 screenPos)
         {
             Vector3 worldPos = Vector3.zero;
-            var camera = ScratchManager.Instance.Canvas.worldCamera;
-            switch (ScratchManager.Instance.Canvas.renderMode)
+            var camera = ScratchProgrammingManager.Instance.Canvas.worldCamera;
+            switch (ScratchProgrammingManager.Instance.Canvas.renderMode)
             {
                 case RenderMode.ScreenSpaceOverlay:
                     worldPos = screenPos;
@@ -142,8 +142,8 @@ namespace ScratchFramework
         public static Vector3 WorldPos2ScreenPos(Vector3 worldPos)
         {
             Vector3 screenPos = Vector3.zero;
-            var camera = ScratchManager.Instance.Canvas.worldCamera;
-            switch (ScratchManager.Instance.Canvas.renderMode)
+            var camera = ScratchProgrammingManager.Instance.Canvas.worldCamera;
+            switch (ScratchProgrammingManager.Instance.Canvas.renderMode)
             {
                 case RenderMode.ScreenSpaceOverlay:
                     screenPos = worldPos;

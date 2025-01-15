@@ -198,7 +198,7 @@ namespace ScratchFramework
         public object VariableValue { get; set; }
         [BlockGuidRef] public int ReturnParentGuid { get; set; }
     }
-    
+
     public interface IEngineCoreInterface
     {
         /// <summary>
@@ -227,13 +227,39 @@ namespace ScratchFramework
         /// <param name="blockBase"></param>
         /// <param name="value"></param>
         public bool String2VariableValueTo(IEngineBlockVariableBase blockBase, string value);
+        
+        /// <summary>
+        /// 获取虚拟机（如果有）
+        /// </summary>
+        /// <returns></returns>
+        public IVirtualMachine GetVirtualMachine();
     }
 
-    public class ScratchVirtualMachine
+    public interface IVirtualMachine
     {
-        public void Run(EngineBlockCanvasGroup group)
+        public enum Switch
         {
-            //TODO
+            Play,
+            Pause,
+            Next,
+            Stop,
         }
+        public enum State
+        {
+            PreInit = 2,
+            Init = 3,
+            PrePlay = 6,
+            Play = 7,
+            PrePause = 8,
+            Pause = 9,
+            PreStop = 10,
+            Stop = 11,
+        }
+
+        public float TickDelta { get; }
+        public State GetCurrentState();
+        public void SetState(Switch state);
+        public void Tick();
+        public void RenderUpdate(float deltaTime);
     }
 }
