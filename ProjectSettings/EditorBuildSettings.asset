@@ -6,10 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/ScratchFrameWork/ScratchWorkflow.unity
+    path: Assets/ScratchFrameWork/Scenes/ScratchWorkflow.unity
     guid: 81f66f79c0688ab4c801fff2968ec494
   - enabled: 1
-    path: Assets/ScratchFrameWork/ScratchGameMap.unity
+    path: Assets/ScratchFrameWork/Scenes/ScratchGameMap.unity
     guid: 7b8bca7f11c052046b9d7919739c5381
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
