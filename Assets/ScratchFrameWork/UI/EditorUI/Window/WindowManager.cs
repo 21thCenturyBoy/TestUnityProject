@@ -47,7 +47,7 @@ namespace ScratchFramework
     public class WindowManager : ScratchSingleton<WindowManager>
     {
         private DockPanel m_DockPanel;
-        private DockPanel DockPanel => m_DockPanel;
+        public DockPanel DockPanel => m_DockPanel;
 
         public Dictionary<string, CustomWindowDescriptor> m_typeToCustomWindow = new Dictionary<string, CustomWindowDescriptor>();
 
@@ -219,6 +219,37 @@ namespace ScratchFramework
 
             Destroy(rootRegion.gameObject);
         }
+
+        public void HideAllRegion()
+        {
+            Region rootRegion = DockPanel.RootRegion;
+            if (rootRegion == null)
+            {
+                return;
+            }
+            rootRegion.gameObject.SetActive(false);
+        }
+
+        public bool RootRegionIsActive()
+        {
+            Region rootRegion = DockPanel.RootRegion;
+            if (rootRegion == null)
+            {
+                return false;
+            }
+            return rootRegion.gameObject.activeSelf;
+        }
+
+        public void ShowAllRegion()
+        {
+            Region rootRegion = DockPanel.RootRegion;
+            if (rootRegion == null)
+            {
+                return;
+            }
+            rootRegion.gameObject.SetActive(true);
+        }
+
 
         public void SetLayout(LayoutInfo layoutInfo, string activateWindowOfType = null, Action<LayoutInfo> callback = null)
         {

@@ -64,7 +64,7 @@ namespace ScratchFramework
             m_StopBtn.Initialize();
 
             m_CloseBtn.RemoveAllListener();
-            m_CloseBtn.AddListener(() => { ToolHelper.CloseAllView(); });
+            m_CloseBtn.AddListener(() => { ToolHelper.ExitScratchEditor(); });
 
             m_ObjectViewBtn.RemoveAllListener();
             m_ObjectViewBtn.AddListener(() => { ToolHelper.OpenObjectView(); });

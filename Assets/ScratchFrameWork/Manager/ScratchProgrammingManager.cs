@@ -37,17 +37,14 @@ namespace ScratchFramework
             }
         }
 
-        private TempCanvasUIManager _mTempCanvasUI;
+        [SerializeField]
+        private TempCanvasUIManager m_TempCanvasUI;
         private BlockResourcesManager m_ResourcesManager;
 
         public override bool Initialize()
         {
-            if (base.Initialize())
-            {
-                _mTempCanvasUI = GetComponentInChildren<TempCanvasUIManager>();
-                _mTempCanvasUI.Initialize();
-            }
-            
+            base.Initialize();
+ 
             m_ResourcesManager = BlockResourcesManager.Instance;
             m_ResourcesManager.Initialize();
             m_ResourcesManager.LoadAllResource(LoadResourceFinish);
@@ -57,6 +54,9 @@ namespace ScratchFramework
 
         private void LoadResourceFinish()
         {
+            //TempCanvasManager
+            m_TempCanvasUI.Initialize();
+
             //ScratchDataManager
             BlockDataUIManager.Instance.Initialize();
 
@@ -78,24 +78,12 @@ namespace ScratchFramework
             MenuUIManager.Instance.transform.localPosition = Vector3.zero;
             MenuUIManager.Instance.Initialize();
 
-
             //ScratchDebug
             ScratchDebugManager.Instance.SetParent(transform);
             ScratchDebugManager.Instance.Initialize();
 
-
-            //从引擎可视化数据中加载
-            ScratchEngine.Instance.Core.LoadBlockFile((fileData) =>
-            {
-                ScratchEngine.Instance.SetFileData(fileData);
-            });
-
             m_isInitialized = true;
-            
         }
-
- 
-
 
         private void Update()
         {

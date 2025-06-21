@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace ScratchFramework
@@ -48,8 +49,10 @@ namespace ScratchFramework
         private void Start()
         {
             ScratchUtils.ResourcePreLoad();
-            // ScratchProgrammingManager.Instance.Initialize();
             ScratchMenuManager.Instance.Initialize();
+
+            // 添加协程等待ScratchProgrammingManager初始化完成
+            StartCoroutine(ProgrammingCanvasInit());
         }
         float timer = 0f;
         private void Update()
@@ -64,6 +67,22 @@ namespace ScratchFramework
         }
 
         #region ProgrammingCanvas
+
+        IEnumerator ProgrammingCanvasInit() {
+
+            ScratchProgrammingManager tryGetProMgr = FindObjectOfType<ScratchProgrammingManager>(true);
+
+            while (!tryGetProMgr) { 
+                yield return new WaitForEndOfFrame();
+                tryGetProMgr = FindObjectOfType<ScratchProgrammingManager>(true);
+            }
+
+            //从引擎可视化数据中加载
+            Core.LoadBlockFile((fileData) =>
+            {
+                SetFileData(fileData);
+            });
+        }
 
         public void SetFileData(EngineBlockFileData fileData)
         {

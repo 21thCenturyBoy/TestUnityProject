@@ -59,9 +59,9 @@ namespace ScratchFramework
             }
         }
 
-        public static void CloseAllView()
+        public static void ExitScratchEditor()
         {
-            WindowManager.Instance.ClearAllRegion();
+            WindowManager.Instance.HideAllRegion();
         }
 
         public static void OpenObjectView(bool isShow = true)
@@ -69,14 +69,23 @@ namespace ScratchFramework
          
         }
 
+        public static void LoadBlockFile(bool isShow = true)
+        {
+            //从引擎可视化数据中加载
+            ScratchEngine.Instance.Core.LoadBlockFile((fileData) =>
+            {
+                ScratchEngine.Instance.SetFileData(fileData);
+            });
+        }
+
         public static void OpenSceneView(bool isShow = true)
         {
-            WindowManager.Instance.ClearAllRegion();
+            WindowManager.Instance.HideAllRegion();
         }
 
         public static void OpenCodeView(bool isShow = true)
         {
-            WindowManager.Instance.LoadUserLayout();
+            WindowManager.Instance.ShowAllRegion();
         }
 
         public static void OpenMaterialView(bool isShow = true)

@@ -182,7 +182,16 @@ namespace ScratchFramework
                 case nameof(CMD_Stop):
                     break;
                 case nameof(CMD_Open_Hide_ScratchCanvasWindow):
-                    break;
+                    if (WindowManager.Instance.RootRegionIsActive())
+                    {
+                        WindowManager.Instance.HideAllRegion();
+                    }
+                    else {
+                        WindowManager.Instance.ShowAllRegion();
+                    }
+
+
+                        break;
                 case nameof(CMD_Open_Hide_MaterialWindow):
                     break;
                 case nameof(CMD_About_Me):
