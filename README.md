@@ -11,19 +11,27 @@ This is a backup of the my Unity test project 。Record problems encountered and
 
 ## Some interesting ideas：
 
-- ### Assets/Test/TestChess/TestChessDemo.unity
+### Assets/Test/TestChess/TestChessDemo.unity
 
-  Auto Chess(Honeycomb chessboard Creater) Likes LOL *Teamfight Tactic* with simple pathfinding function。
+Auto Chess(Honeycomb chessboard Creater) Likes LOL *Teamfight Tactic* with simple pathfinding function。
 
-  类似云顶之弈那种蜂窝自走棋的棋盘生成和简单寻路。
+类似云顶之弈那种蜂窝自走棋的棋盘生成和简单寻路。
 
-  <img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_1.gif" width = "300" height = "150"/><img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_2.gif" width = "300" height = "150"/>
+<img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_1.gif" width = "300" height = "150"/><img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_2.gif" width = "300" height = "150"/>
 
-  <img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_X.png" width = "150" height = "250"/><img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_Y.png" width = "300" height = "150"/><img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessPathfinding.png" width = "300" height = "150"/>
+<img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_X.png" width = "150" height = "250"/><img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessCreate_Y.png" width = "300" height = "150"/><img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Chess/ChessPathfinding.png" width = "300" height = "150"/>
 
-- ### ScratchFrameWork
+### ScratchFrameWork
 
-  <img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Scratch/ScratchPreView.gif" width = "800" height = "500"/>
+Goal plan: Implement the Scratch game editor framework based on Unity. 30% completed
+
+目标计划：实现基于Unity的Scratch游戏编辑器框架 已完成30%
+
+Give up development, the final result:
+
+放弃开发，最后效果：
+
+<img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Scratch/ScratchPreView.gif" width = "700" height = "450"/>
 
 - 待补充...
 
