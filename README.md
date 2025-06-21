@@ -23,7 +23,7 @@ This is a backup of the my Unity test project 。Record problems encountered and
 
 - ### ScratchFrameWork
 
-  <img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Scratch/ScratchPreView.gif" width = "1276" height = "741"/>
+  <img src="https://github.com/21thCenturyBoy/TestUnityProject/blob/master/Docs/Images/Scratch/ScratchPreView.gif" width = "800" height = "500"/>
 
 - 待补充...
 
