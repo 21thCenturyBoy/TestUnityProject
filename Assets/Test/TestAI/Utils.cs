@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TestAI.Move;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 namespace TestAI
 {
     public struct StaticStae
@@ -29,6 +31,7 @@ namespace TestAI
 
     public class KinematicLogic : IKinematicLogic
     {
+        public List<GameObject> AI_Pram_Objs = new List<GameObject>();
         protected bool m_Inited = false;
         public virtual void FixedUpdate()
         {
@@ -58,6 +61,10 @@ namespace TestAI
             if (m_Inited)
             {
                 m_Inited = false;
+                for (int i = 0; i < AI_Pram_Objs.Count; i++) {
+                    GameObject.Destroy(AI_Pram_Objs[i]);
+                }
+                AI_Pram_Objs.Clear();
                 OnStop();
             }
         }
@@ -73,6 +80,8 @@ namespace TestAI
         StaticStae GetStaticStae();
         void SetStaticStae(StaticStae stae);
     }
+
+    public class AIParm_Float : Attribute {}
 
     public static class UtilsTool
     {
@@ -206,6 +215,61 @@ namespace TestAI
         public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutput steeringOutput) {
             stae.Position += steeringOutput.Velocity;
             stae.Orientation += steeringOutput.Angular;
+        }
+
+
+        public static void CreatAIPramUI(this KinematicLogic logic,Transform parentTrans)
+        {
+            // 反射获取所有带有 AIParm_Float 特性的字段或属性
+            if (logic != null)
+            {
+                var type = logic.GetType();
+                // 获取所有字段
+                GameObject AIParm_Float_prefab = Resources.Load<GameObject>("AIParm_Float");
+                var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                foreach (var field in fields)
+                {
+                    if (Attribute.IsDefined(field, typeof(AIParm_Float)))
+                    {
+                        GameObject obj = GameObject.Instantiate(AIParm_Float_prefab);
+                        obj.transform.SetParent(parentTrans);
+                        RectTransform rect = obj.GetComponent<RectTransform>();
+                        rect.localScale = Vector3.one;
+                        rect.localRotation = Quaternion.identity;
+
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = field.Name;
+                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().text = field.GetValue(logic).ToString();
+
+                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onValueChanged.AddListener((val) => {
+                            float val_float  = float.Parse(val.ToString());
+                            field.SetValue(logic, val_float);
+                        });
+                        logic.AI_Pram_Objs.Add(obj);
+                    }
+                }
+                // 获取所有属性
+                var properties = type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                foreach (var prop in properties)
+                {
+                    if (Attribute.IsDefined(prop, typeof(AIParm_Float)) && prop.CanRead)
+                    {
+                        GameObject obj = GameObject.Instantiate(AIParm_Float_prefab);
+                        obj.transform.SetParent(parentTrans);
+                        RectTransform rect = obj.GetComponent<RectTransform>();
+                        rect.localScale = Vector3.one;
+                        rect.localRotation = Quaternion.identity;
+
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = prop.Name;
+                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().text = prop.GetValue(logic).ToString();
+
+                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onValueChanged.AddListener((val) => {
+                            float val_float = float.Parse(val.ToString());
+                            prop.SetValue(logic, val_float);
+                        });
+                        logic.AI_Pram_Objs.Add(obj);
+                    }
+                }
+            }
         }
     }
 }

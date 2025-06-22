@@ -13,6 +13,7 @@ namespace TestAI.Move
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
 
+        [AIParm_Float]
         public float maxSpeed = 0.5f;
 
         /// <summary>
@@ -77,10 +78,13 @@ namespace TestAI.Move
     {
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
-        public float maxSpeed = 0.5f;
 
-        public float slowRadius = 5;
-        public float targetRadius = 1;
+        [AIParm_Float]
+        public float maxSpeed = 0.5f;
+        [AIParm_Float]
+        public float slowRadius = 5;//减速范围
+        [AIParm_Float]
+        public float targetRadius = 1;//目标半径范围
         /// <summary>
         /// 获取到目标转向
         /// （逃离反转Velocity）
@@ -97,6 +101,7 @@ namespace TestAI.Move
                 res.Velocity = Vector3.zero;
                 return res;
             }
+            //这里可以使用线性插值来计算速度，也可以根据时间来计算速度
             //如果在减速范围内，计算速度
             if (distance < slowRadius)
             {
@@ -151,7 +156,14 @@ namespace TestAI.Move
         [SerializeField]
         private Button m_playBtn = null;
 
-        private IKinematicLogic m_currentLogic;
+        [SerializeField]
+        private Transform m_AIParm_Parent = null;
+
+        [SerializeField]
+        private KinematicLogic m_currentLogic = null;
+
+
+
         public enum TestMoveSceneType
         {
             Navigation_Seek,
@@ -192,7 +204,7 @@ namespace TestAI.Move
                     m_currentLogic = new Navigation_Arrive();
                     break;
             }
-
+            m_currentLogic.CreatAIPramUI(m_AIParm_Parent);
             m_currentLogic.Start();
         }
 
