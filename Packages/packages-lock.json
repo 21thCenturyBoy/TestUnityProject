@@ -16,7 +16,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.21",
+      "version": "1.8.18",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -86,7 +86,7 @@
       "source": "builtin",
       "dependencies": {
         "com.unity.ide.visualstudio": "2.0.22",
-        "com.unity.ide.rider": "3.0.36",
+        "com.unity.ide.rider": "3.0.34",
         "com.unity.ide.vscode": "1.2.5",
         "com.unity.editorcoroutines": "1.0.0",
         "com.unity.performance.profile-analyzer": "1.2.3",
@@ -95,8 +95,8 @@
       }
     },
     "com.unity.ide.rider": {
-      "version": "3.0.36",
-      "depth": 1,
+      "version": "3.0.34",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "1.0.6"
@@ -155,7 +155,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
-      "version": "14.0.12",
+      "version": "14.0.11",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
@@ -172,8 +172,8 @@
       "dependencies": {
         "com.unity.mathematics": "1.2.1",
         "com.unity.burst": "1.8.9",
-        "com.unity.render-pipelines.core": "14.0.12",
-        "com.unity.shadergraph": "14.0.12",
+        "com.unity.render-pipelines.core": "14.0.11",
+        "com.unity.shadergraph": "14.0.11",
         "com.unity.render-pipelines.universal-config": "14.0.9"
       }
     },
@@ -210,7 +210,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.settings-manager": {
-      "version": "2.1.0",
+      "version": "2.0.1",
       "depth": 2,
       "source": "registry",
       "dependencies": {},
@@ -221,7 +221,7 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "14.0.12",
+        "com.unity.render-pipelines.core": "14.0.11",
         "com.unity.searcher": "4.9.2"
       }
     },
