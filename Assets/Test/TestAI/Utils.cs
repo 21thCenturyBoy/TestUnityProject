@@ -5,6 +5,7 @@ using TestAI.Move;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 namespace TestAI
 {
     public struct StaticStae
@@ -13,6 +14,7 @@ namespace TestAI
         public Vector3 Position { get; set; }
         //方向（弧度）
         public float Orientation { get; set; }
+
     }
     public struct SteeringOutput
     {
@@ -133,13 +135,30 @@ namespace TestAI
             }
         }
 
-
+        /// <summary>
+        /// 设置Transform方向（弧度）
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <param name="orientation"></param>
         public static void SetOrientation(this Transform transform, float orientation)
         {
             // 将弧度转换为角度
             float angle = orientation * Mathf.Rad2Deg;
             // 只设置Y轴旋转，保持X和Z为0
-            transform.rotation = Quaternion.Euler(90, angle, 0);
+            transform.rotation = Quaternion.Euler(0, angle, 0);
+        }
+
+        /// <summary>
+        /// 方向（弧度）转向量
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <param name="orientation"></param>
+        public static Vector3 OrientationToVector(this StaticStae stae)
+        {
+            //Y轴为0，XZ平面上计算方向向量
+            float x = Mathf.Sin(stae.Orientation);
+            float z = Mathf.Cos(stae.Orientation);
+            return new Vector3(x, 0, z);
         }
 
         /// <summary>
@@ -193,7 +212,7 @@ namespace TestAI
             if (entity != null)
             {
                 Navigation_AI_Item aI_Item = entity as Navigation_AI_Item;
-                aI_Item.GetComponent<SpriteRenderer>().color = color;
+                aI_Item.GetComponentInChildren<SpriteRenderer>().color = color;
             }
         }
 
@@ -208,12 +227,14 @@ namespace TestAI
         }
 
         /// <summary>
-        /// 转向行为应用
+        /// 转向输出应用
         /// </summary>
         /// <param name="stae"></param>
         /// <param name="steeringOutput"></param>
         public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutput steeringOutput) {
+            // 应用新的速度向量到位置
             stae.Position += steeringOutput.Velocity;
+            // 更新朝向
             stae.Orientation += steeringOutput.Angular;
         }
 

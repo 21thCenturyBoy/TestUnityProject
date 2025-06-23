@@ -42,8 +42,8 @@ namespace TestAI.Move
 
         public void SetStaticStae(StaticStae stae)
         {
-            transform.position = stae.Position;
             transform.SetOrientation(stae.Orientation);
+            transform.position = stae.Position;
         }
 
         // Start is called before the first frame update

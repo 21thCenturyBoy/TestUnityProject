@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -21,7 +19,8 @@ namespace TestAI.Move
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutput Seek() {
+        public SteeringOutput Seek()
+        {
 
             var res = new SteeringOutput();
 
@@ -37,7 +36,7 @@ namespace TestAI.Move
             float currentOrientation = current_stae.Orientation;
 
             res.Angular = 0;
-            
+
             float targetOrientation = UtilsTool.NewOrientation(currentOrientation, res.Velocity);
             current_stae.Orientation = targetOrientation;
 
@@ -90,7 +89,8 @@ namespace TestAI.Move
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutput Arrive() {
+        public SteeringOutput Arrive()
+        {
             var res = new SteeringOutput();
             //获取目标的方向
             res.Velocity = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
@@ -147,6 +147,47 @@ namespace TestAI.Move
         }
     }
 
+    public class Navigation_Wander : KinematicLogic
+    {
+        private IKinematicEntity currentEntity;
+        [AIParm_Float]
+        public float maxSpeed = 0.2f;
+        [AIParm_Float]
+        public float maxRotate = 0.1f;//最大旋转
+        protected override void OnStart()
+        {
+            currentEntity = UtilsTool.CreateNavigation_AI();
+            StaticStae stae = new StaticStae();
+            currentEntity.SetStaticStae(stae);
+            currentEntity.SetColor(Color.green);
+        }
+        protected override void OnFixedUpdate()
+        {
+            Wander();
+        }
+        public SteeringOutput Wander()
+        {
+            var res = new SteeringOutput();
+
+            var current_stae = currentEntity.GetStaticStae();
+
+            //从方向的向量形式获取速度
+            res.Velocity = maxSpeed * current_stae.OrientationToVector();//获取当前方向的速度向量
+            res.Angular = UnityEngine.Random.Range(-1f, 1f) * maxRotate;//随机旋转
+
+            //更新实体状态
+            current_stae.SteeringOutputApply(res);
+
+            currentEntity.SetStaticStae(current_stae);
+
+            return res;
+        }
+        protected override void OnStop()
+        {
+            currentEntity.Destroy();
+        }
+    }
+
     public class TestMove_SceneManager : MonoBehaviour
     {
 
@@ -168,6 +209,7 @@ namespace TestAI.Move
         {
             Navigation_Seek,
             Navigation_Arrive,
+            Navigation_Wander,
         }
         // Start is called before the first frame update
         void Start()
@@ -202,6 +244,9 @@ namespace TestAI.Move
                     break;
                 case TestMoveSceneType.Navigation_Arrive:
                     m_currentLogic = new Navigation_Arrive();
+                    break;
+                case TestMoveSceneType.Navigation_Wander:
+                    m_currentLogic = new Navigation_Wander();
                     break;
             }
             m_currentLogic.CreatAIPramUI(m_AIParm_Parent);
