@@ -255,8 +255,8 @@ namespace Utils.ExcelTool.ToLuban
             {
                 return "datetime";
             }
-            //TODO Ö§³ÖÆäËûÀàĞÍ
-            throw new Exception("²»Ö§³ÖÀàĞÍ");
+            //TODO æ”¯æŒå…¶ä»–ç±»å‹
+            throw new Exception("ä¸æ”¯æŒç±»å‹");
         }
         public static object GetTypeData(string typeStr, Type type)
         {
@@ -296,8 +296,8 @@ namespace Utils.ExcelTool.ToLuban
             {
                 return DateTime.Parse(typeStr);
             }
-            //TODO Ö§³ÖÆäËûÀàĞÍ
-            throw new Exception("²»Ö§³ÖÀàĞÍ");
+            //TODO æ”¯æŒå…¶ä»–ç±»å‹
+            throw new Exception("ä¸æ”¯æŒç±»å‹");
         }
         public static EDataProperty GetPropertyAttribute(PropertyInfo type)
         {
@@ -308,7 +308,7 @@ namespace Utils.ExcelTool.ToLuban
     {
         [EDataProperty(0)]
         public int Id { get; set; }
-        [EDataProperty(2, "²âÊÔÃû³Æ")]
+        [EDataProperty(2, "æµ‹è¯•åç§°")]
         public string Name { get; set; }
         [EDataProperty(1)]
         public bool Res { get; set; }
@@ -330,7 +330,7 @@ namespace Utils.ExcelTool.ToLuban
             EDataTable<TestData>? table = await EDataTable<TestData>.GetTableAsync(filePath);
             if (table == null)
             {
-                Debug.Log("¿ªÊ¼Éú³ÉÊı¾İ½á¹¹...");
+                Debug.Log("å¼€å§‹ç”Ÿæˆæ•°æ®ç»“æ„...");
                 List<TestData> datas = new List<TestData>();
                 for (int i = 0; i < 10; i++)
                 {
@@ -344,11 +344,11 @@ namespace Utils.ExcelTool.ToLuban
             }
             else
             {
-                Debug.Log($"±í¸ñ²»NULL{table.DataTableDict.Count}...");
+                Debug.Log($"è¡¨æ ¼ä¸NULL{table.DataTableDict.Count}...");
             }
             foreach (TestData data in table)
             {
-                Debug.Log($"±í¸ñ{data.Id}:{data.Name}");
+                Debug.Log($"è¡¨æ ¼{data.Id}:{data.Name}");
             }
         }
     }

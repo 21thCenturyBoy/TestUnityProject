@@ -5,7 +5,7 @@ using UnityEngine.Playables;
 using UnityEngine.Animations;
 
 /// <summary>
-/// ªÏ∫œ AnimationClip ∫Õ AnimatorController
+/// Ê∑∑Âêà AnimationClip Âíå AnimatorController
 /// </summary>
 [RequireComponent(typeof(Animator))]
 public class RuntimeControllerSample : MonoBehaviour

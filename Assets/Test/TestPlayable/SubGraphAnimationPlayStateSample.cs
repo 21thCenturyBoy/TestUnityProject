@@ -3,7 +3,7 @@ using UnityEngine.Playables;
 using UnityEngine.Animations;
 
 /// <summary>
-/// ¿ØÖÆÊ÷µÄ²¥·Å×´Ì¬
+/// æ§åˆ¶æ ‘çš„æ’­æ”¾çŠ¶æ€
 /// </summary>
 [RequireComponent(typeof(Animator))]
 public class SubGraphAnimationPlayStateSample : MonoBehaviour

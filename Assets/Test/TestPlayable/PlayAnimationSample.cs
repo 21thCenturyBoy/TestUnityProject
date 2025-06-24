@@ -3,7 +3,7 @@ using UnityEngine.Animations;
 using UnityEngine.Playables;
 
 /// <summary>
-/// ²¥·Å¶¯»­Æ¬¶ÎÊ¾Àý
+/// æ’­æ”¾åŠ¨ç”»ç‰‡æ®µç¤ºä¾‹
 /// </summary>
 [RequireComponent(typeof(Animator))]
 

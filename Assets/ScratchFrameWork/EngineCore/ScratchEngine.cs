@@ -51,7 +51,7 @@ namespace ScratchFramework
             ScratchUtils.ResourcePreLoad();
             ScratchMenuManager.Instance.Initialize();
 
-            // Ìí¼ÓĞ­³ÌµÈ´ıScratchProgrammingManager³õÊ¼»¯Íê³É
+            // æ·»åŠ åç¨‹ç­‰å¾…ScratchProgrammingManageråˆå§‹åŒ–å®Œæˆ
             StartCoroutine(ProgrammingCanvasInit());
         }
         float timer = 0f;
@@ -77,7 +77,7 @@ namespace ScratchFramework
                 tryGetProMgr = FindObjectOfType<ScratchProgrammingManager>(true);
             }
 
-            //´ÓÒıÇæ¿ÉÊÓ»¯Êı¾İÖĞ¼ÓÔØ
+            //ä»å¼•æ“å¯è§†åŒ–æ•°æ®ä¸­åŠ è½½
             Core.LoadBlockFile((fileData) =>
             {
                 SetFileData(fileData);

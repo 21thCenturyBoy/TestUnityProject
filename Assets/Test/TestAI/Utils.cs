@@ -10,17 +10,17 @@ namespace TestAI
 {
     public struct StaticStae
     {
-        //Î»ÖÃ
+        //ä½ç½®
         public Vector3 Position { get; set; }
-        //·½Ïò£¨»¡¶È£©
+        //æ–¹å‘ï¼ˆå¼§åº¦ï¼‰
         public float Orientation { get; set; }
 
     }
     public struct SteeringOutput
     {
-        //ÏßËÙ¶È
+        //çº¿é€Ÿåº¦
         public Vector3 Velocity { get; set; }
-        //½ÇËÙ¶È
+        //è§’é€Ÿåº¦
         public float Angular { get; set; }
     }
 
@@ -88,45 +88,45 @@ namespace TestAI
     public static class UtilsTool
     {
         /// <summary>
-        /// Í¨¹ıµ±Ç°·½ÏòºÍËÙ¶È¼ÆËãĞÂµÄ·½Ïò¡£
+        /// é€šè¿‡å½“å‰æ–¹å‘å’Œé€Ÿåº¦è®¡ç®—æ–°çš„æ–¹å‘ã€‚
         /// </summary>
         /// <param name="current"></param>
         /// <param name="velocity"></param>
         /// <returns></returns>
         public static float NewOrientation(float current, Vector3 velocity)
         {
-            //¼ÆËãµ±Ç°·½ÏòÓëËÙ¶È·½ÏòÖ®¼äµÄ½Ç¶È²î
+            //è®¡ç®—å½“å‰æ–¹å‘ä¸é€Ÿåº¦æ–¹å‘ä¹‹é—´çš„è§’åº¦å·®
             if (velocity.sqrMagnitude < Mathf.Epsilon)
             {
-                return current; // Èç¹ûËÙ¶È½Ó½üÁã£¬±£³Öµ±Ç°·½Ïò
+                return current; // å¦‚æœé€Ÿåº¦æ¥è¿‘é›¶ï¼Œä¿æŒå½“å‰æ–¹å‘
             }
             else
             {
-                // ¼ÆËãÄ¿±ê·½ÏòµÄ½Ç¶È
-                // Mathf.Atan2 ·µ»ØµÄÊÇ»¡¶ÈÖµ£¬·¶Î§ÔÚ [-¦Ğ, ¦Ğ] Ö®¼ä
-                // ÕâÀïµÄ velocity.x ºÍ velocity.z ÊÇÒòÎª Unity ÖĞµÄ Y ÖáÊÇÏòÉÏ£¬X ÖáÊÇÏòÇ°£¬Z ÖáÊÇÏòÓÒ
+                // è®¡ç®—ç›®æ ‡æ–¹å‘çš„è§’åº¦
+                // Mathf.Atan2 è¿”å›çš„æ˜¯å¼§åº¦å€¼ï¼ŒèŒƒå›´åœ¨ [-Ï€, Ï€] ä¹‹é—´
+                // è¿™é‡Œçš„ velocity.x å’Œ velocity.z æ˜¯å› ä¸º Unity ä¸­çš„ Y è½´æ˜¯å‘ä¸Šï¼ŒX è½´æ˜¯å‘å‰ï¼ŒZ è½´æ˜¯å‘å³
                 float target = Mathf.Atan2(velocity.x, velocity.z);
-                //×óÊÖ×ø±êÏµ
+                //å·¦æ‰‹åæ ‡ç³»
                 //float target = Mathf.Atan2(-velocity.x, velocity.y);
                 return target;
             }
         }
 
         /// <summary>
-        /// ¼ÆËã³¯Ïò
+        /// è®¡ç®—æœå‘
         /// </summary>
         /// <param name="transform"></param>
         /// <returns></returns>
         public static float ComputeOrientation(this Transform transform)
         {
 
-            // È¡transform.forwardÔÚXZÆ½ÃæÉÏµÄÍ¶Ó°£¬¼ÆËãÓëÊÀ½çÇ°·½(Vector3.forward)µÄ¼Ğ½Ç
+            // å–transform.forwardåœ¨XZå¹³é¢ä¸Šçš„æŠ•å½±ï¼Œè®¡ç®—ä¸ä¸–ç•Œå‰æ–¹(Vector3.forward)çš„å¤¹è§’
             Vector3 forward = transform.forward;
             forward.y = 0;
             if (forward.sqrMagnitude > 0.0001f)
             {
                 forward.Normalize();
-                float angle = Mathf.Atan2(forward.x, forward.z); // »¡¶È
+                float angle = Mathf.Atan2(forward.x, forward.z); // å¼§åº¦
                 return angle;
             }
             else
@@ -136,33 +136,33 @@ namespace TestAI
         }
 
         /// <summary>
-        /// ÉèÖÃTransform·½Ïò£¨»¡¶È£©
+        /// è®¾ç½®Transformæ–¹å‘ï¼ˆå¼§åº¦ï¼‰
         /// </summary>
         /// <param name="transform"></param>
         /// <param name="orientation"></param>
         public static void SetOrientation(this Transform transform, float orientation)
         {
-            // ½«»¡¶È×ª»»Îª½Ç¶È
+            // å°†å¼§åº¦è½¬æ¢ä¸ºè§’åº¦
             float angle = orientation * Mathf.Rad2Deg;
-            // Ö»ÉèÖÃYÖáĞı×ª£¬±£³ÖXºÍZÎª0
+            // åªè®¾ç½®Yè½´æ—‹è½¬ï¼Œä¿æŒXå’ŒZä¸º0
             transform.rotation = Quaternion.Euler(0, angle, 0);
         }
 
         /// <summary>
-        /// ·½Ïò£¨»¡¶È£©×ªÏòÁ¿
+        /// æ–¹å‘ï¼ˆå¼§åº¦ï¼‰è½¬å‘é‡
         /// </summary>
         /// <param name="transform"></param>
         /// <param name="orientation"></param>
         public static Vector3 OrientationToVector(this StaticStae stae)
         {
-            //YÖáÎª0£¬XZÆ½ÃæÉÏ¼ÆËã·½ÏòÏòÁ¿
+            //Yè½´ä¸º0ï¼ŒXZå¹³é¢ä¸Šè®¡ç®—æ–¹å‘å‘é‡
             float x = Mathf.Sin(stae.Orientation);
             float z = Mathf.Cos(stae.Orientation);
             return new Vector3(x, 0, z);
         }
 
         /// <summary>
-        /// ´´½¨Ëæ»ú¾²Ì¬×´Ì¬(×îĞ¡30)
+        /// åˆ›å»ºéšæœºé™æ€çŠ¶æ€(æœ€å°30)
         /// </summary>
         /// <returns></returns>
         public static StaticStae CreateRandomStaticStae(Vector2 rangePos)
@@ -171,7 +171,7 @@ namespace TestAI
             float x = rangePos.x;
             float z = rangePos.y;
 
-            //±ğÉú³ÉÖĞĞÄ¸½½ü
+            //åˆ«ç”Ÿæˆä¸­å¿ƒé™„è¿‘
             float pos_x = UnityEngine.Random.Range(30, x);
             float pos_z = UnityEngine.Random.Range(30, z);
 
@@ -227,25 +227,25 @@ namespace TestAI
         }
 
         /// <summary>
-        /// ×ªÏòÊä³öÓ¦ÓÃ
+        /// è½¬å‘è¾“å‡ºåº”ç”¨
         /// </summary>
         /// <param name="stae"></param>
         /// <param name="steeringOutput"></param>
         public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutput steeringOutput) {
-            // Ó¦ÓÃĞÂµÄËÙ¶ÈÏòÁ¿µ½Î»ÖÃ
+            // åº”ç”¨æ–°çš„é€Ÿåº¦å‘é‡åˆ°ä½ç½®
             stae.Position += steeringOutput.Velocity;
-            // ¸üĞÂ³¯Ïò
+            // æ›´æ–°æœå‘
             stae.Orientation += steeringOutput.Angular;
         }
 
 
         public static void CreatAIPramUI(this KinematicLogic logic,Transform parentTrans)
         {
-            // ·´Éä»ñÈ¡ËùÓĞ´øÓĞ AIParm_Float ÌØĞÔµÄ×Ö¶Î»òÊôĞÔ
+            // åå°„è·å–æ‰€æœ‰å¸¦æœ‰ AIParm_Float ç‰¹æ€§çš„å­—æ®µæˆ–å±æ€§
             if (logic != null)
             {
                 var type = logic.GetType();
-                // »ñÈ¡ËùÓĞ×Ö¶Î
+                // è·å–æ‰€æœ‰å­—æ®µ
                 GameObject AIParm_Float_prefab = Resources.Load<GameObject>("AIParm_Float");
                 var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
                 foreach (var field in fields)
@@ -268,7 +268,7 @@ namespace TestAI
                         logic.AI_Pram_Objs.Add(obj);
                     }
                 }
-                // »ñÈ¡ËùÓĞÊôĞÔ
+                // è·å–æ‰€æœ‰å±æ€§
                 var properties = type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
                 foreach (var prop in properties)
                 {

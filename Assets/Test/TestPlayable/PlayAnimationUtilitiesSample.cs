@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 
 /// <summary>
-/// ¼ò»¯²¥·Å¶¯»­Æ¬¶ÎÊ¾Àý
+/// ç®€åŒ–æ’­æ”¾åŠ¨ç”»ç‰‡æ®µç¤ºä¾‹
 /// </summary>
 [RequireComponent(typeof(Animator))]
 public class PlayAnimationUtilitiesSample : MonoBehaviour

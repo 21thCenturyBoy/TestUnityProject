@@ -19,14 +19,14 @@ public class CalculateVertsAndTris : EditorWindow
     void OnGUI()
     {
         GetAllObjects();
-        GUILayout.Label($"É¸Ñ¡GameObject¸öÊı£º" + count);
+        GUILayout.Label($"ç­›é€‰GameObjectä¸ªæ•°ï¼š" + count);
         string vertsdisplay = verts.ToString("#,##0 verts");
-        GUILayout.Label($"¶¥µãÊı£º" + vertsdisplay);
+        GUILayout.Label($"é¡¶ç‚¹æ•°ï¼š" + vertsdisplay);
         string trisdisplay = tris.ToString("#,##0 tris");
-        GUILayout.Label($"Èı½ÇÃæ£º" + trisdisplay);
+        GUILayout.Label($"ä¸‰è§’é¢ï¼š" + trisdisplay);
     }
     /// <summary>
-    /// µÃµ½³¡¾°ÖĞËùÓĞµÄGameObject
+    /// å¾—åˆ°åœºæ™¯ä¸­æ‰€æœ‰çš„GameObject
     /// </summary>
     void GetAllObjects()
     {
@@ -36,7 +36,7 @@ public class CalculateVertsAndTris : EditorWindow
         MeshFilter[] ob = FindObjectsOfType(typeof(MeshFilter)) as MeshFilter[];
         GetAllVertsAndTris(ob);
     }
-    //µÃµ½Èı½ÇÃæºÍ¶¥µãÊı
+    //å¾—åˆ°ä¸‰è§’é¢å’Œé¡¶ç‚¹æ•°
     void GetAllVertsAndTris(MeshFilter[] obj)
     {
         var filters = obj.Where(obj => obj.GetComponent<MeshRenderer>() != null);

@@ -71,7 +71,7 @@ namespace ScratchFramework
 
         public static void LoadBlockFile(bool isShow = true)
         {
-            //´ÓÒýÇæ¿ÉÊÓ»¯Êý¾ÝÖÐ¼ÓÔØ
+            //ä»Žå¼•æ“Žå¯è§†åŒ–æ•°æ®ä¸­åŠ è½½
             ScratchEngine.Instance.Core.LoadBlockFile((fileData) =>
             {
                 ScratchEngine.Instance.SetFileData(fileData);

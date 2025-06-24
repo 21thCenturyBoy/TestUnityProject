@@ -5,7 +5,7 @@ using UnityEngine.Playables;
 using UnityEngine.Animations;
 
 /// <summary>
-/// ´´½¨¶¯»­»ìºÏÊ÷£¬»ìºÏÁ½¸ö¶¯»­ÓÃ
+/// åˆ›å»ºåŠ¨ç”»æ··åˆæ ‘ï¼Œæ··åˆä¸¤ä¸ªåŠ¨ç”»ç”¨
 /// </summary>
 [RequireComponent(typeof(Animator))]
 public class MixAnimationSample : MonoBehaviour
@@ -41,7 +41,7 @@ public class MixAnimationSample : MonoBehaviour
 
     void Update()
     {
-        //¸ÃSetInputWeight()·½·¨¶¯Ì¬µ÷ÕûÃ¿¸ö¿É²¥·ÅµÄ»ìºÏÈ¨ÖØ
+        //è¯¥SetInputWeight()æ–¹æ³•åŠ¨æ€è°ƒæ•´æ¯ä¸ªå¯æ’­æ”¾çš„æ··åˆæƒé‡
         weight = Mathf.Clamp01(weight);
         mixerPlayable.SetInputWeight(0, 1.0f - weight);
         mixerPlayable.SetInputWeight(1, weight);

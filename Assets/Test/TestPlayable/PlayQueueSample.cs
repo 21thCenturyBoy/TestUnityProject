@@ -3,13 +3,13 @@ using UnityEngine.Animations;
 using UnityEngine.Playables;
 
 /// <summary>
-/// Í¨¹ı´´½¨Playable²¥·Å¶¯»­¶ÓÁĞ
+/// é€šè¿‡åˆ›å»ºPlayableæ’­æ”¾åŠ¨ç”»é˜Ÿåˆ—
 /// </summary>
 public class PlayQueuePlayable : PlayableBehaviour
 {
 
     private int m_CurrentClipIndex = -1;
-    private float m_TimeToNextClip;//¼ÆËãÇĞ»»µ½Ò»ÏÂÆ¬¶ÎµÄÊ±¼ä
+    private float m_TimeToNextClip;//è®¡ç®—åˆ‡æ¢åˆ°ä¸€ä¸‹ç‰‡æ®µçš„æ—¶é—´
 
     private Playable mixer;
     private float m_AllClipWeight;
@@ -39,14 +39,14 @@ public class PlayQueuePlayable : PlayableBehaviour
 
         if (m_TimeToNextClip <= 0.0f)
         {
-            //¿ªÊ¼²¥·ÅÏÂÒ»Æ¬¶Î
+            //å¼€å§‹æ’­æ”¾ä¸‹ä¸€ç‰‡æ®µ
 
             m_CurrentClipIndex++;
             if (m_CurrentClipIndex >= mixer.GetInputCount()) m_CurrentClipIndex = 0;
 
             var currentClip = (AnimationClipPlayable)mixer.GetInput(m_CurrentClipIndex);
             // Reset the time so that the next clip starts at the correct position
-            //ÖØÖÃµ±Ç°²¥·ÅÈ¨ÖØË÷Òı
+            //é‡ç½®å½“å‰æ’­æ”¾æƒé‡ç´¢å¼•
 
             currentClip.SetTime(0);
 
@@ -54,8 +54,8 @@ public class PlayQueuePlayable : PlayableBehaviour
         }
 
         // Adjust the weight of the inputs
-        //µ÷ÕûÊäÈëµÄÈ¨ÖØ
-        int otherWeight = mixer.GetInputCount() - 1;//ÆäËû¼ô¼­È¨ÖØ¾ùÌ¯
+        //è°ƒæ•´è¾“å…¥çš„æƒé‡
+        int otherWeight = mixer.GetInputCount() - 1;//å…¶ä»–å‰ªè¾‘æƒé‡å‡æ‘Š
         float preWeight = (1 - m_AllClipWeight) / otherWeight;
         for (int clipIndex = 0; clipIndex < mixer.GetInputCount(); ++clipIndex)
         {
@@ -78,7 +78,7 @@ public class PlayQueueSample : MonoBehaviour
 
 
     [Range(0f, 1f)]
-    public float CurrentClipWeight = 1f;//¿ØÖÆµ±Ç°¼ô¼­È¨ÖØ
+    public float CurrentClipWeight = 1f;//æ§åˆ¶å½“å‰å‰ªè¾‘æƒé‡
 
     PlayableGraph playableGraph;
     PlayQueuePlayable playQueue;

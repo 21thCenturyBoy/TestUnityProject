@@ -3,7 +3,7 @@ using UnityEngine.Playables;
 using UnityEngine.Animations;
 
 /// <summary>
-/// 控制树的时间
+/// 鎺у埗鏍戠殑鏃堕棿
 /// </summary>
 [RequireComponent(typeof(Animator))]
 public class PlayWithTimeControlSample : MonoBehaviour

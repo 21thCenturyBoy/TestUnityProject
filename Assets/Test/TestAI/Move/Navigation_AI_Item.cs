@@ -10,16 +10,16 @@ namespace TestAI.Move
 
         public void OnMouseDrag()
         {
-            //ÔÊĞíÍÏ×§,¼ÆËãÊó±êÍÏ×§Î»ÖÃ
+            //å…è®¸æ‹–æ‹½,è®¡ç®—é¼ æ ‡æ‹–æ‹½ä½ç½®
             if (!AllowDrag) return;
 
-            // »ñÈ¡Êó±êÔÚÆÁÄ»ÉÏµÄÎ»ÖÃ
+            // è·å–é¼ æ ‡åœ¨å±å¹•ä¸Šçš„ä½ç½®
             Vector3 mouseScreenPos = Input.mousePosition;
 
-            // ¼ÙÉèÎïÌåÔÚXZÆ½ÃæÉÏÒÆ¶¯£¬YÎªÎïÌåµ±Ç°¸ß¶È
+            // å‡è®¾ç‰©ä½“åœ¨XZå¹³é¢ä¸Šç§»åŠ¨ï¼ŒYä¸ºç‰©ä½“å½“å‰é«˜åº¦
             float y = transform.position.y;
 
-            // ½«Êó±êÆÁÄ»×ø±ê×ª»»ÎªÊÀ½ç×ø±ê
+            // å°†é¼ æ ‡å±å¹•åæ ‡è½¬æ¢ä¸ºä¸–ç•Œåæ ‡
             Ray ray = Camera.main.ScreenPointToRay(mouseScreenPos);
             Plane plane = new Plane(Vector3.up, new Vector3(0, y, 0));
             float distance;
@@ -34,7 +34,7 @@ namespace TestAI.Move
         {
             StaticStae stae = new StaticStae();
             stae.Position = transform.position;
-            //¼ÆËã³¯Ïò
+            //è®¡ç®—æœå‘
             stae.Orientation = transform.ComputeOrientation();
 
             return stae;

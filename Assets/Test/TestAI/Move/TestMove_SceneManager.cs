@@ -15,8 +15,8 @@ namespace TestAI.Move
         public float maxSpeed = 0.5f;
 
         /// <summary>
-        /// »ñÈ¡µ½Ä¿±ê×ªÏò
-        /// £¨ÌÓÀë·´×ªVelocity£©
+        /// è·å–åˆ°ç›®æ ‡è½¬å‘
+        /// ï¼ˆé€ƒç¦»åè½¬Velocityï¼‰
         /// </summary>
         /// <returns></returns>
         public SteeringOutput Seek()
@@ -24,14 +24,14 @@ namespace TestAI.Move
 
             var res = new SteeringOutput();
 
-            //»ñÈ¡Ä¿±êµÄ·½Ïò
+            //è·å–ç›®æ ‡çš„æ–¹å‘
             res.Velocity = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
 
-            //ÑØ×Å´Ë·½ÏòÈ«ËÙÇ°½ø
-            res.Velocity = res.Velocity.normalized;//¹éÒ»»¯
+            //æ²¿ç€æ­¤æ–¹å‘å…¨é€Ÿå‰è¿›
+            res.Velocity = res.Velocity.normalized;//å½’ä¸€åŒ–
             res.Velocity *= maxSpeed;
 
-            //ÃæÏòÒªÒÆ¶¯µÄ·½Ïò
+            //é¢å‘è¦ç§»åŠ¨çš„æ–¹å‘
             var current_stae = currentEntity.GetStaticStae();
             float currentOrientation = current_stae.Orientation;
 
@@ -81,28 +81,28 @@ namespace TestAI.Move
         [AIParm_Float]
         public float maxSpeed = 0.5f;
         [AIParm_Float]
-        public float slowRadius = 5;//¼õËÙ·¶Î§
+        public float slowRadius = 5;//å‡é€ŸèŒƒå›´
         [AIParm_Float]
-        public float targetRadius = 1;//Ä¿±ê°ë¾¶·¶Î§
+        public float targetRadius = 1;//ç›®æ ‡åŠå¾„èŒƒå›´
         /// <summary>
-        /// »ñÈ¡µ½Ä¿±ê×ªÏò
-        /// £¨ÌÓÀë·´×ªVelocity£©
+        /// è·å–åˆ°ç›®æ ‡è½¬å‘
+        /// ï¼ˆé€ƒç¦»åè½¬Velocityï¼‰
         /// </summary>
         /// <returns></returns>
         public SteeringOutput Arrive()
         {
             var res = new SteeringOutput();
-            //»ñÈ¡Ä¿±êµÄ·½Ïò
+            //è·å–ç›®æ ‡çš„æ–¹å‘
             res.Velocity = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
-            //¼ÆËã¾àÀë
+            //è®¡ç®—è·ç¦»
             float distance = res.Velocity.magnitude;
             if (distance < targetRadius)
             {
                 res.Velocity = Vector3.zero;
                 return res;
             }
-            //ÕâÀï¿ÉÒÔÊ¹ÓÃÏßĞÔ²åÖµÀ´¼ÆËãËÙ¶È£¬Ò²¿ÉÒÔ¸ù¾İÊ±¼äÀ´¼ÆËãËÙ¶È
-            //Èç¹ûÔÚ¼õËÙ·¶Î§ÄÚ£¬¼ÆËãËÙ¶È
+            //è¿™é‡Œå¯ä»¥ä½¿ç”¨çº¿æ€§æ’å€¼æ¥è®¡ç®—é€Ÿåº¦ï¼Œä¹Ÿå¯ä»¥æ ¹æ®æ—¶é—´æ¥è®¡ç®—é€Ÿåº¦
+            //å¦‚æœåœ¨å‡é€ŸèŒƒå›´å†…ï¼Œè®¡ç®—é€Ÿåº¦
             if (distance < slowRadius)
             {
                 res.Velocity = res.Velocity.normalized * maxSpeed * (distance / slowRadius);
@@ -111,7 +111,7 @@ namespace TestAI.Move
             {
                 res.Velocity = res.Velocity.normalized * maxSpeed;
             }
-            //ÃæÏòÒªÒÆ¶¯µÄ·½Ïò
+            //é¢å‘è¦ç§»åŠ¨çš„æ–¹å‘
             var current_stae = currentEntity.GetStaticStae();
             float currentOrientation = current_stae.Orientation;
             res.Angular = 0;
@@ -153,7 +153,7 @@ namespace TestAI.Move
         [AIParm_Float]
         public float maxSpeed = 0.2f;
         [AIParm_Float]
-        public float maxRotate = 0.1f;//×î´óĞı×ª
+        public float maxRotate = 0.1f;//æœ€å¤§æ—‹è½¬
         protected override void OnStart()
         {
             currentEntity = UtilsTool.CreateNavigation_AI();
@@ -171,11 +171,11 @@ namespace TestAI.Move
 
             var current_stae = currentEntity.GetStaticStae();
 
-            //´Ó·½ÏòµÄÏòÁ¿ĞÎÊ½»ñÈ¡ËÙ¶È
-            res.Velocity = maxSpeed * current_stae.OrientationToVector();//»ñÈ¡µ±Ç°·½ÏòµÄËÙ¶ÈÏòÁ¿
-            res.Angular = UnityEngine.Random.Range(-1f, 1f) * maxRotate;//Ëæ»úĞı×ª
+            //ä»æ–¹å‘çš„å‘é‡å½¢å¼è·å–é€Ÿåº¦
+            res.Velocity = maxSpeed * current_stae.OrientationToVector();//è·å–å½“å‰æ–¹å‘çš„é€Ÿåº¦å‘é‡
+            res.Angular = UnityEngine.Random.Range(-1f, 1f) * maxRotate;//éšæœºæ—‹è½¬
 
-            //¸üĞÂÊµÌå×´Ì¬
+            //æ›´æ–°å®ä½“çŠ¶æ€
             current_stae.SteeringOutputApply(res);
 
             currentEntity.SetStaticStae(current_stae);
@@ -219,7 +219,7 @@ namespace TestAI.Move
             m_sceneTypeDropdown.AddOptions(typeList);
             m_sceneTypeDropdown.value = 0;
 
-            //×¢²á»Øµ÷
+            //æ³¨å†Œå›è°ƒ
             m_sceneTypeDropdown.onValueChanged.AddListener(SceneTypeDropdownOnValueChanged);
             m_playBtn.onClick.AddListener(PlayBtnOnClick);
 
