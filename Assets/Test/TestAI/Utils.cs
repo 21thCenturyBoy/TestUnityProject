@@ -8,6 +8,9 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 namespace TestAI
 {
+    /// <summary>
+    /// 静态状态
+    /// </summary>
     public struct StaticStae
     {
         //位置
@@ -16,10 +19,14 @@ namespace TestAI
         public float Orientation { get; set; }
 
     }
-    public struct SteeringOutput
+
+    /// <summary>
+    /// 转向输出速度
+    /// </summary>
+    public struct SteeringOutputVelocity
     {
         //线速度
-        public Vector3 Velocity { get; set; }
+        public Vector3 Line { get; set; }
         //角速度
         public float Angular { get; set; }
     }
@@ -29,6 +36,72 @@ namespace TestAI
         void Start();
         void FixedUpdate();
         void Stop();
+    }
+
+    public class Kinematic
+    {
+        //位置
+        public Vector3 Position { get; set; }
+        //方向（弧度）
+        public float Orientation { get; set; }
+        //线速度
+        public Vector3 Velocity { get; set; }
+        //角速度（弧度每秒）
+        public float Rotation { get; set; }
+
+        /// <summary>
+        /// 手动更新方法(帧率低)，由于帧率低，可能会导致物体跳跃式移动。
+        /// </summary>
+        /// <param name="steering"></param>
+        /// <param name="deltaTime"></param>
+        public void ForceUpdate(SteeringOutputVelocity steering, float deltaTime)
+        {
+            //加速度与位移公式：(vt²-v0²)=2as，s=v0t+at²/2，s2-s1=aT²。
+            //更新位置
+            float half_t = 0.5f * deltaTime * deltaTime;
+            Position += Velocity * deltaTime + steering.Line * half_t;
+            //更新方向
+            Orientation += Rotation * deltaTime + steering.Angular * half_t;
+
+            //更新线速度
+            Velocity += steering.Line * deltaTime;
+            //更新角速度
+            Rotation += steering.Angular * deltaTime;
+        }
+
+
+        public void FixedUpdate(SteeringOutputVelocity steering, float deltaTime)
+        {
+            //更新位置
+            Position += Velocity * deltaTime;
+            //更新方向
+            Orientation += Rotation * deltaTime;
+
+            //更新线速度
+            Velocity += steering.Line * deltaTime;
+            //更新角速度
+            Rotation += steering.Angular * deltaTime;
+        }
+
+        public void FixedUpdate(SteeringOutputVelocity steering,float maxSpeed, float deltaTime)
+        {
+            //更新位置
+            Position += Velocity * deltaTime;
+            //更新方向
+            Orientation += Rotation * deltaTime;
+
+            //更新线速度
+            Velocity += steering.Line * deltaTime;
+            //更新角速度
+            Rotation += steering.Angular * deltaTime;
+
+            //检查速度是否超过最大速度
+            if (Velocity.magnitude > maxSpeed)
+            {
+                //如果超过最大速度，则归一化并乘以最大速度
+                Velocity = Velocity.normalized * maxSpeed;
+            }
+        }
     }
 
     public class KinematicLogic : IKinematicLogic
@@ -227,13 +300,13 @@ namespace TestAI
         }
 
         /// <summary>
-        /// 转向输出应用
+        /// 转向输出应用到静态状态上。
         /// </summary>
         /// <param name="stae"></param>
         /// <param name="steeringOutput"></param>
-        public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutput steeringOutput) {
+        public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutputVelocity steeringOutput) {
             // 应用新的速度向量到位置
-            stae.Position += steeringOutput.Velocity;
+            stae.Position += steeringOutput.Line;
             // 更新朝向
             stae.Orientation += steeringOutput.Angular;
         }

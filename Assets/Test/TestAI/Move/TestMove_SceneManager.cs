@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace TestAI.Move
 {
-    public class Navigation_Seek : KinematicLogic
+    public class Kinematic_Seek : KinematicLogic
     {
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
@@ -19,17 +19,17 @@ namespace TestAI.Move
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutput Seek()
+        public SteeringOutputVelocity Seek()
         {
 
-            var res = new SteeringOutput();
+            var res = new SteeringOutputVelocity();
 
             //获取目标的方向
-            res.Velocity = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
+            res.Line = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
 
             //沿着此方向全速前进
-            res.Velocity = res.Velocity.normalized;//归一化
-            res.Velocity *= maxSpeed;
+            res.Line = res.Line.normalized;//归一化
+            res.Line *= maxSpeed;
 
             //面向要移动的方向
             var current_stae = currentEntity.GetStaticStae();
@@ -37,7 +37,7 @@ namespace TestAI.Move
 
             res.Angular = 0;
 
-            float targetOrientation = UtilsTool.NewOrientation(currentOrientation, res.Velocity);
+            float targetOrientation = UtilsTool.NewOrientation(currentOrientation, res.Line);
             current_stae.Orientation = targetOrientation;
 
             current_stae.SteeringOutputApply(res);
@@ -73,7 +73,7 @@ namespace TestAI.Move
         }
     }
 
-    public class Navigation_Arrive : KinematicLogic
+    public class Kinematic_Arrive : KinematicLogic
     {
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
@@ -89,33 +89,33 @@ namespace TestAI.Move
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutput Arrive()
+        public SteeringOutputVelocity Arrive()
         {
-            var res = new SteeringOutput();
+            var res = new SteeringOutputVelocity();
             //获取目标的方向
-            res.Velocity = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
+            res.Line = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
             //计算距离
-            float distance = res.Velocity.magnitude;
+            float distance = res.Line.magnitude;
             if (distance < targetRadius)
             {
-                res.Velocity = Vector3.zero;
+                res.Line = Vector3.zero;
                 return res;
             }
             //这里可以使用线性插值来计算速度，也可以根据时间来计算速度
             //如果在减速范围内，计算速度
             if (distance < slowRadius)
             {
-                res.Velocity = res.Velocity.normalized * maxSpeed * (distance / slowRadius);
+                res.Line = res.Line.normalized * maxSpeed * (distance / slowRadius);
             }
             else
             {
-                res.Velocity = res.Velocity.normalized * maxSpeed;
+                res.Line = res.Line.normalized * maxSpeed;
             }
             //面向要移动的方向
             var current_stae = currentEntity.GetStaticStae();
             float currentOrientation = current_stae.Orientation;
             res.Angular = 0;
-            float targetOrientation = UtilsTool.NewOrientation(currentOrientation, res.Velocity);
+            float targetOrientation = UtilsTool.NewOrientation(currentOrientation, res.Line);
             current_stae.Orientation = targetOrientation;
 
             current_stae.SteeringOutputApply(res);
@@ -147,7 +147,7 @@ namespace TestAI.Move
         }
     }
 
-    public class Navigation_Wander : KinematicLogic
+    public class Kinematic_Wander : KinematicLogic
     {
         private IKinematicEntity currentEntity;
         [AIParm_Float]
@@ -165,14 +165,14 @@ namespace TestAI.Move
         {
             Wander();
         }
-        public SteeringOutput Wander()
+        public SteeringOutputVelocity Wander()
         {
-            var res = new SteeringOutput();
+            var res = new SteeringOutputVelocity();
 
             var current_stae = currentEntity.GetStaticStae();
 
             //从方向的向量形式获取速度
-            res.Velocity = maxSpeed * current_stae.OrientationToVector();//获取当前方向的速度向量
+            res.Line = maxSpeed * current_stae.OrientationToVector();//获取当前方向的速度向量
             res.Angular = UnityEngine.Random.Range(-1f, 1f) * maxRotate;//随机旋转
 
             //更新实体状态
@@ -207,9 +207,9 @@ namespace TestAI.Move
 
         public enum TestMoveSceneType
         {
-            Navigation_Seek,
-            Navigation_Arrive,
-            Navigation_Wander,
+            Kinematic_Seek,
+            Kinematic_Arrive,
+            Kinematic_Wander,
         }
         // Start is called before the first frame update
         void Start()
@@ -239,14 +239,14 @@ namespace TestAI.Move
             TestMoveSceneType type = (TestMoveSceneType)m_sceneTypeDropdown.value;
             switch (type)
             {
-                case TestMoveSceneType.Navigation_Seek:
-                    m_currentLogic = new Navigation_Seek();
+                case TestMoveSceneType.Kinematic_Seek:
+                    m_currentLogic = new Kinematic_Seek();
                     break;
-                case TestMoveSceneType.Navigation_Arrive:
-                    m_currentLogic = new Navigation_Arrive();
+                case TestMoveSceneType.Kinematic_Arrive:
+                    m_currentLogic = new Kinematic_Arrive();
                     break;
-                case TestMoveSceneType.Navigation_Wander:
-                    m_currentLogic = new Navigation_Wander();
+                case TestMoveSceneType.Kinematic_Wander:
+                    m_currentLogic = new Kinematic_Wander();
                     break;
             }
             m_currentLogic.CreatAIPramUI(m_AIParm_Parent);
