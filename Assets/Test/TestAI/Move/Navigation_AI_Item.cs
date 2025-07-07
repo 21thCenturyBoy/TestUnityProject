@@ -8,6 +8,22 @@ namespace TestAI.Move
     {
         public bool AllowDrag = false;
 
+        public Vector3 Position { get => m_staticStae.Position; }
+        public float Orientation { get => m_staticStae.Orientation; }
+        public Vector3 Velocity { get; set; }
+        public float Rotation { get; set; }
+
+        private StaticStae m_staticStae;
+        void Start()
+        {
+            // 初始化物体位置和朝向
+            m_staticStae.Position = transform.position;
+            m_staticStae.Orientation = transform.ComputeOrientation();
+
+            Velocity = Vector3.zero;
+            Rotation = 0f;
+        }
+
         public void OnMouseDrag()
         {
             //允许拖拽,计算鼠标拖拽位置
@@ -27,35 +43,42 @@ namespace TestAI.Move
             {
                 Vector3 worldPos = ray.GetPoint(distance);
                 transform.position = worldPos;
+                m_staticStae.Position = transform.position;
             }
         }
 
         public StaticStae GetStaticStae()
         {
-            StaticStae stae = new StaticStae();
-            stae.Position = transform.position;
+            m_staticStae.Position = transform.position;
             //计算朝向
-            stae.Orientation = transform.ComputeOrientation();
+            m_staticStae.Orientation = transform.ComputeOrientation();
 
-            return stae;
+            return m_staticStae;
         }
 
         public void SetStaticStae(StaticStae stae)
         {
-            transform.SetOrientation(stae.Orientation);
+            SetOrientation(stae.Orientation);
             transform.position = stae.Position;
+
+            m_staticStae = stae;
         }
 
-        // Start is called before the first frame update
-        void Start()
+        public void SetDynamicStae(SteeringOutputVelocity stae)
         {
-
+            Velocity = stae.Line;
+            Rotation = stae.Angular;
         }
-
-        // Update is called once per frame
-        void Update()
+        /// <summary>
+        /// 设置Transform方向（弧度）
+        /// </summary>
+        /// <param name="orientation"></param>
+        public void SetOrientation(float orientation)
         {
-
+            // 将弧度转换为角度
+            float angle = orientation * Mathf.Rad2Deg;
+            // 只设置Y轴旋转，保持X和Z为0
+            transform.rotation = Quaternion.Euler(0, angle, 0);
         }
     }
 }

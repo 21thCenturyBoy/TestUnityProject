@@ -1,9 +1,12 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TestAI.Move.Kinematic
 {
-
-    public class Kinematic_Seek : KinematicLogic
+    public class Steering_Seek : KinematicLogic
     {
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
@@ -18,7 +21,6 @@ namespace TestAI.Move.Kinematic
         /// <returns></returns>
         public SteeringOutputVelocity Seek()
         {
-
             var res = new SteeringOutputVelocity();
 
             //获取目标的方向
@@ -30,19 +32,25 @@ namespace TestAI.Move.Kinematic
 
             res.Angular = 0;
 
-            //面向要移动的方向
-            float targetOrientation = UtilsTool.NewOrientation(currentEntity.GetStaticStae().Orientation, res.Line);
-            currentEntity.SetOrientation(currentEntity.GetStaticStae().Orientation+ targetOrientation);
-
             return res;
         }
 
         protected override void OnFixedUpdate()
         {
-            SteeringOutputVelocity res = Seek();
-            currentEntity.FixedUpdate(res, FixedDeltaTime);
+            var res =  Seek();
 
-    
+
+            var current_stae = currentEntity.GetStaticStae();
+
+            current_stae.SteeringOutputApply(res);
+            currentEntity.SetDynamicStae(res);
+
+
+        }
+
+        public void FixedUpdate(SteeringOutputVelocity steering, float maxSpeed, float deltaTime)
+        {
+
         }
 
         protected override void OnStart()
@@ -65,4 +73,5 @@ namespace TestAI.Move.Kinematic
             currentEntity.Destroy();
         }
     }
+
 }

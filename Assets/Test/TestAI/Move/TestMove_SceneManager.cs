@@ -29,6 +29,7 @@ namespace TestAI.Move
             Kinematic_Seek,
             Kinematic_Arrive,
             Kinematic_Wander,
+            Steering_Seek,
         }
         // Start is called before the first frame update
         void Start()

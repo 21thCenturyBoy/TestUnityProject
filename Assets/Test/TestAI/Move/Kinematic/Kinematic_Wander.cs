@@ -32,7 +32,7 @@ namespace TestAI.Move.Kinematic
             current_stae.SteeringOutputApply(res);
 
             currentEntity.SetStaticStae(current_stae);
-
+            currentEntity.SetDynamicStae(res);
             return res;
         }
         protected override void OnStop()

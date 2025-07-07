@@ -47,14 +47,17 @@ namespace TestAI.Move.Kinematic
             float targetOrientation = UtilsTool.NewOrientation(currentOrientation, res.Line);
             current_stae.Orientation = targetOrientation;
 
+            currentEntity.SetStaticStae(current_stae);
             current_stae.SteeringOutputApply(res);
 
             currentEntity.SetStaticStae(current_stae);
+            currentEntity.SetDynamicStae(res);
             return res;
         }
         protected override void OnFixedUpdate()
         {
-            Arrive();
+            SteeringOutputVelocity res =  Arrive();
+            currentEntity.FixedUpdate(res,FixedDeltaTime);
         }
         protected override void OnStart()
         {

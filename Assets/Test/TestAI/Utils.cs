@@ -1,6 +1,7 @@
 using System;
 using TestAI.Move;
 using UnityEngine;
+using UnityEngine.UIElements;
 namespace TestAI
 {
     public enum Color
@@ -14,10 +15,20 @@ namespace TestAI
     public struct StaticStae
     {
         //位置
-        public Vector3 Position { get; set; }
+        public Vector3 Position;
         //方向（弧度）
-        public float Orientation { get; set; }
+        public float Orientation;
+    }
 
+    /// <summary>
+    /// 动态状态
+    /// </summary>
+    public struct DynamicStae
+    {
+        //线速度
+        public Vector3 Velocity;
+        //角速度（弧度每秒）
+        public float Rotation;
     }
 
     /// <summary>
@@ -26,9 +37,9 @@ namespace TestAI
     public struct SteeringOutputVelocity
     {
         //线速度
-        public Vector3 Line { get; set; }
+        public Vector3 Line;
         //角速度
-        public float Angular { get; set; }
+        public float Angular;
     }
 
     public interface IKinematicLogic
@@ -40,8 +51,19 @@ namespace TestAI
 
     public interface IKinematicEntity
     {
+        //位置
+        public Vector3 Position { get;  }
+        //方向（弧度）
+        public float Orientation { get; }
+        //线速度
+        public Vector3 Velocity { get; set; }
+        //角速度（弧度每秒）
+        public float Rotation { get; set; }
         StaticStae GetStaticStae();
         void SetStaticStae(StaticStae stae);
+        void SetOrientation(float orientation);
+
+        void SetDynamicStae(SteeringOutputVelocity stae);
     }
 
     public class AIParm_Float : Attribute { }
@@ -94,19 +116,6 @@ namespace TestAI
             {
                 return 0;
             }
-        }
-
-        /// <summary>
-        /// 设置Transform方向（弧度）
-        /// </summary>
-        /// <param name="transform"></param>
-        /// <param name="orientation"></param>
-        public static void SetOrientation(this Transform transform, float orientation)
-        {
-            // 将弧度转换为角度
-            float angle = orientation * Mathf.Rad2Deg;
-            // 只设置Y轴旋转，保持X和Z为0
-            transform.rotation = Quaternion.Euler(0, angle, 0);
         }
 
         /// <summary>
@@ -202,7 +211,7 @@ namespace TestAI
         }
 
         /// <summary>
-        /// 转向输出应用到静态状态上。
+        /// 运动学应用
         /// </summary>
         /// <param name="stae"></param>
         /// <param name="steeringOutput"></param>
@@ -214,5 +223,65 @@ namespace TestAI
             stae.Orientation += steeringOutput.Angular;
         }
 
+
+        /// <summary>
+        /// 手动更新方法(帧率低)，由于帧率低，可能会导致物体跳跃式移动。
+        /// </summary>
+        /// <param name="steering"></param>
+        /// <param name="deltaTime"></param>
+        public static void ForceUpdate(this IKinematicEntity entity,SteeringOutputVelocity steering, float deltaTime)
+        {
+            //加速度与位移公式：(vt²-v0²)=2as，s=v0t+at²/2，s2-s1=aT²。
+            //更新位置
+            float half_t = 0.5f * deltaTime * deltaTime;
+            StaticStae staticStae = entity.GetStaticStae();
+            staticStae.Position += entity.Velocity * deltaTime + steering.Line * half_t;
+            //更新方向
+            staticStae.Orientation += entity.Rotation * deltaTime + steering.Angular * half_t;
+            entity.SetStaticStae(staticStae);
+
+            //更新线速度
+            entity.Velocity += steering.Line * deltaTime;
+            //更新角速度
+            entity.Rotation += steering.Angular * deltaTime;
+        }
+
+
+        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutputVelocity steering, float deltaTime)
+        {
+            //更新位置
+            StaticStae staticStae = entity.GetStaticStae();
+            staticStae.Position += entity.Velocity * deltaTime;
+            //更新方向
+            staticStae.Orientation += entity.Rotation * deltaTime;
+            entity.SetStaticStae(staticStae);
+
+            //更新线速度
+            entity.Velocity += steering.Line * deltaTime;
+            //更新角速度
+            entity.Rotation += steering.Angular * deltaTime;
+        }
+
+        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutputVelocity steering, float maxSpeed, float deltaTime)
+        {
+            //更新位置
+            StaticStae staticStae = entity.GetStaticStae();
+            staticStae.Position += entity.Velocity * deltaTime;
+            //更新方向
+            staticStae.Orientation += entity.Rotation * deltaTime;
+            entity.SetStaticStae(staticStae);
+
+            //更新线速度
+            entity.Velocity += steering.Line * deltaTime;
+            //更新角速度
+            entity.Rotation += steering.Angular * deltaTime;
+
+            //检查速度是否超过最大速度
+            if (entity.Velocity.magnitude > maxSpeed)
+            {
+                //如果超过最大速度，则归一化并乘以最大速度
+                entity.Velocity = entity.Velocity.normalized * maxSpeed;
+            }
+        }
     }
 }
