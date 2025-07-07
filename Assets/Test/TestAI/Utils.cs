@@ -1,13 +1,13 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TestAI.Move;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 namespace TestAI
 {
+    public enum Color
+    {
+        red, green, blue
+    }
+
     /// <summary>
     /// 静态状态
     /// </summary>
@@ -38,125 +38,13 @@ namespace TestAI
         void Stop();
     }
 
-    public class Kinematic
-    {
-        //位置
-        public Vector3 Position { get; set; }
-        //方向（弧度）
-        public float Orientation { get; set; }
-        //线速度
-        public Vector3 Velocity { get; set; }
-        //角速度（弧度每秒）
-        public float Rotation { get; set; }
-
-        /// <summary>
-        /// 手动更新方法(帧率低)，由于帧率低，可能会导致物体跳跃式移动。
-        /// </summary>
-        /// <param name="steering"></param>
-        /// <param name="deltaTime"></param>
-        public void ForceUpdate(SteeringOutputVelocity steering, float deltaTime)
-        {
-            //加速度与位移公式：(vt²-v0²)=2as，s=v0t+at²/2，s2-s1=aT²。
-            //更新位置
-            float half_t = 0.5f * deltaTime * deltaTime;
-            Position += Velocity * deltaTime + steering.Line * half_t;
-            //更新方向
-            Orientation += Rotation * deltaTime + steering.Angular * half_t;
-
-            //更新线速度
-            Velocity += steering.Line * deltaTime;
-            //更新角速度
-            Rotation += steering.Angular * deltaTime;
-        }
-
-
-        public void FixedUpdate(SteeringOutputVelocity steering, float deltaTime)
-        {
-            //更新位置
-            Position += Velocity * deltaTime;
-            //更新方向
-            Orientation += Rotation * deltaTime;
-
-            //更新线速度
-            Velocity += steering.Line * deltaTime;
-            //更新角速度
-            Rotation += steering.Angular * deltaTime;
-        }
-
-        public void FixedUpdate(SteeringOutputVelocity steering,float maxSpeed, float deltaTime)
-        {
-            //更新位置
-            Position += Velocity * deltaTime;
-            //更新方向
-            Orientation += Rotation * deltaTime;
-
-            //更新线速度
-            Velocity += steering.Line * deltaTime;
-            //更新角速度
-            Rotation += steering.Angular * deltaTime;
-
-            //检查速度是否超过最大速度
-            if (Velocity.magnitude > maxSpeed)
-            {
-                //如果超过最大速度，则归一化并乘以最大速度
-                Velocity = Velocity.normalized * maxSpeed;
-            }
-        }
-    }
-
-    public class KinematicLogic : IKinematicLogic
-    {
-        public List<GameObject> AI_Pram_Objs = new List<GameObject>();
-        protected bool m_Inited = false;
-        public virtual void FixedUpdate()
-        {
-            if(!m_Inited) return;
-            OnFixedUpdate();
-        }
-
-        protected virtual void OnFixedUpdate() { 
-        }
-
-        public virtual void Start()
-        {
-            if (!m_Inited)
-            {
-                m_Inited = true;
-                OnStart();
-            }
-        }
-
-        protected virtual void OnStart()
-        {
-        }
-
-
-        public virtual void Stop()
-        {
-            if (m_Inited)
-            {
-                m_Inited = false;
-                for (int i = 0; i < AI_Pram_Objs.Count; i++) {
-                    GameObject.Destroy(AI_Pram_Objs[i]);
-                }
-                AI_Pram_Objs.Clear();
-                OnStop();
-            }
-        }
-
-        protected virtual void OnStop()
-        {
-        }
-
-    }
-
     public interface IKinematicEntity
     {
         StaticStae GetStaticStae();
         void SetStaticStae(StaticStae stae);
     }
 
-    public class AIParm_Float : Attribute {}
+    public class AIParm_Float : Attribute { }
 
     public static class UtilsTool
     {
@@ -272,20 +160,34 @@ namespace TestAI
             return new_inst.GetComponent<IKinematicEntity>();
         }
 
-        public static void Destroy(this IKinematicEntity entity) {
-            if (entity!=null)
-            {
-                Navigation_AI_Item aI_Item =  entity as Navigation_AI_Item;
-                GameObject.Destroy(aI_Item.gameObject);
-            }
-        }
-
-        public static void SetColor(this IKinematicEntity entity,Color color)
+        public static void Destroy(this IKinematicEntity entity)
         {
             if (entity != null)
             {
                 Navigation_AI_Item aI_Item = entity as Navigation_AI_Item;
-                aI_Item.GetComponentInChildren<SpriteRenderer>().color = color;
+                GameObject.Destroy(aI_Item.gameObject);
+            }
+        }
+
+        public static void SetColor(this IKinematicEntity entity, Color color)
+        {
+            UnityEngine.Color newColor = UnityEngine.Color.white;
+            switch (color)
+            {
+                case Color.red:
+                    newColor = UnityEngine.Color.red;
+                    break;
+                case Color.green:
+                    newColor = UnityEngine.Color.green;
+                    break;
+                case Color.blue:
+                    newColor = UnityEngine.Color.blue;
+                    break;
+            }
+            if (entity != null)
+            {
+                Navigation_AI_Item aI_Item = entity as Navigation_AI_Item;
+                aI_Item.GetComponentInChildren<SpriteRenderer>().color = newColor;
             }
         }
 
@@ -304,66 +206,13 @@ namespace TestAI
         /// </summary>
         /// <param name="stae"></param>
         /// <param name="steeringOutput"></param>
-        public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutputVelocity steeringOutput) {
+        public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutputVelocity steeringOutput)
+        {
             // 应用新的速度向量到位置
             stae.Position += steeringOutput.Line;
             // 更新朝向
             stae.Orientation += steeringOutput.Angular;
         }
 
-
-        public static void CreatAIPramUI(this KinematicLogic logic,Transform parentTrans)
-        {
-            // 反射获取所有带有 AIParm_Float 特性的字段或属性
-            if (logic != null)
-            {
-                var type = logic.GetType();
-                // 获取所有字段
-                GameObject AIParm_Float_prefab = Resources.Load<GameObject>("AIParm_Float");
-                var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-                foreach (var field in fields)
-                {
-                    if (Attribute.IsDefined(field, typeof(AIParm_Float)))
-                    {
-                        GameObject obj = GameObject.Instantiate(AIParm_Float_prefab);
-                        obj.transform.SetParent(parentTrans);
-                        RectTransform rect = obj.GetComponent<RectTransform>();
-                        rect.localScale = Vector3.one;
-                        rect.localRotation = Quaternion.identity;
-
-                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = field.Name;
-                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().text = field.GetValue(logic).ToString();
-
-                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onValueChanged.AddListener((val) => {
-                            float val_float  = float.Parse(val.ToString());
-                            field.SetValue(logic, val_float);
-                        });
-                        logic.AI_Pram_Objs.Add(obj);
-                    }
-                }
-                // 获取所有属性
-                var properties = type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-                foreach (var prop in properties)
-                {
-                    if (Attribute.IsDefined(prop, typeof(AIParm_Float)) && prop.CanRead)
-                    {
-                        GameObject obj = GameObject.Instantiate(AIParm_Float_prefab);
-                        obj.transform.SetParent(parentTrans);
-                        RectTransform rect = obj.GetComponent<RectTransform>();
-                        rect.localScale = Vector3.one;
-                        rect.localRotation = Quaternion.identity;
-
-                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = prop.Name;
-                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().text = prop.GetValue(logic).ToString();
-
-                        obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onValueChanged.AddListener((val) => {
-                            float val_float = float.Parse(val.ToString());
-                            prop.SetValue(logic, val_float);
-                        });
-                        logic.AI_Pram_Objs.Add(obj);
-                    }
-                }
-            }
-        }
     }
 }
