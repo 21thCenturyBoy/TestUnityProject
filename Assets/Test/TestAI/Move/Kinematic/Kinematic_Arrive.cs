@@ -8,9 +8,9 @@ namespace TestAI.Move.Kinematic
         private IKinematicEntity currentEntity;
 
         [AIParm_Float]
-        public float maxSpeed = 0.5f;
+        public float maxSpeed = 10f;
         [AIParm_Float]
-        public float slowRadius = 5;//减速范围
+        public float arrive_time = 0.5f;//到达目标的时间
         [AIParm_Float]
         public float targetRadius = 1;//目标半径范围
         /// <summary>
@@ -18,46 +18,42 @@ namespace TestAI.Move.Kinematic
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutputVelocity Arrive()
+        public KinematicOutput Arrive()
         {
-            var res = new SteeringOutputVelocity();
+            var res = new KinematicOutput();
             //获取目标的方向
-            res.Line = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
-            //计算距离
-            float distance = res.Line.magnitude;
-            if (distance < targetRadius)
+            res.Velocity = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
+
+            ////检查是否在目标半径范围内
+            if (res.Velocity.magnitude < targetRadius)
             {
-                res.Line = Vector3.zero;
+                res.Velocity = Vector3.zero;
+                //不请求转向
                 return res;
             }
-            //这里可以使用线性插值来计算速度，也可以根据时间来计算速度
-            //如果在减速范围内，计算速度
-            if (distance < slowRadius)
+
+            //需要移动到目标位置
+            res.Velocity /= arrive_time;
+
+            //如果该速度太快，则限制速度
+            if (res.Velocity.magnitude > maxSpeed)
             {
-                res.Line = res.Line.normalized * maxSpeed * (distance / slowRadius);
+                res.Velocity = res.Velocity.normalized * maxSpeed;
             }
-            else
-            {
-                res.Line = res.Line.normalized * maxSpeed;
-            }
+
+            //改变朝向
             //面向要移动的方向
-            var current_stae = currentEntity.GetStaticStae();
-            float currentOrientation = current_stae.Orientation;
-            res.Angular = 0;
-            float targetOrientation = UtilsTool.NewOrientation(currentOrientation, res.Line);
-            current_stae.Orientation = targetOrientation;
+            float targetOrientation = UtilsTool.NewOrientation(currentEntity.GetStaticStae().Orientation, res.Velocity);
+            currentEntity.SetOrientation(targetOrientation);
 
-            currentEntity.SetStaticStae(current_stae);
-            current_stae.SteeringOutputApply(res);
+            res.Rotation = 0;
 
-            currentEntity.SetStaticStae(current_stae);
-            currentEntity.SetDynamicStae(res);
             return res;
         }
         protected override void OnFixedUpdate()
         {
-            SteeringOutputVelocity res =  Arrive();
-            currentEntity.FixedUpdate(res,FixedDeltaTime);
+            KinematicOutput res = Arrive();
+            currentEntity.FixedUpdate(res, FixedDeltaTime);
         }
         protected override void OnStart()
         {

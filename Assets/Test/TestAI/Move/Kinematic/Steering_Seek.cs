@@ -19,9 +19,9 @@ namespace TestAI.Move.Kinematic
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutputVelocity Seek()
+        public SteeringOutput Seek()
         {
-            var res = new SteeringOutputVelocity();
+            var res = new SteeringOutput();
 
             //获取目标的方向
             res.Line = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
@@ -48,7 +48,7 @@ namespace TestAI.Move.Kinematic
 
         }
 
-        public void FixedUpdate(SteeringOutputVelocity steering, float maxSpeed, float deltaTime)
+        public void FixedUpdate(SteeringOutput steering, float maxSpeed, float deltaTime)
         {
 
         }

@@ -21,25 +21,24 @@ namespace TestAI
     }
 
     /// <summary>
-    /// 动态状态
+    /// 转向输出加速度
     /// </summary>
-    public struct DynamicStae
+    public struct SteeringOutput
     {
-        //线速度
-        public Vector3 Velocity;
-        //角速度（弧度每秒）
-        public float Rotation;
+        //线加速度
+        public Vector3 Line;
+        //角加速度
+        public float Angular;
     }
 
     /// <summary>
-    /// 转向输出速度
+    /// 运动学输出速度
     /// </summary>
-    public struct SteeringOutputVelocity
-    {
+    public struct KinematicOutput {
         //线速度
-        public Vector3 Line;
+        public Vector3 Velocity;
         //角速度
-        public float Angular;
+        public float Rotation;
     }
 
     public interface IKinematicLogic
@@ -63,7 +62,7 @@ namespace TestAI
         void SetStaticStae(StaticStae stae);
         void SetOrientation(float orientation);
 
-        void SetDynamicStae(SteeringOutputVelocity stae);
+        void SetDynamicStae(SteeringOutput stae);
     }
 
     public class AIParm_Float : Attribute { }
@@ -128,7 +127,7 @@ namespace TestAI
             //Y轴为0，XZ平面上计算方向向量
             float x = Mathf.Sin(stae.Orientation);
             float z = Mathf.Cos(stae.Orientation);
-            return new Vector3(x, 0, z);
+            return new Vector3(x, 0, z).normalized;
         }
 
         /// <summary>
@@ -215,7 +214,7 @@ namespace TestAI
         /// </summary>
         /// <param name="stae"></param>
         /// <param name="steeringOutput"></param>
-        public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutputVelocity steeringOutput)
+        public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutput steeringOutput)
         {
             // 应用新的速度向量到位置
             stae.Position += steeringOutput.Line;
@@ -225,11 +224,11 @@ namespace TestAI
 
 
         /// <summary>
-        /// 手动更新方法(帧率低)，由于帧率低，可能会导致物体跳跃式移动。
+        /// 更新（标准运动学）手动更新方法(帧率低)，由于帧率低，可能会导致物体跳跃式移动。
         /// </summary>
         /// <param name="steering"></param>
         /// <param name="deltaTime"></param>
-        public static void ForceUpdate(this IKinematicEntity entity,SteeringOutputVelocity steering, float deltaTime)
+        public static void ForceUpdate(this IKinematicEntity entity,SteeringOutput steering, float deltaTime)
         {
             //加速度与位移公式：(vt²-v0²)=2as，s=v0t+at²/2，s2-s1=aT²。
             //更新位置
@@ -246,8 +245,34 @@ namespace TestAI
             entity.Rotation += steering.Angular * deltaTime;
         }
 
+        /// <summary>
+        /// 更新（运动学）
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="kinematicOutput"></param>
+        /// <param name="deltaTime"></param>
+        public static void FixedUpdate(this IKinematicEntity entity, KinematicOutput kinematicOutput, float deltaTime)
+        {
+            //更新位置
+            StaticStae staticStae = entity.GetStaticStae();
+            staticStae.Position += entity.Velocity * deltaTime;
+            //更新方向
+            staticStae.Orientation += entity.Rotation * deltaTime;
+            entity.SetStaticStae(staticStae);
 
-        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutputVelocity steering, float deltaTime)
+            //更新线速度
+            entity.Velocity = kinematicOutput.Velocity;
+            //更新角速度
+            entity.Rotation = kinematicOutput.Rotation;
+        }
+
+        /// <summary>
+        /// 更新（转向行为）
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="steering"></param>
+        /// <param name="deltaTime"></param>
+        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutput steering, float deltaTime)
         {
             //更新位置
             StaticStae staticStae = entity.GetStaticStae();
@@ -262,7 +287,13 @@ namespace TestAI
             entity.Rotation += steering.Angular * deltaTime;
         }
 
-        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutputVelocity steering, float maxSpeed, float deltaTime)
+        /// <summary>
+        /// 更新（转向行为）
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="steering"></param>
+        /// <param name="deltaTime"></param>
+        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutput steering, float maxSpeed, float deltaTime)
         {
             //更新位置
             StaticStae staticStae = entity.GetStaticStae();

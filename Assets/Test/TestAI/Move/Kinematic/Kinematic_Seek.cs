@@ -1,48 +1,46 @@
+using System;
 using UnityEngine;
 
 namespace TestAI.Move.Kinematic
 {
-
     public class Kinematic_Seek : KinematicLogic
     {
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
 
         [AIParm_Float]
-        public float maxSpeed = 0.5f;
+        public float maxSpeed = 10f;
 
         /// <summary>
         /// 获取到目标转向
-        /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutputVelocity Seek()
+        public KinematicOutput Seek()
         {
 
-            var res = new SteeringOutputVelocity();
+            var res = new KinematicOutput();
 
-            //获取目标的方向
-            res.Line = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
+            //获取目标的方向速度
+            res.Velocity = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
 
             //沿着此方向全速前进
-            res.Line = res.Line.normalized;//归一化
-            res.Line *= maxSpeed;
-
-            res.Angular = 0;
+            res.Velocity = res.Velocity.normalized;//归一化
+            res.Velocity *= maxSpeed;
 
             //面向要移动的方向
-            float targetOrientation = UtilsTool.NewOrientation(currentEntity.GetStaticStae().Orientation, res.Line);
-            currentEntity.SetOrientation(currentEntity.GetStaticStae().Orientation+ targetOrientation);
+            float targetOrientation = UtilsTool.NewOrientation(currentEntity.GetStaticStae().Orientation, res.Velocity);
+            currentEntity.SetOrientation(targetOrientation);
+
+            res.Rotation = 0;
 
             return res;
         }
 
         protected override void OnFixedUpdate()
         {
-            SteeringOutputVelocity res = Seek();
+            KinematicOutput res = Seek();
+  
             currentEntity.FixedUpdate(res, FixedDeltaTime);
-
-    
         }
 
         protected override void OnStart()

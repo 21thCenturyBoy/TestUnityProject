@@ -64,7 +64,7 @@ namespace TestAI.Move
             m_staticStae = stae;
         }
 
-        public void SetDynamicStae(SteeringOutputVelocity stae)
+        public void SetDynamicStae(SteeringOutput stae)
         {
             Velocity = stae.Line;
             Rotation = stae.Angular;
