@@ -73,7 +73,7 @@ namespace TestAI.Move.Kinematic
                     obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = field.Name;
                     obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().text = field.GetValue(this).ToString();
 
-                    obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onValueChanged.AddListener((val) =>
+                    obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onEndEdit.AddListener((val) =>
                     {
                         float val_float = float.Parse(val.ToString());
                         field.SetValue(this, val_float);

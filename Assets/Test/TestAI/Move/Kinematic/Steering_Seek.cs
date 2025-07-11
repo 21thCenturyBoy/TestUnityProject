@@ -6,20 +6,51 @@ using UnityEngine.UIElements;
 
 namespace TestAI.Move.Kinematic
 {
+    /// <summary>
+    /// 逃离
+    /// </summary>
+    public class Steering_Flee: Steering_Seek
+    {
+        /// <summary>
+        /// 获取到目标转向
+        /// （逃离反转Velocity）
+        /// </summary>
+        /// <returns></returns>
+        public override SteeringOutput Seek()
+        {
+            var res = new SteeringOutput();
+
+            //获取目标的方向
+            res.Line =  currentEntity.GetStaticStae().Position - targetEntity.GetStaticStae().Position;
+
+            //沿着此方向全速前进
+            res.Line = res.Line.normalized;//归一化
+            res.Line *= maxAcceleration;
+
+            res.Angular = 0;
+
+            return res;
+        }
+    }
+    /// <summary>
+    /// 寻找
+    /// </summary>
     public class Steering_Seek : KinematicLogic
     {
-        private IKinematicEntity targetEntity;
-        private IKinematicEntity currentEntity;
+        protected IKinematicEntity targetEntity;
+        protected IKinematicEntity currentEntity;
 
         [AIParm_Float]
-        public float maxSpeed = 0.5f;
+        public float maxAcceleration = 50f;
+        [AIParm_Float]
+        public float maxSpeed = 10f;
 
         /// <summary>
         /// 获取到目标转向
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutput Seek()
+        public virtual SteeringOutput Seek()
         {
             var res = new SteeringOutput();
 
@@ -28,7 +59,7 @@ namespace TestAI.Move.Kinematic
 
             //沿着此方向全速前进
             res.Line = res.Line.normalized;//归一化
-            res.Line *= maxSpeed;
+            res.Line *= maxAcceleration;
 
             res.Angular = 0;
 
@@ -39,18 +70,7 @@ namespace TestAI.Move.Kinematic
         {
             var res =  Seek();
 
-
-            var current_stae = currentEntity.GetStaticStae();
-
-            current_stae.SteeringOutputApply(res);
-            currentEntity.SetDynamicStae(res);
-
-
-        }
-
-        public void FixedUpdate(SteeringOutput steering, float maxSpeed, float deltaTime)
-        {
-
+            currentEntity.FixedUpdate(res,maxSpeed, FixedDeltaTime);
         }
 
         protected override void OnStart()

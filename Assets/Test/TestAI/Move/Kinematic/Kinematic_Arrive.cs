@@ -12,7 +12,7 @@ namespace TestAI.Move.Kinematic
         [AIParm_Float]
         public float arrive_time = 0.5f;//到达目标的时间
         [AIParm_Float]
-        public float targetRadius = 1;//目标半径范围
+        public float targetRadius = 2.5f;//目标半径范围
         /// <summary>
         /// 获取到目标转向
         /// （逃离反转Velocity）

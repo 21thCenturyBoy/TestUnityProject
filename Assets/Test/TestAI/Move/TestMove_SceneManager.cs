@@ -30,6 +30,8 @@ namespace TestAI.Move
             Kinematic_Arrive,
             Kinematic_Wander,
             Steering_Seek,
+            Steering_Flee,
+            Steering_Arrive
         }
         // Start is called before the first frame update
         void Start()
@@ -67,6 +69,15 @@ namespace TestAI.Move
                     break;
                 case TestMoveSceneType.Kinematic_Wander:
                     m_currentLogic = new Kinematic_Wander();
+                    break;
+                case TestMoveSceneType.Steering_Seek:
+                    m_currentLogic = new Steering_Seek();
+                    break;
+                case TestMoveSceneType.Steering_Flee:
+                    m_currentLogic = new Steering_Flee();
+                    break;
+                case TestMoveSceneType.Steering_Arrive:
+                    m_currentLogic = new Steering_Arrive();
                     break;
             }
             m_currentLogic.CreatAIPramUI(m_AIParm_Parent);
