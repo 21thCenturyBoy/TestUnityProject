@@ -61,11 +61,28 @@ namespace TestAI
         StaticStae GetStaticStae();
         void SetStaticStae(StaticStae stae);
         void SetOrientation(float orientation);
-
-        void SetDynamicStae(SteeringOutput stae);
+        void SetPosition(Vector3 pos);
     }
 
-    public class AIParm_Float : Attribute { }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+    public class AIParm_Float : Attribute { 
+    
+        public String ParmName { get; set; }
+        public AIParm_Float(String name = null)
+        {
+            ParmName = name;
+        }
+    }
+    [AttributeUsage(AttributeTargets.Method , AllowMultiple = true)]
+    public class AITest_Button : Attribute
+    {
+        public String ParmName { get; set; }
+        public AITest_Button(String name = null)
+        {
+            ParmName = name;
+        }
+    }
+
 
     public static class UtilsTool
     {
@@ -134,7 +151,7 @@ namespace TestAI
         /// 创建随机静态状态(最小30)
         /// </summary>
         /// <returns></returns>
-        public static StaticStae CreateRandomStaticStae(Vector2 rangePos)
+        public static StaticStae CreateRandomStaticStae(Vector2 rangePos, bool rangeRotate = true)
         {
 
             float x = rangePos.x;
@@ -153,9 +170,15 @@ namespace TestAI
             {
                 pos_z = pos_z * -1;
             }
+            float orientation = 0f;
 
+            if (rangeRotate)
+            {
+                orientation = UnityEngine.Random.Range(-Mathf.PI, Mathf.PI);
+            }
             StaticStae stae = new StaticStae();
             stae.Position = new Vector3(pos_x, 0, pos_z);
+            stae.Orientation = orientation;
 
             return stae;
         }

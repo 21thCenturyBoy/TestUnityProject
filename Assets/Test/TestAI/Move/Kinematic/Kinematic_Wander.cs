@@ -5,9 +5,9 @@ namespace TestAI.Move.Kinematic
     public class Kinematic_Wander : KinematicLogic
     {
         private IKinematicEntity currentEntity;
-        [AIParm_Float]
+        [AIParm_Float("最大速度")]
         public float maxSpeed = 5f;
-        [AIParm_Float]
+        [AIParm_Float("最大旋转速度")]
         public float maxRotate = MathF.PI;//最大旋转
         protected override void OnStart()
         {

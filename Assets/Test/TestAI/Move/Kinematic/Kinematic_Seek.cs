@@ -8,7 +8,7 @@ namespace TestAI.Move.Kinematic
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
 
-        [AIParm_Float]
+        [AIParm_Float("最大速度")]
         public float maxSpeed = 10f;
 
         /// <summary>

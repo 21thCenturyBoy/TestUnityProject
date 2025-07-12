@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TestAI.Move.Kinematic
 {
@@ -59,6 +61,7 @@ namespace TestAI.Move.Kinematic
             var type = GetType();
             // 获取所有字段
             GameObject AIParm_Float_prefab = Resources.Load<GameObject>("AIParm_Float");
+            GameObject AITest_Button_prefab = Resources.Load<GameObject>("AITest_Button");
             var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             foreach (var field in fields)
             {
@@ -70,7 +73,16 @@ namespace TestAI.Move.Kinematic
                     rect.localScale = Vector3.one;
                     rect.localRotation = Quaternion.identity;
 
-                    obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = field.Name;
+                    var AIParm_Attr = field.GetCustomAttribute<AIParm_Float>(false);
+                    if (string.IsNullOrEmpty(AIParm_Attr.ParmName))
+                    {
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = field.Name;
+                    }
+                    else
+                    {
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = AIParm_Attr.ParmName;
+                    }
+
                     obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().text = field.GetValue(this).ToString();
 
                     obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onEndEdit.AddListener((val) =>
@@ -93,7 +105,16 @@ namespace TestAI.Move.Kinematic
                     rect.localScale = Vector3.one;
                     rect.localRotation = Quaternion.identity;
 
-                    obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = prop.Name;
+                    var AIParm_Attr = prop.GetCustomAttribute<AIParm_Float>(false);
+                    if (string.IsNullOrEmpty(AIParm_Attr.ParmName))
+                    {
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = prop.Name;
+                    }
+                    else
+                    {
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = AIParm_Attr.ParmName;
+                    }
+
                     obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().text = prop.GetValue(this).ToString();
 
                     obj.transform.Find("InputValue").GetComponent<TMPro.TMP_InputField>().onValueChanged.AddListener((val) =>
@@ -104,12 +125,41 @@ namespace TestAI.Move.Kinematic
                     m_AI_Pram_Objs.Add(obj);
                 }
             }
+
+            var methods = type.GetMethods(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            foreach (var method in methods)
+            {
+                if (Attribute.IsDefined(method, typeof(AITest_Button)) && method.GetParameters().Length == 0 && method.ReturnType == typeof(void))
+                {
+                    GameObject obj = GameObject.Instantiate(AITest_Button_prefab);
+                    obj.transform.SetParent(parentTrans);
+                    RectTransform rect = obj.GetComponent<RectTransform>();
+                    rect.localScale = Vector3.one;
+                    rect.localRotation = Quaternion.identity;
+                    var AITest_Attr = method.GetCustomAttribute<AITest_Button>(false);
+                    if (string.IsNullOrEmpty(AITest_Attr.ParmName))
+                    {
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = method.Name;
+                    }
+                    else
+                    {
+                        obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = AITest_Attr.ParmName;
+                    }
+
+                    obj.transform.GetComponent<Button>().onClick.AddListener(() =>
+                    {
+                        method.Invoke(this, null);
+                    });
+                    m_AI_Pram_Objs.Add(obj);
+                }
+            }
+
         }
 
-    }
+        public class SteeringLogic : KinematicLogic
+        {
 
-    public class SteeringLogic : KinematicLogic {
-
+        } 
     }
-}
+    }
 

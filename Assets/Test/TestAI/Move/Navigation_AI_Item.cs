@@ -47,27 +47,12 @@ namespace TestAI.Move
             }
         }
 
-        public StaticStae GetStaticStae()
-        {
-            m_staticStae.Position = transform.position;
-            //计算朝向
-            m_staticStae.Orientation = transform.ComputeOrientation();
-
-            return m_staticStae;
-        }
+        public StaticStae GetStaticStae() => m_staticStae;
 
         public void SetStaticStae(StaticStae stae)
         {
             SetOrientation(stae.Orientation);
-            transform.position = stae.Position;
-
-            m_staticStae = stae;
-        }
-
-        public void SetDynamicStae(SteeringOutput stae)
-        {
-            Velocity = stae.Line;
-            Rotation = stae.Angular;
+            SetPosition(stae.Position);
         }
         /// <summary>
         /// 设置Transform方向（弧度）
@@ -79,6 +64,15 @@ namespace TestAI.Move
             float angle = orientation * Mathf.Rad2Deg;
             // 只设置Y轴旋转，保持X和Z为0
             transform.rotation = Quaternion.Euler(0, angle, 0);
+
+            m_staticStae.Orientation = orientation;
+        }
+
+        public void SetPosition(Vector3 pos)
+        {
+            transform.position = pos;
+
+            m_staticStae.Position = pos;
         }
     }
 }
