@@ -1,13 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TestAI.Move.Kinematic
 {
-    /// <summary>
-    /// 对齐
-    /// </summary>
-    public class Steering_Align : KinematicLogic
+    [AILogicType("Steering_对齐")]
+    public class Steering_Align : SteeringLogic
     {
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
@@ -75,7 +71,7 @@ namespace TestAI.Move.Kinematic
                 res.Angular *= maxAngularAcceleration;
             }
 
-            res.Line = Vector3.zero; //线性加速度为0，因为这是对齐行为
+            res.Linear = Vector3.zero; //线性加速度为0，因为这是对齐行为
 
             return res;
         }

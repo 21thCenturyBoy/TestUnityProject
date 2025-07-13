@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace TestAI.Move.Kinematic
-{    /// <summary>
-     /// 寻找
-     /// </summary>
-    public class Steering_Arrive : KinematicLogic
+{    
+    [AILogicType("Steering_到达")]
+    public class Steering_Arrive : SteeringLogic
     {
         private IKinematicEntity targetEntity;
         private IKinematicEntity currentEntity;
@@ -56,14 +55,14 @@ namespace TestAI.Move.Kinematic
             var targetVelocity = direction.normalized * targetSpeed;//归一化方向并乘以目标速度
 
             //计算线性加速度
-            res.Line = targetVelocity - currentEntity.Velocity; //当前速度与目标速度的差值
-            res.Line /= arrive_time; //除以到达时间，得到加速度
+            res.Linear = targetVelocity - currentEntity.Velocity; //当前速度与目标速度的差值
+            res.Linear /= arrive_time; //除以到达时间，得到加速度
 
             //检查加速度是否超过最大加速度
-            if (res.Line.magnitude > maxAcceleration)
+            if (res.Linear.magnitude > maxAcceleration)
             {
                 //如果加速度超过最大加速度，则归一化并乘以最大加速度
-                res.Line = res.Line.normalized * maxAcceleration;
+                res.Linear = res.Linear.normalized * maxAcceleration;
             }
 
             res.Angular = 0;
@@ -73,7 +72,7 @@ namespace TestAI.Move.Kinematic
         protected override void OnFixedUpdate()
         {
             SteeringOutput res = Arrive();
-            if (res.Line == Vector3.zero) return; //如果没有转向，则不更新
+            if (res.Linear == Vector3.zero) return; //如果没有转向，则不更新
 
             currentEntity.FixedUpdate(res, maxSpeed, FixedDeltaTime);
         }

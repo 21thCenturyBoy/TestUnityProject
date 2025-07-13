@@ -1,9 +1,10 @@
 using System;
 using System.Linq;
+using TestAI.Move.Kinematic;
 using TMPro;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.UI;
-using TestAI.Move.Kinematic;
 
 namespace TestAI.Move
 {
@@ -23,21 +24,11 @@ namespace TestAI.Move
         [SerializeField]
         private KinematicLogic m_currentLogic = null;
 
-
-        public enum TestMoveSceneType
-        {
-            Kinematic_Seek,
-            Kinematic_Arrive,
-            Kinematic_Wander,
-            Steering_Seek,
-            Steering_Flee,
-            Steering_Arrive,
-            Steering_Align,
-        }
         // Start is called before the first frame update
         void Start()
         {
-            var typeList = System.Enum.GetNames(typeof(TestMoveSceneType)).ToList();
+
+            var typeList = UtilsTool.GetKinematicLogicTypeCache().Keys.ToList();
             m_sceneTypeDropdown.ClearOptions();
             m_sceneTypeDropdown.AddOptions(typeList);
             m_sceneTypeDropdown.value = 0;
@@ -58,32 +49,7 @@ namespace TestAI.Move
             {
                 m_currentLogic.Stop();
             }
-
-            TestMoveSceneType type = (TestMoveSceneType)m_sceneTypeDropdown.value;
-            switch (type)
-            {
-                case TestMoveSceneType.Kinematic_Seek:
-                    m_currentLogic = new Kinematic_Seek();
-                    break;
-                case TestMoveSceneType.Kinematic_Arrive:
-                    m_currentLogic = new Kinematic_Arrive();
-                    break;
-                case TestMoveSceneType.Kinematic_Wander:
-                    m_currentLogic = new Kinematic_Wander();
-                    break;
-                case TestMoveSceneType.Steering_Seek:
-                    m_currentLogic = new Steering_Seek();
-                    break;
-                case TestMoveSceneType.Steering_Flee:
-                    m_currentLogic = new Steering_Flee();
-                    break;
-                case TestMoveSceneType.Steering_Arrive:
-                    m_currentLogic = new Steering_Arrive();
-                    break;
-                case TestMoveSceneType.Steering_Align:
-                    m_currentLogic = new Steering_Align();
-                    break;
-            }
+            m_currentLogic = UtilsTool.CreateKinematicLogic(m_sceneTypeDropdown.options[m_sceneTypeDropdown.value].text);
             m_currentLogic.CreatAIPramUI(m_AIParm_Parent);
             m_currentLogic.Start();
         }

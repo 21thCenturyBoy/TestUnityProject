@@ -6,10 +6,8 @@ using UnityEngine.UIElements;
 
 namespace TestAI.Move.Kinematic
 {
-    /// <summary>
-    /// 逃离
-    /// </summary>
-    public class Steering_Flee: Steering_Seek
+    [AILogicType("Steering_逃离")]
+    public class Steering_Flee : Steering_Seek
     {
         /// <summary>
         /// 获取到目标转向
@@ -21,21 +19,20 @@ namespace TestAI.Move.Kinematic
             var res = new SteeringOutput();
 
             //获取目标的方向
-            res.Line =  currentEntity.GetStaticStae().Position - targetEntity.GetStaticStae().Position;
+            res.Linear = currentEntity.GetStaticStae().Position - GetTargetPos();
 
             //沿着此方向全速前进
-            res.Line = res.Line.normalized;//归一化
-            res.Line *= maxAcceleration;
+            res.Linear = res.Linear.normalized;//归一化
+            res.Linear *= maxAcceleration;
 
             res.Angular = 0;
 
             return res;
         }
     }
-    /// <summary>
-    /// 寻找
-    /// </summary>
-    public class Steering_Seek : KinematicLogic
+
+    [AILogicType("Steering_寻找")]
+    public class Steering_Seek : SteeringLogic
     {
         protected IKinematicEntity targetEntity;
         protected IKinematicEntity currentEntity;
@@ -47,6 +44,15 @@ namespace TestAI.Move.Kinematic
         public float maxSpeed = 10f;
 
         /// <summary>
+        /// 获取目标位置(非预测)
+        /// </summary>
+        /// <returns></returns>
+        public virtual Vector3 GetTargetPos()
+        {
+            return targetEntity.GetStaticStae().Position;
+        }
+
+        /// <summary>
         /// 获取到目标转向
         /// （逃离反转Velocity）
         /// </summary>
@@ -56,11 +62,11 @@ namespace TestAI.Move.Kinematic
             var res = new SteeringOutput();
 
             //获取目标的方向
-            res.Line = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
+            res.Linear = GetTargetPos() - currentEntity.GetStaticStae().Position;
 
             //沿着此方向全速前进
-            res.Line = res.Line.normalized;//归一化
-            res.Line *= maxAcceleration;
+            res.Linear = res.Linear.normalized;//归一化
+            res.Linear *= maxAcceleration;
 
             res.Angular = 0;
 
@@ -69,9 +75,9 @@ namespace TestAI.Move.Kinematic
 
         protected override void OnFixedUpdate()
         {
-            var res =  Seek();
+            var res = Seek();
 
-            currentEntity.FixedUpdate(res,maxSpeed, FixedDeltaTime);
+            currentEntity.FixedUpdate(res, maxSpeed, FixedDeltaTime);
         }
 
         protected override void OnStart()

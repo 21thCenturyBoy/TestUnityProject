@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace TestAI.Move.Kinematic
 {
-    public class KinematicLogic : IKinematicLogic
+    public abstract class KinematicLogic : IKinematicLogic
     {
         private List<GameObject> m_AI_Pram_Objs = new List<GameObject>();
         protected bool m_Inited = false;
@@ -156,10 +156,11 @@ namespace TestAI.Move.Kinematic
 
         }
 
-        public class SteeringLogic : KinematicLogic
-        {
 
-        } 
     }
+    public abstract class SteeringLogic : KinematicLogic
+    {
+
     }
+}
 

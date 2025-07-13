@@ -1,7 +1,9 @@
+using PlasticGui.Configuration.CloudEdition.Welcome;
 using System;
+using System.Collections.Generic;
 using TestAI.Move;
+using TestAI.Move.Kinematic;
 using UnityEngine;
-using UnityEngine.UIElements;
 namespace TestAI
 {
     public enum Color
@@ -26,7 +28,7 @@ namespace TestAI
     public struct SteeringOutput
     {
         //线加速度
-        public Vector3 Line;
+        public Vector3 Linear;
         //角加速度
         public float Angular;
     }
@@ -34,7 +36,8 @@ namespace TestAI
     /// <summary>
     /// 运动学输出速度
     /// </summary>
-    public struct KinematicOutput {
+    public struct KinematicOutput
+    {
         //线速度
         public Vector3 Velocity;
         //角速度
@@ -51,7 +54,7 @@ namespace TestAI
     public interface IKinematicEntity
     {
         //位置
-        public Vector3 Position { get;  }
+        public Vector3 Position { get; }
         //方向（弧度）
         public float Orientation { get; }
         //线速度
@@ -64,16 +67,17 @@ namespace TestAI
         void SetPosition(Vector3 pos);
     }
 
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public class AIParm_Float : Attribute { 
-    
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+    public class AIParm_Float : Attribute
+    {
+
         public String ParmName { get; set; }
         public AIParm_Float(String name = null)
         {
             ParmName = name;
         }
     }
-    [AttributeUsage(AttributeTargets.Method , AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class AITest_Button : Attribute
     {
         public String ParmName { get; set; }
@@ -83,9 +87,67 @@ namespace TestAI
         }
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class AILogicType : Attribute
+    {
+        public String ParmName { get; set; }
+        public AILogicType(String name = null)
+        {
+            ParmName = name;
+        }
+    }
+
 
     public static class UtilsTool
     {
+
+        private static Dictionary<String, System.Type> m_KinematicLogicTypeCache;
+
+        public static Dictionary<String, System.Type> GetKinematicLogicTypeCache()
+        {
+            if (m_KinematicLogicTypeCache == null)
+            {
+                m_KinematicLogicTypeCache = new Dictionary<string, System.Type>();
+                //获取所有IKinematicLogic类型
+                var types = System.Reflection.Assembly.GetExecutingAssembly().GetTypes();
+                foreach (var type in types)
+                {
+                    if (typeof(KinematicLogic).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+                    {
+                        //获取ILogicType特性
+                        var logicTypeAttr = type.GetCustomAttributes(typeof(AILogicType), false);
+                        if (logicTypeAttr.Length > 0)
+                        {
+                            var attr = logicTypeAttr[0] as AILogicType;
+                            m_KinematicLogicTypeCache.Add(attr.ParmName, type);
+                        }
+                        else
+                        {
+                            //如果没有ILogicType特性，则使用类名作为逻辑类型名称
+                            m_KinematicLogicTypeCache.Add(type.Name, type);
+                        }
+                    }
+                }
+
+            }
+            return m_KinematicLogicTypeCache;
+        }
+
+        public static KinematicLogic CreateKinematicLogic(String logicTypeName)
+        {
+            if (GetKinematicLogicTypeCache().TryGetValue(logicTypeName, out System.Type logicType))
+            {
+                KinematicLogic logic = Activator.CreateInstance(logicType) as KinematicLogic;
+
+                return logic;
+            }
+            else
+            {
+                Debug.LogError($"未找到逻辑类型: {logicTypeName}");
+                return null;
+            }
+        }
+
         /// <summary>
         /// 通过当前方向和速度计算新的方向。
         /// </summary>
@@ -240,7 +302,7 @@ namespace TestAI
         public static void SteeringOutputApply(this ref StaticStae stae, SteeringOutput steeringOutput)
         {
             // 应用新的速度向量到位置
-            stae.Position += steeringOutput.Line;
+            stae.Position += steeringOutput.Linear;
             // 更新朝向
             stae.Orientation += steeringOutput.Angular;
         }
@@ -251,19 +313,19 @@ namespace TestAI
         /// </summary>
         /// <param name="steering"></param>
         /// <param name="deltaTime"></param>
-        public static void ForceUpdate(this IKinematicEntity entity,SteeringOutput steering, float deltaTime)
+        public static void ForceUpdate(this IKinematicEntity entity, SteeringOutput steering, float deltaTime)
         {
             //加速度与位移公式：(vt²-v0²)=2as，s=v0t+at²/2，s2-s1=aT²。
             //更新位置
             float half_t = 0.5f * deltaTime * deltaTime;
             StaticStae staticStae = entity.GetStaticStae();
-            staticStae.Position += entity.Velocity * deltaTime + steering.Line * half_t;
+            staticStae.Position += entity.Velocity * deltaTime + steering.Linear * half_t;
             //更新方向
             staticStae.Orientation += entity.Rotation * deltaTime + steering.Angular * half_t;
             entity.SetStaticStae(staticStae);
 
             //更新线速度
-            entity.Velocity += steering.Line * deltaTime;
+            entity.Velocity += steering.Linear * deltaTime;
             //更新角速度
             entity.Rotation += steering.Angular * deltaTime;
         }
@@ -295,7 +357,7 @@ namespace TestAI
         /// <param name="entity"></param>
         /// <param name="steering"></param>
         /// <param name="deltaTime"></param>
-        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutput steering, float deltaTime)
+        public static void FixedUpdate(this IKinematicEntity entity, SteeringOutput steering, float deltaTime)
         {
             //更新位置
             StaticStae staticStae = entity.GetStaticStae();
@@ -305,7 +367,7 @@ namespace TestAI
             entity.SetStaticStae(staticStae);
 
             //更新线速度
-            entity.Velocity += steering.Line * deltaTime;
+            entity.Velocity += steering.Linear * deltaTime;
             //更新角速度
             entity.Rotation += steering.Angular * deltaTime;
         }
@@ -316,7 +378,7 @@ namespace TestAI
         /// <param name="entity"></param>
         /// <param name="steering"></param>
         /// <param name="deltaTime"></param>
-        public static void FixedUpdate(this IKinematicEntity entity,SteeringOutput steering, float maxSpeed, float deltaTime)
+        public static void FixedUpdate(this IKinematicEntity entity, SteeringOutput steering, float maxSpeed, float deltaTime)
         {
             //更新位置
             StaticStae staticStae = entity.GetStaticStae();
@@ -326,7 +388,7 @@ namespace TestAI
             entity.SetStaticStae(staticStae);
 
             //更新线速度
-            entity.Velocity += steering.Line * deltaTime;
+            entity.Velocity += steering.Linear * deltaTime;
             //更新角速度
             entity.Rotation += steering.Angular * deltaTime;
 
