@@ -5,10 +5,10 @@ namespace TestAI.Move.Kinematic
 {
     public class Kinematic_Seek : KinematicLogic
     {
-        private IKinematicEntity targetEntity;
-        private IKinematicEntity currentEntity;
+        public IKinematicEntity targetEntity;
+        public IKinematicEntity currentEntity;
 
-        [AIParm_Float("最大速度")]
+        [AIParam_Float("最大速度")]
         public float maxSpeed = 10f;
 
         /// <summary>

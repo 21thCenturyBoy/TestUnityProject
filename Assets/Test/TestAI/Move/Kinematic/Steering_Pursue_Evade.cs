@@ -5,7 +5,7 @@ namespace TestAI.Move.Kinematic
     [AILogicType("Steering_躲避")]
     public class Steering_Evade : Steering_Flee
     {
-        [AIParm_Float("最大预测时间")]
+        [AIParam_Float("最大预测时间")]
         public float maxPredictionTime = 2f; //预测时间
         /// <summary>
         /// 获取到目标转向
@@ -50,7 +50,7 @@ namespace TestAI.Move.Kinematic
     [AILogicType("Steering_追逐")]
     public class Steering_Pursue : Steering_Seek
     {
-        [AIParm_Float("最大预测时间")]
+        [AIParam_Float("最大预测时间")]
         public float maxPredictionTime = 2f; //预测时间
         /// <summary>
         /// 获取到目标转向

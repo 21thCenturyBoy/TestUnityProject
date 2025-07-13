@@ -8,17 +8,17 @@ namespace TestAI.Move.Kinematic
         public IKinematicEntity targetEntity;
         public IKinematicEntity currentEntity;
 
-        [AIParm_Float("最大旋转加速度（弧度）")]
+        [AIParam_Float("最大旋转加速度（弧度）")]
         public float maxAngularAcceleration = 6f;
 
-        [AIParm_Float("最大旋转速度（弧度）")]
+        [AIParam_Float("最大旋转速度（弧度）")]
         public float maxRotate = 1f;
 
-        [AIParm_Float("到达目标的时间")]
+        [AIParam_Float("到达目标的时间")]
         public float arrive_time = 0.2f;//到达目标的时间
-        [AIParm_Float("朝向减缓区间（弧度）")]
+        [AIParam_Float("朝向减缓区间（弧度）")]
         public float slowRadius = 0.4f; //减速半径
-        [AIParm_Float("朝向最小近似值（弧度）")]
+        [AIParam_Float("朝向最小近似值（弧度）")]
         public float targetRadius = 0.05f;
         /// <summary>
         /// 获取到目标转向

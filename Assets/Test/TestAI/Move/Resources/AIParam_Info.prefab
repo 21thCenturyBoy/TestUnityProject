@@ -280,7 +280,7 @@ GameObject:
   - component: {fileID: 6001020204997936376}
   - component: {fileID: 7966829916163698342}
   m_Layer: 5
-  m_Name: AIParm_Info
+  m_Name: AIParam_Info
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

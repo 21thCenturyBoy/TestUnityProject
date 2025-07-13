@@ -4,14 +4,14 @@ namespace TestAI.Move.Kinematic
 {
     public class Kinematic_Arrive : KinematicLogic
     {
-        private IKinematicEntity targetEntity;
-        private IKinematicEntity currentEntity;
+        public IKinematicEntity targetEntity;
+        public IKinematicEntity currentEntity;
 
-        [AIParm_Float("最大速度")]
+        [AIParam_Float("最大速度")]
         public float maxSpeed = 10f;
-        [AIParm_Float("到达目标的时间")]
+        [AIParam_Float("到达目标的时间")]
         public float arrive_time = 0.5f;//到达目标的时间
-        [AIParm_Float("目标半径范围")]
+        [AIParam_Float("目标半径范围")]
         public float targetRadius = 2.5f;//目标半径范围
         /// <summary>
         /// 获取到目标转向

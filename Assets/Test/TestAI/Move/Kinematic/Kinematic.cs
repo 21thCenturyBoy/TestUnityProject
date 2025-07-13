@@ -81,21 +81,21 @@ namespace TestAI.Move.Kinematic
             // 反射获取所有带有 AIParm_Float 特性的字段或属性
             var type = GetType();
             // 获取所有字段
-            GameObject AIParm_Float_prefab = Resources.Load<GameObject>("AIParm_Float");
-            GameObject AIParm_Info_prefab = Resources.Load<GameObject>("AIParm_Info");
+            GameObject AIParam_Float_prefab = Resources.Load<GameObject>("AIParam_Float");
+            GameObject AIParam_Info_prefab = Resources.Load<GameObject>("AIParam_Info");
             GameObject AITest_Button_prefab = Resources.Load<GameObject>("AITest_Button");
             var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             foreach (var field in fields)
             {
-                if (Attribute.IsDefined(field, typeof(AIParm_Float)))
+                if (Attribute.IsDefined(field, typeof(AIParam_Float)))
                 {
-                    GameObject obj = GameObject.Instantiate(AIParm_Float_prefab);
+                    GameObject obj = GameObject.Instantiate(AIParam_Float_prefab);
                     obj.transform.SetParent(parentTrans);
                     RectTransform rect = obj.GetComponent<RectTransform>();
                     rect.localScale = Vector3.one;
                     rect.localRotation = Quaternion.identity;
 
-                    var AIParm_Attr = field.GetCustomAttribute<AIParm_Float>(false);
+                    var AIParm_Attr = field.GetCustomAttribute<AIParam_Float>(false);
                     if (string.IsNullOrEmpty(AIParm_Attr.ParmName))
                     {
                         obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = field.Name;
@@ -115,15 +115,15 @@ namespace TestAI.Move.Kinematic
                     m_AI_Pram_Objs.Add(obj);
                 }
 
-                if (Attribute.IsDefined(field, typeof(AIParm_Info)))
+                if (Attribute.IsDefined(field, typeof(AIParam_Info)))
                 {
-                    GameObject obj = GameObject.Instantiate(AIParm_Info_prefab);
+                    GameObject obj = GameObject.Instantiate(AIParam_Info_prefab);
                     obj.transform.SetParent(parentTrans);
                     RectTransform rect = obj.GetComponent<RectTransform>();
                     rect.localScale = Vector3.one;
                     rect.localRotation = Quaternion.identity;
 
-                    var AIParm_Attr = field.GetCustomAttribute<AIParm_Info>(false);
+                    var AIParm_Attr = field.GetCustomAttribute<AIParam_Info>(false);
                     if (string.IsNullOrEmpty(AIParm_Attr.ParmName))
                     {
                         obj.transform.Find("NameLabel").GetComponent<TMPro.TMP_Text>().text = field.Name;
@@ -140,15 +140,15 @@ namespace TestAI.Move.Kinematic
             var properties = type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             foreach (var prop in properties)
             {
-                if (Attribute.IsDefined(prop, typeof(AIParm_Float)) && prop.CanRead)
+                if (Attribute.IsDefined(prop, typeof(AIParam_Float)) && prop.CanRead)
                 {
-                    GameObject obj = GameObject.Instantiate(AIParm_Float_prefab);
+                    GameObject obj = GameObject.Instantiate(AIParam_Float_prefab);
                     obj.transform.SetParent(parentTrans);
                     RectTransform rect = obj.GetComponent<RectTransform>();
                     rect.localScale = Vector3.one;
                     rect.localRotation = Quaternion.identity;
 
-                    var AIParm_Attr = prop.GetCustomAttribute<AIParm_Float>(false);
+                    var AIParm_Attr = prop.GetCustomAttribute<AIParam_Float>(false);
                     if (string.IsNullOrEmpty(AIParm_Attr.ParmName))
                     {
                         obj.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text = prop.Name;

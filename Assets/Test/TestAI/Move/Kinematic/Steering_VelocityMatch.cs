@@ -10,10 +10,10 @@ namespace TestAI.Move.Kinematic
         public IKinematicEntity targetEntity;
         public IKinematicEntity currentEntity;
 
-        [AIParm_Float("最大加速度")]
+        [AIParam_Float("最大加速度")]
         public float maxAcceleration = 50f;
 
-        [AIParm_Float("到达目标速度的时间")]
+        [AIParam_Float("到达目标速度的时间")]
         public float timeToTarget = 10f;
 
         /// <summary>

@@ -1,9 +1,10 @@
 using TestAI.Move.Kinematic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 namespace TestAI.Move
 {
-    public class Navigation_Point_Item : MonoBehaviour, IKinematicEntity
+    public class Navigation_Point_Item : MonoBehaviour, IKinematicEntity, IPoint
     {
         public bool AllowDrag = false;
 
@@ -72,6 +73,11 @@ namespace TestAI.Move
             transform.position = pos;
 
             m_staticStae.Position = pos;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
         }
     }
 }

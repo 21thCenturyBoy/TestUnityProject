@@ -51,7 +51,14 @@ namespace TestAI
         void Stop();
     }
 
-    public interface IPoint {
+    public interface IPath
+    {
+        public float GetParam(Vector3 position, float lastParam);
+
+        public Vector3 GetPosition(float param);
+    }
+    public interface IPoint
+    {
         void SetPosition(Vector3 pos);
         Vector3 GetPosition();
     }
@@ -73,20 +80,20 @@ namespace TestAI
     }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
-    public class AIParm_Float : Attribute
+    public class AIParam_Float : Attribute
     {
 
         public String ParmName { get; set; }
-        public AIParm_Float(String name = null)
+        public AIParam_Float(String name = null)
         {
             ParmName = name;
         }
     }
-    [AttributeUsage(AttributeTargets.Field , AllowMultiple = false)]
-    public class AIParm_Info : Attribute
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class AIParam_Info : Attribute
     {
         public String ParmName { get; set; }
-        public AIParm_Info(String name = null)
+        public AIParam_Info(String name = null)
         {
             ParmName = name;
         }
