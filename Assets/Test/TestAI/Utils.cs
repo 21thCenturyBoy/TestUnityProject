@@ -51,6 +51,11 @@ namespace TestAI
         void Stop();
     }
 
+    public interface IPoint {
+        void SetPosition(Vector3 pos);
+        Vector3 GetPosition();
+    }
+
     public interface IKinematicEntity
     {
         //位置
@@ -73,6 +78,15 @@ namespace TestAI
 
         public String ParmName { get; set; }
         public AIParm_Float(String name = null)
+        {
+            ParmName = name;
+        }
+    }
+    [AttributeUsage(AttributeTargets.Field , AllowMultiple = false)]
+    public class AIParm_Info : Attribute
+    {
+        public String ParmName { get; set; }
+        public AIParm_Info(String name = null)
         {
             ParmName = name;
         }
@@ -178,16 +192,13 @@ namespace TestAI
         /// </summary>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static float ComputeOrientation(this Transform transform)
+        public static float ComputeOrientation(Vector3 direction)
         {
-
             // 取transform.forward在XZ平面上的投影，计算与世界前方(Vector3.forward)的夹角
-            Vector3 forward = transform.forward;
-            forward.y = 0;
-            if (forward.sqrMagnitude > 0.0001f)
+            if (direction.sqrMagnitude > 0.0001f)
             {
-                forward.Normalize();
-                float angle = Mathf.Atan2(forward.x, forward.z); // 弧度
+                direction.Normalize();
+                float angle = Mathf.Atan2(direction.x, direction.z); // 弧度
                 return angle;
             }
             else
@@ -206,6 +217,19 @@ namespace TestAI
             //Y轴为0，XZ平面上计算方向向量
             float x = Mathf.Sin(stae.Orientation);
             float z = Mathf.Cos(stae.Orientation);
+            return new Vector3(x, 0, z).normalized;
+        }
+
+        /// <summary>
+        /// 方向（弧度）转向量
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <param name="orientation"></param>
+        public static Vector3 OrientationToVector(float orientation)
+        {
+            //Y轴为0，XZ平面上计算方向向量
+            float x = Mathf.Sin(orientation);
+            float z = Mathf.Cos(orientation);
             return new Vector3(x, 0, z).normalized;
         }
 
@@ -245,9 +269,22 @@ namespace TestAI
             return stae;
         }
 
+        public static float GetRandomOne()
+        {
+            return UnityEngine.Random.Range(-1f, 1f);
+        }
+
         public static IKinematicEntity CreateNavigation_AI()
         {
             var navigation_prefab = Resources.Load<GameObject>("Navigation_AI");
+            GameObject new_inst = GameObject.Instantiate(navigation_prefab);
+
+            return new_inst.GetComponent<IKinematicEntity>();
+        }
+
+        public static IKinematicEntity CreateNavigation_Point()
+        {
+            var navigation_prefab = Resources.Load<GameObject>("Navigation_Point");
             GameObject new_inst = GameObject.Instantiate(navigation_prefab);
 
             return new_inst.GetComponent<IKinematicEntity>();
@@ -257,8 +294,8 @@ namespace TestAI
         {
             if (entity != null)
             {
-                Navigation_AI_Item aI_Item = entity as Navigation_AI_Item;
-                GameObject.Destroy(aI_Item.gameObject);
+                MonoBehaviour entityObj = entity as MonoBehaviour;
+                GameObject.Destroy(entityObj.gameObject);
             }
         }
 
@@ -279,8 +316,8 @@ namespace TestAI
             }
             if (entity != null)
             {
-                Navigation_AI_Item aI_Item = entity as Navigation_AI_Item;
-                aI_Item.GetComponentInChildren<SpriteRenderer>().color = newColor;
+                MonoBehaviour entityObj = entity as MonoBehaviour;
+                entityObj.GetComponentInChildren<SpriteRenderer>().color = newColor;
             }
         }
 

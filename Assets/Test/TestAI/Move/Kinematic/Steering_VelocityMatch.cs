@@ -7,8 +7,8 @@ namespace TestAI.Move.Kinematic
     [AILogicType("Steering_速度匹配")]
     public class Steering_VelocityMatch : SteeringLogic
     {
-        protected IKinematicEntity targetEntity;
-        protected IKinematicEntity currentEntity;
+        public IKinematicEntity targetEntity;
+        public IKinematicEntity currentEntity;
 
         [AIParm_Float("最大加速度")]
         public float maxAcceleration = 50f;

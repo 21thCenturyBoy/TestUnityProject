@@ -7,8 +7,8 @@ namespace TestAI.Move.Kinematic
     [AILogicType("Steering_到达")]
     public class Steering_Arrive : SteeringLogic
     {
-        private IKinematicEntity targetEntity;
-        private IKinematicEntity currentEntity;
+        public IKinematicEntity targetEntity;
+        public IKinematicEntity currentEntity;
 
         [AIParm_Float("最大加速度")]
         public float maxAcceleration = 50f;

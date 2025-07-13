@@ -1,13 +1,9 @@
-using log4net.Util;
-using System.Collections;
-using System.Collections.Generic;
 using TestAI.Move.Kinematic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 namespace TestAI.Move
 {
-    public class Navigation_AI_Item : MonoBehaviour, IKinematicEntity
+    public class Navigation_Point_Item : MonoBehaviour, IKinematicEntity
     {
         public bool AllowDrag = false;
 
@@ -76,17 +72,6 @@ namespace TestAI.Move
             transform.position = pos;
 
             m_staticStae.Position = pos;
-        }
-
- 
-        private void FixedUpdate()
-        {
-            if(AllowDrag && !Input.GetMouseButton(0))
-            {
-                Velocity =  UtilsTool.OrientationToVector(m_staticStae) * 5f; //假设速度为5单位/秒
-                m_staticStae.Position += Velocity * KinematicLogic.FixedDeltaTime;
-                transform.position = m_staticStae.Position;
-            }
         }
     }
 }

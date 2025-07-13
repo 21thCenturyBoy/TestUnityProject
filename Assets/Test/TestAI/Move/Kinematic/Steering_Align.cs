@@ -5,8 +5,8 @@ namespace TestAI.Move.Kinematic
     [AILogicType("Steering_对齐")]
     public class Steering_Align : SteeringLogic
     {
-        private IKinematicEntity targetEntity;
-        private IKinematicEntity currentEntity;
+        public IKinematicEntity targetEntity;
+        public IKinematicEntity currentEntity;
 
         [AIParm_Float("最大旋转加速度（弧度）")]
         public float maxAngularAcceleration = 6f;
@@ -25,12 +25,12 @@ namespace TestAI.Move.Kinematic
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutput Align()
+        public virtual SteeringOutput Align()
         {
             var res = new SteeringOutput();
 
             // 获取方向差（弧度）
-            var rotation = targetEntity.GetStaticStae().Orientation - currentEntity.GetStaticStae().Orientation;
+            var rotation = GetTargetOrientation() - currentEntity.GetStaticStae().Orientation;
 
             //限制在-180到180度之间
             if (rotation >= Mathf.PI) rotation -= 2 * Mathf.PI; //如果大于180度，则减去360度
@@ -75,6 +75,16 @@ namespace TestAI.Move.Kinematic
 
             return res;
         }
+
+        /// <summary>
+        /// 获取目标位置(非预测)
+        /// </summary>
+        /// <returns></returns>
+        public virtual float GetTargetOrientation()
+        {
+            return targetEntity.GetStaticStae().Orientation;
+        }
+
         protected override void OnFixedUpdate()
         {
             SteeringOutput res = Align();

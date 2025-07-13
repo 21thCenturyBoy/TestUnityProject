@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,12 +10,27 @@ namespace TestAI.Move.Kinematic
     public abstract class KinematicLogic : IKinematicLogic
     {
         private List<GameObject> m_AI_Pram_Objs = new List<GameObject>();
+        private Dictionary<FieldInfo, GameObject> m_AI_Info_Objs = new Dictionary<FieldInfo, GameObject>();
         protected bool m_Inited = false;
 
         public const float FixedDeltaTime = 0.02f; // 固定时间步长，20ms
 
         public virtual void FixedUpdate()
         {
+            foreach(var item in m_AI_Info_Objs)
+            {
+                var field = item.Key;
+                var obj = item.Value;
+                if (field.FieldType == typeof(float))
+                {
+                    obj.transform.Find("ValueLabel").GetComponent<TMPro.TMP_Text>().text = field.GetValue(this).ToString();
+                }
+                else if (field.FieldType == typeof(int))
+                {
+                    obj.transform.Find("ValueLabel").GetComponent<TMPro.TMP_Text>().text = field.GetValue(this).ToString();
+                }
+            }
+
             if (!m_Inited) return;
             OnFixedUpdate();
         }
@@ -46,7 +62,12 @@ namespace TestAI.Move.Kinematic
                 {
                     GameObject.Destroy(m_AI_Pram_Objs[i]);
                 }
+                foreach (var item in m_AI_Info_Objs)
+                {
+                    GameObject.Destroy(item.Value.gameObject);
+                }
                 m_AI_Pram_Objs.Clear();
+                m_AI_Info_Objs.Clear();
                 OnStop();
             }
         }
@@ -61,6 +82,7 @@ namespace TestAI.Move.Kinematic
             var type = GetType();
             // 获取所有字段
             GameObject AIParm_Float_prefab = Resources.Load<GameObject>("AIParm_Float");
+            GameObject AIParm_Info_prefab = Resources.Load<GameObject>("AIParm_Info");
             GameObject AITest_Button_prefab = Resources.Load<GameObject>("AITest_Button");
             var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             foreach (var field in fields)
@@ -91,6 +113,27 @@ namespace TestAI.Move.Kinematic
                         field.SetValue(this, val_float);
                     });
                     m_AI_Pram_Objs.Add(obj);
+                }
+
+                if (Attribute.IsDefined(field, typeof(AIParm_Info)))
+                {
+                    GameObject obj = GameObject.Instantiate(AIParm_Info_prefab);
+                    obj.transform.SetParent(parentTrans);
+                    RectTransform rect = obj.GetComponent<RectTransform>();
+                    rect.localScale = Vector3.one;
+                    rect.localRotation = Quaternion.identity;
+
+                    var AIParm_Attr = field.GetCustomAttribute<AIParm_Info>(false);
+                    if (string.IsNullOrEmpty(AIParm_Attr.ParmName))
+                    {
+                        obj.transform.Find("NameLabel").GetComponent<TMPro.TMP_Text>().text = field.Name;
+                    }
+                    else
+                    {
+                        obj.transform.Find("NameLabel").GetComponent<TMPro.TMP_Text>().text = AIParm_Attr.ParmName;
+                    }
+
+                    m_AI_Info_Objs[field] = obj;
                 }
             }
             // 获取所有属性
@@ -153,7 +196,6 @@ namespace TestAI.Move.Kinematic
                     m_AI_Pram_Objs.Add(obj);
                 }
             }
-
         }
 
 
