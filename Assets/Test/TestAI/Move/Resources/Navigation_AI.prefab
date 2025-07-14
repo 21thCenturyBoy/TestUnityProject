@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AllowDrag: 0
+  AutoMove: 0
 --- !u!65 &7293302845475084280
 BoxCollider:
   m_ObjectHideFlags: 0

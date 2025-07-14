@@ -56,6 +56,7 @@ namespace TestAI.Move.Kinematic
             targetEntity.SetStaticStae(UtilsTool.CreateRandomStaticStae(range));
             targetEntity.SetColor(Color.red);
             targetEntity.AllowDrag(true);
+            targetEntity.AutoMove(true);
 
             currentEntity = UtilsTool.CreateNavigation_AI();
             StaticStae stae = new StaticStae();

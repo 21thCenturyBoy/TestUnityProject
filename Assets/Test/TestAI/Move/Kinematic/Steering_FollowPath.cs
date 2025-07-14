@@ -9,21 +9,28 @@ namespace TestAI.Move.Kinematic
     {
         public Path_LineSegment Path_Line;//路径线段
 
-        [AIParam_Float("路径偏移量")]
+        [AIParam_Float("路径偏移量（可负数）")]
         public float pathOffset = 0.05f; // 路径偏移量
 
         [AIParam_Info("当前路径位置")]
         public float currentParam = 0f; // 当前路径位置
 
-        Steering_Face m_steering_Face =new Steering_Face();
+        [AIParam_Info("运动预测时间")]
+        public float predictTime = 0.1f; // 预测时间
+
+        //Steering_Face m_steering_Face =new Steering_Face();//暂时先不考虑朝向问题
 
         public override SteeringOutput Seek()
         {
-            //查找当前位置
-            var closetParam = Path_Line.GetParam(currentEntity.GetStaticStae().Position, pathOffset);
 
-            //考虑相干性
-            if (Mathf.Abs(currentParam - closetParam) < pathOffset && closetParam > currentParam)
+            //计算预测位置
+            var predictPosition = currentEntity.GetStaticStae().Position + currentEntity.Velocity * predictTime;
+
+            //查找当前位置
+            var closetParam = Path_Line.GetParam(predictPosition, pathOffset);
+
+            //避免凹凸路线干扰，简单考虑相干性，避免出现路径跳跃（横跨路径）
+            if (Mathf.Abs(currentParam - closetParam) < pathOffset + 0.1f)
             {
                 currentParam = closetParam;
             }
@@ -35,7 +42,7 @@ namespace TestAI.Move.Kinematic
             targetEntity.SetPosition(Path_Line.GetPosition(targetParam));
 
             var res = base.Seek();
-            res.Angular = m_steering_Face.Align().Angular;
+            //res.Angular = m_steering_Face.Align().Angular;
 
             return res;
         }
@@ -77,8 +84,8 @@ namespace TestAI.Move.Kinematic
             currentEntity.SetStaticStae(stae);
             currentEntity.SetColor(Color.green);
 
-            m_steering_Face.targetEntity = targetEntity;
-            m_steering_Face.currentEntity = currentEntity;
+            //m_steering_Face.targetEntity = targetEntity;
+            //m_steering_Face.currentEntity = currentEntity;
         }
 
 

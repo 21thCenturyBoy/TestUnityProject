@@ -11,6 +11,8 @@ namespace TestAI.Move
     {
         public bool AllowDrag = false;
 
+        public bool AutoMove = false; //是否自动移动
+
         public Vector3 Position { get => m_staticStae.Position; }
         public float Orientation { get => m_staticStae.Orientation; }
         public Vector3 Velocity { get; set; }
@@ -81,7 +83,7 @@ namespace TestAI.Move
  
         private void FixedUpdate()
         {
-            if(AllowDrag && !Input.GetMouseButton(0))
+            if(AutoMove && !Input.GetMouseButton(0))
             {
                 Velocity =  UtilsTool.OrientationToVector(m_staticStae) * 5f; //假设速度为5单位/秒
                 m_staticStae.Position += Velocity * KinematicLogic.FixedDeltaTime;

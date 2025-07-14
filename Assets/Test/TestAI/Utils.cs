@@ -338,6 +338,15 @@ namespace TestAI
             }
         }
 
+        public static void AutoMove(this IKinematicEntity entity, bool automove)
+        {
+            if (entity != null)
+            {
+                Navigation_AI_Item aI_Item = entity as Navigation_AI_Item;
+                aI_Item.AutoMove = automove;
+            }
+        }
+
         /// <summary>
         /// 运动学应用
         /// </summary>
