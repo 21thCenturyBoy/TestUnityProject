@@ -37,10 +37,11 @@ namespace TestAI.Move.Kinematic
             {
                 var targetEntity = targetEntitys[i];
                 //计算碰撞时间
-                var relativePos = targetEntity.Position - currentEntity.Position;
+                var relativePos = targetEntity.Position - currentEntity.Position;//目标-->当前
                 var relativeVel = targetEntity.Velocity - currentEntity.Velocity;
-                var relativeSpeed = relativeVel.magnitude;
+                var relativeSpeed = relativeVel.magnitude;//相对速度长度
 
+                
                 var timeToCollison = Vector3.Dot(relativePos, relativeVel) / (relativeSpeed * relativeSpeed);
 
                 //检查是否将要完全碰撞
@@ -49,7 +50,7 @@ namespace TestAI.Move.Kinematic
 
                 if (minSeparation > 2 * radius) continue;
 
-           
+
                 //检查是否最短时间
                 if (timeToCollison > 0 && timeToCollison < shortestTime)
                 {
@@ -98,19 +99,25 @@ namespace TestAI.Move.Kinematic
             }
             currentEntity.FixedUpdate(res, FixedDeltaTime);
         }
+
+
         protected override void OnStart()
         {
-            targetEntitys = new IKinematicEntity[10];
+            targetEntitys = new IKinematicEntity[20];
 
-            //创建多个目标实体
-            Vector2 range = new Vector2(50, 50);
+            //绕圆一周计算一个间隔10弧度创建一个物体
+            float angleStep = 2 * Mathf.PI / targetEntitys.Length;
+
+            float startAngle = 0;
+            float areaRadius = 40;
             for (int i = 0; i < targetEntitys.Length; i++)
             {
                 Navigation_AI_Item item = UtilsTool.CreateNavigation_AI() as Navigation_AI_Item;
-                StaticStae state = UtilsTool.CreateRandomStaticStae(range, false);
+                float x = areaRadius * Mathf.Cos(startAngle + i * angleStep);
+                float z = areaRadius * Mathf.Sin(startAngle + i * angleStep);
+                item.SetPosition(new Vector3(x, 0, z));
                 //计算朝向，看向(0，0)
-                state.Orientation = UtilsTool.ComputeOrientation(-state.Position);
-                item.SetStaticStae(state);
+                item.SetOrientation(UtilsTool.ComputeOrientation(-new Vector3(x, 0, z)));
                 item.SetColor(Color.red);
                 item.AllowDrag(true);
                 item.AutoMove(true);
