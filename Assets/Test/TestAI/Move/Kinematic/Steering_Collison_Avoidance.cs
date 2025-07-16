@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
+using static UnityEngine.GraphicsBuffer;
 
 namespace TestAI.Move.Kinematic
 {
@@ -23,54 +25,40 @@ namespace TestAI.Move.Kinematic
             var res = new SteeringOutput();
 
             //找到最接近的碰撞目标
-            var shortestTime = float.MaxValue;
+            var shortestTime = float.PositiveInfinity;
 
             //存储碰撞目标相关数据
             IKinematicEntity firstTarget = null;
-            float firstMinSeparation = 0f;
-            float firstDistance = 0f;
-            Vector3 firstRelativePos = Vector3.zero;
+            float firstMinSeparation = float.PositiveInfinity;
+            float firstDistance = float.PositiveInfinity;
+            Vector3 firstRelativePos = Vector3.positiveInfinity;
             Vector3 firstRelativeVel = Vector3.zero;
 
+            Vector3 relativePos = Vector3.positiveInfinity;
             //这里简单粗暴直接遍历所有目标实体（TODO空间规划进行优化）
             //----------------------------------------------------------
             for (var i = 0; i < targetEntitys.Length; i++)
             {
                 var targetEntity = targetEntitys[i];
-                //计算碰撞时间
-                var relativePos = targetEntity.Position - currentEntity.Position;//目标-->当前
-                var relativeVel = targetEntity.Velocity - currentEntity.Velocity;
-                var relativeSpeed = relativeVel.magnitude;//相对速度长度
+                relativePos = targetEntity.Position - currentEntity.Position;
+                Vector3 relativeVel = currentEntity.Velocity - targetEntity.Velocity;//注意这里有问题
+                float relativeSpeed = relativeVel.magnitude;
+                float timeToCollision = (Vector3.Dot(relativePos, relativeVel) / (relativeSpeed * relativeSpeed));
 
-
-                //Vector3.Dot(relativePos, relativeVel) <0  两物体正在接近
-                //Vector3.Dot(relativePos, relativeVel) >0 两物体正在远离
-
-                if (relativeSpeed < 0.001f) continue; // 避免除零错误
-
-                var timeToCollison = Vector3.Dot(relativePos, relativeVel) / (relativeSpeed * relativeSpeed);//计算碰撞时间
-
-                if (timeToCollison < 0f) continue;
-
-                //检查是否将要完全碰撞
-                var distance = relativePos.magnitude;
-                var minSeparation = distance - relativeSpeed * timeToCollison;
-
-                if (minSeparation > 2 * radius) continue;
-
-                //检查是否最短时间
-                if (timeToCollison > 0 && timeToCollison < shortestTime)
+                float distance = relativePos.magnitude;
+                float minSeparation = distance - relativeSpeed * timeToCollision;
+                if (minSeparation > 2 * radius)
                 {
-
-                    //存储时间、目标和其他数据
-                    shortestTime = timeToCollison;
-
+                    continue;
+                }
+                if (timeToCollision > 0 && timeToCollision < shortestTime)
+                {
+                    shortestTime = timeToCollision;
                     firstTarget = targetEntity;
                     firstMinSeparation = minSeparation;
                     firstDistance = distance;
                     firstRelativePos = relativePos;
                     firstRelativeVel = relativeVel;
-
                 }
 
             }
@@ -78,21 +66,18 @@ namespace TestAI.Move.Kinematic
             //没有可能碰撞目标
             if (firstTarget == null) return res;
 
-            //计算转向
-
-            Vector3 relativePosCompute;
-            //如果即将碰撞或者已经发生碰撞
             if (firstMinSeparation <= 0 || firstDistance < 2 * radius)
             {
-                relativePosCompute = firstTarget.Position - currentEntity.Position;
+                relativePos = firstTarget.Position- currentEntity.Position;
             }
             else
             {
-                relativePosCompute = firstRelativePos + firstRelativeVel * shortestTime;
+                relativePos = firstRelativePos + firstRelativeVel * shortestTime;
             }
 
-            //躲避目标
-            res.Linear =  relativePosCompute.normalized * maxAcceleration;
+            SteeringOutput result = new SteeringOutput();
+            relativePos.Normalize();
+            res.Linear = relativePos * maxAcceleration;
             res.Angular = 0;
 
             return res;
