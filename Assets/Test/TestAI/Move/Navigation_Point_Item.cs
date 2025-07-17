@@ -1,6 +1,4 @@
-using TestAI.Move.Kinematic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 namespace TestAI.Move
 {

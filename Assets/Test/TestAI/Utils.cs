@@ -297,7 +297,22 @@ namespace TestAI
             return new_inst.GetComponent<IKinematicEntity>();
         }
 
-        public static void Destroy(this IKinematicEntity entity)
+        public static Navigation_Obstacle_Item CreateNavigation_Obstacle()
+        {
+            var navigation_prefab = Resources.Load<GameObject>("Navigation_Obstacle");
+            GameObject new_inst = GameObject.Instantiate(navigation_prefab);
+
+            return new_inst.GetComponent<Navigation_Obstacle_Item>();
+        }
+
+
+        public static bool PhysicsRaycast(Vector3 origin, Vector3 direction,float maxDistance,out RaycastHit hitinfo)
+        {
+            return Physics.Raycast(origin, direction, out hitinfo, maxDistance);
+ 
+        }
+
+public static void Destroy(this IKinematicEntity entity)
         {
             if (entity != null)
             {
