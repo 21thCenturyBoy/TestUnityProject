@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace TestAI.Move.Kinematic
 {
+    [AILogicType("Kinematic_寻找")]
     public class Kinematic_Seek : KinematicLogic
     {
         public IKinematicEntity targetEntity;

@@ -2,6 +2,7 @@ using System;
 
 namespace TestAI.Move.Kinematic
 {
+    [AILogicType("Kinematic_漫游")]
     public class Kinematic_Wander : KinematicLogic
     {
         public IKinematicEntity currentEntity;

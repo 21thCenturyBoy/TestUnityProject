@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace TestAI.Move.Kinematic
 {
+    [AILogicType("Kinematic_到达")]
     public class Kinematic_Arrive : KinematicLogic
     {
         public IKinematicEntity targetEntity;

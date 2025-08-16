@@ -110,7 +110,6 @@ namespace TestAI
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public class AIParam_Float : Attribute
     {
-
         public String ParmName { get; set; }
         public AIParam_Float(String name = null)
         {
@@ -170,11 +169,11 @@ namespace TestAI
                             var attr = logicTypeAttr[0] as AILogicType;
                             m_KinematicLogicTypeCache.Add(attr.ParmName, type);
                         }
-                        else
-                        {
-                            //如果没有ILogicType特性，则使用类名作为逻辑类型名称
-                            m_KinematicLogicTypeCache.Add(type.Name, type);
-                        }
+                        //else
+                        //{
+                        //    //如果没有ILogicType特性，则使用类名作为逻辑类型名称
+                        //    m_KinematicLogicTypeCache.Add(type.Name, type);
+                        //}
                     }
                 }
 
@@ -331,6 +330,14 @@ namespace TestAI
             GameObject new_inst = GameObject.Instantiate(navigation_prefab);
 
             return new_inst.GetComponent<Navigation_Obstacle_Item>();
+        }
+
+        public static IKinematicEntity CreateNavigation_Center()
+        {
+            var navigation_prefab = Resources.Load<GameObject>("Navigation_Center");
+            GameObject new_inst = GameObject.Instantiate(navigation_prefab);
+
+            return new_inst.GetComponent<IKinematicEntity>();
         }
 
 
