@@ -19,7 +19,7 @@ namespace TestAI.Move.Kinematic
         [AIParam_Float("衰减系数")]
         public float decayCoefficient = 5f; // 分离半径
 
-        public virtual SteeringOutput Separation()
+        public override SteeringOutput GetSteeringOut()
         {
             var res = new SteeringOutput();
 
@@ -51,7 +51,7 @@ namespace TestAI.Move.Kinematic
         }
         protected override void OnFixedUpdate()
         {
-            var res = Separation();
+            var res = GetSteeringOut();
             currentEntity.FixedUpdate(res, FixedDeltaTime);
         }
         protected override void OnStart()

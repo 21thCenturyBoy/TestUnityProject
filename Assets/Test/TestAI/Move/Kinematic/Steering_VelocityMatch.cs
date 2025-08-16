@@ -21,7 +21,7 @@ namespace TestAI.Move.Kinematic
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public virtual SteeringOutput VelocityMatch()
+        public override SteeringOutput GetSteeringOut()
         {
             var res = new SteeringOutput();
 
@@ -45,7 +45,7 @@ namespace TestAI.Move.Kinematic
 
         protected override void OnFixedUpdate()
         {
-            var res = VelocityMatch();
+            var res = GetSteeringOut();
             currentEntity.FixedUpdate(res, FixedDeltaTime);
         }
 

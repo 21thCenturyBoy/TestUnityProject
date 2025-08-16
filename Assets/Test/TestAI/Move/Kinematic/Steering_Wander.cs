@@ -34,11 +34,11 @@ namespace TestAI.Move.Kinematic
         [AIParam_Float("朝向最小近似值（弧度）")]
         public float targetRadius { get => m_steering_Face.targetRadius; set { m_steering_Face.targetRadius = value; } }
         //-------------------------------------------------------
-        public override SteeringOutput Seek()
+        public override SteeringOutput GetSteeringOut()
         {
-            SteeringOutput res = base.Seek(); // 调用基类的Seek方法
+            SteeringOutput res = base.GetSteeringOut(); // 调用基类的Seek方法
 
-            res.Angular = m_steering_Face.Align().Angular; // 对齐目标方向
+            res.Angular = m_steering_Face.GetSteeringOut().Angular; // 对齐目标方向
 
             return res;
         }

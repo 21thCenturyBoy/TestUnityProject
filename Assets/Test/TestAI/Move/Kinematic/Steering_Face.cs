@@ -7,7 +7,7 @@ namespace TestAI.Move.Kinematic
     [AILogicType("Steering_朝向")]
     public class Steering_Face : Steering_Align
     {
-        public override SteeringOutput Align()
+        public override SteeringOutput GetSteeringOut()
         {
             //计算出目标方向
             var direction = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
@@ -15,7 +15,7 @@ namespace TestAI.Move.Kinematic
             //太近了就不需要转向
             m_targetOrientation = UtilsTool.ComputeOrientation(direction);
 
-            return base.Align();
+            return base.GetSteeringOut();
         }
 
         private float m_targetOrientation;
@@ -30,7 +30,7 @@ namespace TestAI.Move.Kinematic
     [AILogicType("Steering_直视移动方向")]
     public class Steering_FaceTargetForward : Steering_Align
     {
-        public override SteeringOutput Align()
+        public override SteeringOutput GetSteeringOut()
         {
             //计算出目标方向
             var direction = targetEntity.Velocity;
@@ -38,7 +38,7 @@ namespace TestAI.Move.Kinematic
             //太近了就不需要转向
             m_targetOrientation = UtilsTool.ComputeOrientation(direction);
 
-            return base.Align();
+            return base.GetSteeringOut();
         }
 
         private float m_targetOrientation;

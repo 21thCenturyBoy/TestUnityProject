@@ -202,7 +202,7 @@ namespace TestAI.Move.Kinematic
     }
     public abstract class SteeringLogic : KinematicLogic
     {
-
+        public abstract SteeringOutput GetSteeringOut();
     }
 }
 

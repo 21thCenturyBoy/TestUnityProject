@@ -2,6 +2,7 @@ using PlasticGui.Configuration.CloudEdition.Welcome;
 using System;
 using System.Collections.Generic;
 using TestAI.Move;
+using TestAI.Move.Flocking;
 using TestAI.Move.Kinematic;
 using UnityEngine;
 namespace TestAI
@@ -31,6 +32,33 @@ namespace TestAI
         public Vector3 Linear;
         //角加速度
         public float Angular;
+
+        //重写运算符
+        public static SteeringOutput operator *(float weight, SteeringOutput output)
+        {
+            SteeringOutput result = new SteeringOutput();
+            result.Linear = output.Linear * weight;
+            result.Angular = output.Angular * weight;
+            return result;
+        }
+        public static SteeringOutput operator *(SteeringOutput output, float weight)
+        {
+            return weight * output;
+        }
+        public static SteeringOutput operator +(SteeringOutput a, SteeringOutput b)
+        {
+            SteeringOutput result = new SteeringOutput();
+            result.Linear = a.Linear + b.Linear;
+            result.Angular = a.Angular + b.Angular;
+            return result;
+        }
+        public static SteeringOutput operator -(SteeringOutput a, SteeringOutput b)
+        {
+            SteeringOutput result = new SteeringOutput();
+            result.Linear = a.Linear - b.Linear;
+            result.Angular = a.Angular - b.Angular;
+            return result;
+        }
     }
 
     /// <summary>
@@ -306,13 +334,13 @@ namespace TestAI
         }
 
 
-        public static bool PhysicsRaycast(Vector3 origin, Vector3 direction,float maxDistance,out RaycastHit hitinfo)
+        public static bool PhysicsRaycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hitinfo)
         {
             return Physics.Raycast(origin, direction, out hitinfo, maxDistance);
- 
+
         }
 
-public static void Destroy(this IKinematicEntity entity)
+        public static void Destroy(this IKinematicEntity entity)
         {
             if (entity != null)
             {
@@ -467,5 +495,7 @@ public static void Destroy(this IKinematicEntity entity)
                 entity.Velocity = entity.Velocity.normalized * maxSpeed;
             }
         }
+
+
     }
 }

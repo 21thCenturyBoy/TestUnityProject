@@ -20,7 +20,7 @@ namespace TestAI.Move.Kinematic
         public float radius = 1f; //碰撞半径
 
 
-        public virtual SteeringOutput Separation()
+        public override SteeringOutput GetSteeringOut()
         {
             var res = new SteeringOutput();
 
@@ -84,7 +84,7 @@ namespace TestAI.Move.Kinematic
         }
         protected override void OnFixedUpdate()
         {
-            var res = Separation();
+            var res = GetSteeringOut();
             currentEntity.FixedUpdate(res, FixedDeltaTime);
         }
 

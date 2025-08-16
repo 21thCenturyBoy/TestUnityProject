@@ -29,7 +29,7 @@ namespace TestAI.Move.Kinematic
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public SteeringOutput Arrive()
+        public override SteeringOutput GetSteeringOut()
         {
             var res = new SteeringOutput();
 
@@ -71,7 +71,7 @@ namespace TestAI.Move.Kinematic
         }
         protected override void OnFixedUpdate()
         {
-            SteeringOutput res = Arrive();
+            SteeringOutput res = GetSteeringOut();
             if (res.Linear == Vector3.zero) return; //如果没有转向，则不更新
 
             currentEntity.FixedUpdate(res, maxSpeed, FixedDeltaTime);

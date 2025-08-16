@@ -12,7 +12,7 @@ namespace TestAI.Move.Kinematic
         /// （逃离反转Velocity）
         /// </summary>
         /// <returns></returns>
-        public override SteeringOutput Seek()
+        public override SteeringOutput GetSteeringOut()
         {
             //获取目标的方向
             var direction =  currentEntity.GetStaticStae().Position - targetEntity.GetStaticStae().Position;
@@ -35,7 +35,7 @@ namespace TestAI.Move.Kinematic
             //预测目标位置
             m_PredictionPos = targetPos + targetEntity.Velocity * predictionTime;
 
-            return base.Seek();
+            return base.GetSteeringOut();
         }
 
         Vector3 m_PredictionPos; //预测位置
@@ -57,7 +57,7 @@ namespace TestAI.Move.Kinematic
         /// （追击）
         /// </summary>
         /// <returns></returns>
-        public override SteeringOutput Seek()
+        public override SteeringOutput GetSteeringOut()
         {
             //获取目标的方向
             var direction = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
@@ -79,7 +79,7 @@ namespace TestAI.Move.Kinematic
             //预测目标位置
             m_PredictionPos = targetPos + targetEntity.Velocity * predictionTime;
 
-            return base.Seek();
+            return base.GetSteeringOut();
         }
 
         Vector3 m_PredictionPos; //预测位置

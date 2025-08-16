@@ -20,7 +20,7 @@ namespace TestAI.Move.Kinematic
 
         //Steering_Face m_steering_Face =new Steering_Face();//暂时先不考虑朝向问题
 
-        public override SteeringOutput Seek()
+        public override SteeringOutput GetSteeringOut()
         {
 
             //计算预测位置
@@ -41,7 +41,7 @@ namespace TestAI.Move.Kinematic
             //获取目标位置
             targetEntity.SetPosition(Path_Line.GetPosition(targetParam));
 
-            var res = base.Seek();
+            var res = base.GetSteeringOut();
             //res.Angular = m_steering_Face.Align().Angular;
 
             return res;
@@ -49,7 +49,7 @@ namespace TestAI.Move.Kinematic
 
         protected override void OnFixedUpdate()
         {
-            var res = Seek();
+            var res = GetSteeringOut();
 
             currentEntity.FixedUpdate(res, maxSpeed, FixedDeltaTime);
         }
