@@ -47,7 +47,12 @@ namespace TestAI.Move.Kinematic
         {
             return m_targetOrientation;
         }
+        protected override void OnStart()
+        {
+            base.OnStart();
 
+            targetEntity.AutoMove(true);//给定一个速度
+        }
     }
 }
 
