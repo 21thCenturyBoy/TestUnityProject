@@ -24,6 +24,16 @@ namespace TestAI.Move.Kinematic
 
         [AIParam_Float("减速半径")]
         public float slowRadius = 5f; //减速半径
+
+        /// <summary>
+        /// 获取目标位置(非预测)
+        /// </summary>
+        /// <returns></returns>
+        public virtual Vector3 GetTargetPos()
+        {
+            return targetEntity.GetStaticStae().Position;
+        }
+
         /// <summary>
         /// 获取到目标转向
         /// （逃离反转Velocity）
@@ -33,7 +43,7 @@ namespace TestAI.Move.Kinematic
         {
             var res = new SteeringOutput();
 
-            var direction = targetEntity.GetStaticStae().Position - currentEntity.GetStaticStae().Position;
+            var direction = GetTargetPos() - currentEntity.GetStaticStae().Position;
             var distance = direction.magnitude; //归一化
 
             ////检查是否在目标半径范围内

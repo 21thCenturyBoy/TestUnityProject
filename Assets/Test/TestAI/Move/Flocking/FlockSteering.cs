@@ -5,15 +5,78 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace TestAI.Move.Flocking
 {
+    public class FlockSteeringConfig
+    {
+        private static FlockSteeringConfig m_Instance;
+
+        public static FlockSteeringConfig Instance
+        {
+            get
+            {
+                if (m_Instance == null)
+                {
+                    m_Instance = new FlockSteeringConfig();
+                }
+                return m_Instance;
+            }
+        }
+        //最大速度
+        [AIParam_Float("总最大速度")]
+        public float maxSpeed = 5f;
+
+        [AIParam_Float("加速度阈值")]
+        public float epsilon = 0.1f;
+
+        [AIParam_Float("----分离权重----")]
+        public float Separation_Weight = 0.8f;
+        [AIParam_Float("分离最大加速度(可负)")]
+        public float Separation_maxAcceleration = -5f; // 最大加速度
+        [AIParam_Float("触发分离半径阈值")]
+        public float Separation_threshold = 5f; // 分离半径
+        [AIParam_Float("衰减系数")]
+        public float Separation_decayCoefficient = 3f; // 分离半径
+
+        [AIParam_Float("----对齐面向权重----")]
+        public float FaceTargetForward_Weight = 1f;
+        [AIParam_Float("最大旋转加速度（弧度）")]
+        public float FaceTargetForward_maxAngularAcceleration = 3.14f;
+        [AIParam_Float("最大旋转速度（弧度）")]
+        public float FaceTargetForward_maxRotate = 3f;
+        [AIParam_Float("到达目标的时间")]
+        public float FaceTargetForward_arrive_time = 0.1f;//到达目标的时间
+        [AIParam_Float("朝向减缓区间（弧度）")]
+        public float FaceTargetForward_slowRadius = 0.4f; //减速半径
+        [AIParam_Float("朝向最小近似值（弧度）")]
+        public float FaceTargetForward_targetRadius = 0.05f;
+
+        [AIParam_Float("----寻找目标权重----")]
+        public float Seek_Weight = 1f;
+        [AIParam_Float("最大加速度")]
+        public float Seek_maxAcceleration = 5f;
+        [AIParam_Float("最大速度")]
+        public float Seek_maxSpeed = 10f;
+
+        [AIParam_Float("----聚集权重----")]
+        public float Arrive_Weight = 0.7f;
+        [AIParam_Float("最大加速度")]
+        public float Arrive_maxAcceleration = 10f;
+        [AIParam_Float("最大速度")]
+        public float Arrive_maxSpeed = 10f;
+        [AIParam_Float("到达目标的时间")]
+        public float Arrive_arrive_time = 0.5f;//到达目标的时间
+        [AIParam_Float("目标半径范围")]
+        public float Arrive_targetRadius = 5f;//目标半径范围
+        [AIParam_Float("减速半径")]
+        public float Arrive_slowRadius = 20f; //减速半径
+    }
+
     public class FlockSteering : BlendedSteering
     {
         public IKinematicEntity CenterEntity;
         public IKinematicEntity TargetEntity;
 
         public IKinematicEntity Entity;
-        public FlockSteering[] SimilarFlockerEntitys;
-
-
+        public IKinematicEntity[] SimilarFlockerEntitys;
 
         protected override void OnStart()
         {
@@ -25,7 +88,7 @@ namespace TestAI.Move.Flocking
             //将相似实体添加到分离目标列表中
             for (int i = 0; i < SimilarFlockerEntitys.Length; i++)
             {
-                separate.targetEntitys[i] = SimilarFlockerEntitys[i].Entity;
+                separate.targetEntitys[i] = SimilarFlockerEntitys[i];
             }
 
             //对齐目标面向重心平均移动方向&寻找目标
@@ -42,7 +105,7 @@ namespace TestAI.Move.Flocking
             cohere.currentEntity = Entity;
             cohere.targetEntity = CenterEntity;
 
-            Behaviors = new List<BehaviorAndWeight>
+            behaviors = new List<BehaviorAndWeight>
             {
                 new BehaviorAndWeight(separate, 0),
                 new BehaviorAndWeight(steering_FaceTargetForward, 0),
@@ -50,61 +113,175 @@ namespace TestAI.Move.Flocking
                 new BehaviorAndWeight(cohere, 0),
             };
         }
+
+        public void UpdateConfig()
+        {
+
+            behaviors[0].Weight = FlockSteeringConfig.Instance.Separation_Weight;
+            Steering_Separation separateBehavior = behaviors[0].Behavior as Steering_Separation;
+            separateBehavior.maxAcceleration = FlockSteeringConfig.Instance.Separation_maxAcceleration;
+            separateBehavior.threshold = FlockSteeringConfig.Instance.Separation_threshold;
+            separateBehavior.decayCoefficient = FlockSteeringConfig.Instance.Separation_decayCoefficient;
+
+            behaviors[1].Weight = FlockSteeringConfig.Instance.FaceTargetForward_Weight;
+            Steering_FaceTargetForward faceTargetForwardBehavior = behaviors[1].Behavior as Steering_FaceTargetForward;
+            faceTargetForwardBehavior.maxAngularAcceleration = FlockSteeringConfig.Instance.FaceTargetForward_maxAngularAcceleration;
+            faceTargetForwardBehavior.maxRotate = FlockSteeringConfig.Instance.FaceTargetForward_maxRotate;
+            faceTargetForwardBehavior.arrive_time = FlockSteeringConfig.Instance.FaceTargetForward_arrive_time;
+            faceTargetForwardBehavior.slowRadius = FlockSteeringConfig.Instance.FaceTargetForward_slowRadius; //朝向减缓区间
+            faceTargetForwardBehavior.targetRadius = FlockSteeringConfig.Instance.FaceTargetForward_targetRadius; //朝向最小近似值
+
+            behaviors[2].Weight = FlockSteeringConfig.Instance.Seek_Weight;
+            Steering_Seek seekBehavior = behaviors[2].Behavior as Steering_Seek;
+            seekBehavior.maxAcceleration = FlockSteeringConfig.Instance.Seek_maxAcceleration;
+            seekBehavior.maxSpeed = FlockSteeringConfig.Instance.Seek_maxSpeed;
+
+            behaviors[3].Weight = FlockSteeringConfig.Instance.Arrive_Weight;
+            Steering_Arrive arriveBehavior = behaviors[3].Behavior as Steering_Arrive;
+            arriveBehavior.maxAcceleration = FlockSteeringConfig.Instance.Arrive_maxAcceleration;
+            arriveBehavior.maxSpeed = FlockSteeringConfig.Instance.Arrive_maxSpeed;
+            arriveBehavior.arrive_time = FlockSteeringConfig.Instance.Arrive_arrive_time; //到达目标的时间
+            arriveBehavior.targetRadius = FlockSteeringConfig.Instance.Arrive_targetRadius; //目标半径范围
+            arriveBehavior.slowRadius = FlockSteeringConfig.Instance.Arrive_slowRadius; //减速半径
+        }
     }
 
-    [AILogicType("蜂拥集群管理")]
-    public class FlockLogicManager : KinematicLogic
+    public class Steering_ArriveObstacleAvoidance : Steering_Arrive
     {
+        [AIParam_Float("检查碰撞的最小距离")]
+        public float avoidDistance = 10f;
+
+        [AIParam_Float("基于障碍物表面的距离")]
+        public float lookAhead = 20f;
+
+        public List<IKinematicEntity> obstacleEntitys = new List<IKinematicEntity>();
+
+        public override Vector3 GetTargetPos()
+        {
+            RaycastHit hit;
+            if (UtilsTool.PhysicsRaycast(currentEntity.Position, currentEntity.Velocity, lookAhead, out hit))
+            {
+                return hit.point + (hit.normal * avoidDistance);
+            }
+            else
+            {
+                return base.GetTargetPos();
+            }
+        }
+    }
+
+    public class FlockSteering_ObstacleAvoidance : PrioritySteering
+    {
+        public IKinematicEntity CenterEntity;
+        public IKinematicEntity TargetEntity;
+
+        public IKinematicEntity Entity;
+        public IKinematicEntity[] SimilarFlockerEntitys;
+
+        public List<IKinematicEntity> ObstacleEntitys;
+
+        protected override void OnStart()
+        {
+            // 设置集群行为
+            FlockSteering flockSteering = new FlockSteering();
+            flockSteering.Entity = Entity;
+            flockSteering.CenterEntity = CenterEntity;
+            flockSteering.TargetEntity = TargetEntity;
+            flockSteering.SimilarFlockerEntitys = SimilarFlockerEntitys;
+
+            flockSteering.Start(); //调用每个实体的OnStart方法进行初始化
+
+            // 设置避障行为
+            Steering_ArriveObstacleAvoidance avoid = new Steering_ArriveObstacleAvoidance();
+            avoid.currentEntity = Entity;
+            avoid.targetEntity = CenterEntity;
+            avoid.obstacleEntitys = ObstacleEntitys;
+            BlendedSteering highPrioritySteering = new BlendedSteering();
+            highPrioritySteering.behaviors = new List<BehaviorAndWeight>
+            {
+                new BehaviorAndWeight(avoid, 1)
+            };
+
+            groups = new List<BlendedSteering>
+            {
+                highPrioritySteering, // 高优先级避障行为
+                flockSteering        // 低优先级群体行为
+            };
+        }
+
+        public void UpdateConfig()
+        {
+            BlendedSteering highPrioritySteering = groups[0] as BlendedSteering;
+            Steering_ArriveObstacleAvoidance avoidBehavior = highPrioritySteering.behaviors[0].Behavior as Steering_ArriveObstacleAvoidance;
+            avoidBehavior.maxAcceleration = FlockSteeringConfig.Instance.Arrive_maxAcceleration;
+            avoidBehavior.maxSpeed = FlockSteeringConfig.Instance.Arrive_maxSpeed;
+            avoidBehavior.arrive_time = FlockSteeringConfig.Instance.Arrive_arrive_time; //到达目标的时间
+            avoidBehavior.targetRadius = FlockSteeringConfig.Instance.Arrive_targetRadius; //目标半径范围
+            avoidBehavior.slowRadius = FlockSteeringConfig.Instance.Arrive_slowRadius; //减速半径
+
+            FlockSteering flockSteering = groups[1] as FlockSteering;
+            flockSteering.UpdateConfig();
+
+            epsilon = FlockSteeringConfig.Instance.epsilon;
+        }
+    }
+
+    [AILogicType("蜂拥集群管理_Blended")]
+    public class FlockLogicManager_BlendedSteering : KinematicLogic
+    {
+
         public IKinematicEntity targetEntity;
         public IKinematicEntity centerEntity;
 
         public List<FlockSteering> birdEntitys;
 
+        #region 参数配置
         //最大速度
         [AIParam_Float("总最大速度")]
-        public float maxSpeed = 5f;
+        public float maxSpeed { get => FlockSteeringConfig.Instance.maxSpeed; set => FlockSteeringConfig.Instance.maxSpeed = value; }
 
         [AIParam_Float("----分离权重----")]
-        public float Separation_Weight = 1f;
+        public float Separation_Weight { get => FlockSteeringConfig.Instance.Separation_Weight; set => FlockSteeringConfig.Instance.Separation_Weight = value; }
         [AIParam_Float("分离最大加速度(可负)")]
-        public float Separation_maxAcceleration = -10f; // 最大加速度
+        public float Separation_maxAcceleration { get => FlockSteeringConfig.Instance.Separation_maxAcceleration; set => FlockSteeringConfig.Instance.Separation_maxAcceleration = value; } // 最大加速度
         [AIParam_Float("触发分离半径阈值")]
-        public float Separation_threshold = 5f; // 分离半径
+        public float Separation_threshold { get => FlockSteeringConfig.Instance.Separation_threshold; set => FlockSteeringConfig.Instance.Separation_threshold = value; } // 分离半径
         [AIParam_Float("衰减系数")]
-        public float Separation_decayCoefficient = 5f; // 分离半径
+        public float Separation_decayCoefficient { get => FlockSteeringConfig.Instance.Separation_decayCoefficient; set => FlockSteeringConfig.Instance.Separation_decayCoefficient = value; } // 分离半径
 
         [AIParam_Float("----对齐面向权重----")]
-        public float FaceTargetForward_Weight = 1f;
+        public float FaceTargetForward_Weight { get => FlockSteeringConfig.Instance.FaceTargetForward_Weight; set => FlockSteeringConfig.Instance.FaceTargetForward_Weight = value; }
         [AIParam_Float("最大旋转加速度（弧度）")]
-        public float FaceTargetForward_maxAngularAcceleration = 6f;
+        public float FaceTargetForward_maxAngularAcceleration { get => FlockSteeringConfig.Instance.FaceTargetForward_maxAngularAcceleration; set => FlockSteeringConfig.Instance.FaceTargetForward_maxAngularAcceleration = value; }
         [AIParam_Float("最大旋转速度（弧度）")]
-        public float FaceTargetForward_maxRotate = 1f;
+        public float FaceTargetForward_maxRotate { get => FlockSteeringConfig.Instance.FaceTargetForward_maxRotate; set => FlockSteeringConfig.Instance.FaceTargetForward_maxRotate = value; }
         [AIParam_Float("到达目标的时间")]
-        public float FaceTargetForward_arrive_time = 0.2f;//到达目标的时间
+        public float FaceTargetForward_arrive_time { get => FlockSteeringConfig.Instance.FaceTargetForward_arrive_time; set => FlockSteeringConfig.Instance.FaceTargetForward_arrive_time = value; }//到达目标的时间
         [AIParam_Float("朝向减缓区间（弧度）")]
-        public float FaceTargetForward_slowRadius = 0.4f; //减速半径
+        public float FaceTargetForward_slowRadius { get => FlockSteeringConfig.Instance.FaceTargetForward_slowRadius; set => FlockSteeringConfig.Instance.FaceTargetForward_slowRadius = value; } //减速半径
         [AIParam_Float("朝向最小近似值（弧度）")]
-        public float FaceTargetForward_targetRadius = 0.05f;
+        public float FaceTargetForward_targetRadius { get => FlockSteeringConfig.Instance.FaceTargetForward_targetRadius; set => FlockSteeringConfig.Instance.FaceTargetForward_targetRadius = value; }
 
         [AIParam_Float("----寻找目标权重----")]
-        public float Seek_Weight = 1f;
+        public float Seek_Weight { get => FlockSteeringConfig.Instance.Seek_Weight; set => FlockSteeringConfig.Instance.Seek_Weight = value; }
         [AIParam_Float("最大加速度")]
-        public float Seek_maxAcceleration = 50f;
+        public float Seek_maxAcceleration { get => FlockSteeringConfig.Instance.Seek_maxAcceleration; set => FlockSteeringConfig.Instance.Seek_maxAcceleration = value; }
         [AIParam_Float("最大速度")]
-        public float Seek_maxSpeed = 10f;
+        public float Seek_maxSpeed { get => FlockSteeringConfig.Instance.Seek_maxSpeed; set => FlockSteeringConfig.Instance.Seek_maxSpeed = value; }
 
         [AIParam_Float("----聚集权重----")]
-        public float Arrive_Weight = 0.7f;
+        public float Arrive_Weight { get => FlockSteeringConfig.Instance.Arrive_Weight; set => FlockSteeringConfig.Instance.Arrive_Weight = value; }
         [AIParam_Float("最大加速度")]
-        public float Arrive_maxAcceleration = 50f;
+        public float Arrive_maxAcceleration { get => FlockSteeringConfig.Instance.Arrive_maxAcceleration; set => FlockSteeringConfig.Instance.Arrive_maxAcceleration = value; }
         [AIParam_Float("最大速度")]
-        public float Arrive_maxSpeed = 10f;
+        public float Arrive_maxSpeed { get => FlockSteeringConfig.Instance.Arrive_maxSpeed; set => FlockSteeringConfig.Instance.Arrive_maxSpeed = value; }
         [AIParam_Float("到达目标的时间")]
-        public float Arrive_arrive_time = 0.5f;//到达目标的时间
+        public float Arrive_arrive_time { get => FlockSteeringConfig.Instance.Arrive_arrive_time; set => FlockSteeringConfig.Instance.Arrive_arrive_time = value; }//到达目标的时间
         [AIParam_Float("目标半径范围")]
-        public float Arrive_targetRadius = 2.5f;//目标半径范围
+        public float Arrive_targetRadius { get => FlockSteeringConfig.Instance.Arrive_targetRadius; set => FlockSteeringConfig.Instance.Arrive_targetRadius = value; }//目标半径范围
         [AIParam_Float("减速半径")]
-        public float Arrive_slowRadius = 5f; //减速半径
+        public float Arrive_slowRadius { get => FlockSteeringConfig.Instance.Arrive_slowRadius; set => FlockSteeringConfig.Instance.Arrive_slowRadius = value; } //减速半径
+        #endregion 参数配置
 
         protected override void OnFixedUpdate()
         {
@@ -113,32 +290,8 @@ namespace TestAI.Move.Flocking
             Vector3 velocity = Vector3.zero;
             for (int i = 0; i < birdEntitys.Count; i++)
             {
-                birdEntitys[i].Behaviors[0].Weight = Separation_Weight;
-                Steering_Separation separateBehavior = birdEntitys[i].Behaviors[0].Behavior as Steering_Separation;
-                separateBehavior.maxAcceleration = Separation_maxAcceleration;
-                separateBehavior.threshold = Separation_threshold;
-                separateBehavior.decayCoefficient = Separation_decayCoefficient;
 
-                birdEntitys[i].Behaviors[1].Weight = FaceTargetForward_Weight;
-                Steering_FaceTargetForward faceTargetForwardBehavior = birdEntitys[i].Behaviors[1].Behavior as Steering_FaceTargetForward;
-                faceTargetForwardBehavior.maxAngularAcceleration = FaceTargetForward_maxAngularAcceleration;
-                faceTargetForwardBehavior.maxRotate = FaceTargetForward_maxRotate;
-                faceTargetForwardBehavior.arrive_time = FaceTargetForward_arrive_time;
-                faceTargetForwardBehavior.slowRadius = FaceTargetForward_slowRadius; //朝向减缓区间
-                faceTargetForwardBehavior.targetRadius = FaceTargetForward_targetRadius; //朝向最小近似值
-
-                birdEntitys[i].Behaviors[2].Weight = Seek_Weight;
-                Steering_Seek seekBehavior = birdEntitys[i].Behaviors[2].Behavior as Steering_Seek;
-                seekBehavior.maxAcceleration = Seek_maxAcceleration;
-                seekBehavior.maxSpeed = Seek_maxSpeed;
-
-                birdEntitys[i].Behaviors[3].Weight = Arrive_Weight;
-                Steering_Arrive arriveBehavior = birdEntitys[i].Behaviors[3].Behavior as Steering_Arrive;
-                arriveBehavior.maxAcceleration = Arrive_maxAcceleration;
-                arriveBehavior.maxSpeed = Arrive_maxSpeed;
-                arriveBehavior.arrive_time = Arrive_arrive_time; //到达目标的时间
-                arriveBehavior.targetRadius = Arrive_targetRadius; //目标半径范围
-                arriveBehavior.slowRadius = Arrive_slowRadius; //减速半径
+                birdEntitys[i].UpdateConfig();
 
                 centerPosition += birdEntitys[i].Entity.GetStaticStae().Position;
                 velocity += birdEntitys[i].Entity.Velocity;
@@ -147,7 +300,7 @@ namespace TestAI.Move.Flocking
             velocity /= birdEntitys.Count;
             centerPosition /= birdEntitys.Count;
             centerEntity.SetPosition(centerPosition);
-            float centerDirection =  UtilsTool.ComputeOrientation(velocity); //计算平均方向
+            float centerDirection = UtilsTool.ComputeOrientation(velocity); //计算平均方向
             centerEntity.SetOrientation(centerDirection);
             centerEntity.Velocity = velocity;
 
@@ -200,12 +353,12 @@ namespace TestAI.Move.Flocking
 
                 birdEntitys[i].TargetEntity = targetEntity;
                 birdEntitys[i].CenterEntity = centerEntity;
-                birdEntitys[i].SimilarFlockerEntitys = new FlockSteering[birdEntitys.Count - 1];
+                birdEntitys[i].SimilarFlockerEntitys = new IKinematicEntity[birdEntitys.Count - 1];
                 int index = 0;
                 for (int j = 0; j < birdEntitys.Count; j++)
                 {
                     if (i == j) continue; //跳过自己
-                    birdEntitys[i].SimilarFlockerEntitys[index] = birdEntitys[j];
+                    birdEntitys[i].SimilarFlockerEntitys[index] = birdEntitys[j].Entity;
                     //将其他实体添加到相似实体列表中   
                     index++;
                 }
@@ -224,6 +377,180 @@ namespace TestAI.Move.Flocking
             }
             if (targetEntity != null) targetEntity?.Destroy();
             if (centerEntity != null) centerEntity?.Destroy();
+        }
+    }
+
+    [AILogicType("蜂拥集群管理_Avoidance")]
+    public class FlockLogicManager_PrioritySteering : KinematicLogic
+    {
+        public IKinematicEntity targetEntity;
+        public IKinematicEntity centerEntity;
+
+        public List<FlockSteering_ObstacleAvoidance> birdEntitys;
+        public List<IKinematicEntity> obstacleEntitys;
+
+        #region 参数配置
+        //最大速度
+        [AIParam_Float("总最大速度")]
+        public float maxSpeed { get => FlockSteeringConfig.Instance.maxSpeed; set => FlockSteeringConfig.Instance.maxSpeed = value; }
+
+        [AIParam_Float("加速度阈值")]
+        public float epsilon { get => FlockSteeringConfig.Instance.epsilon; set => FlockSteeringConfig.Instance.epsilon = value; }
+
+        [AIParam_Float("----分离权重----")]
+        public float Separation_Weight { get => FlockSteeringConfig.Instance.Separation_Weight; set => FlockSteeringConfig.Instance.Separation_Weight = value; }
+        [AIParam_Float("分离最大加速度(可负)")]
+        public float Separation_maxAcceleration { get => FlockSteeringConfig.Instance.Separation_maxAcceleration; set => FlockSteeringConfig.Instance.Separation_maxAcceleration = value; } // 最大加速度
+        [AIParam_Float("触发分离半径阈值")]
+        public float Separation_threshold { get => FlockSteeringConfig.Instance.Separation_threshold; set => FlockSteeringConfig.Instance.Separation_threshold = value; } // 分离半径
+        [AIParam_Float("衰减系数")]
+        public float Separation_decayCoefficient { get => FlockSteeringConfig.Instance.Separation_decayCoefficient; set => FlockSteeringConfig.Instance.Separation_decayCoefficient = value; } // 分离半径
+
+        [AIParam_Float("----对齐面向权重----")]
+        public float FaceTargetForward_Weight { get => FlockSteeringConfig.Instance.FaceTargetForward_Weight; set => FlockSteeringConfig.Instance.FaceTargetForward_Weight = value; }
+        [AIParam_Float("最大旋转加速度（弧度）")]
+        public float FaceTargetForward_maxAngularAcceleration { get => FlockSteeringConfig.Instance.FaceTargetForward_maxAngularAcceleration; set => FlockSteeringConfig.Instance.FaceTargetForward_maxAngularAcceleration = value; }
+        [AIParam_Float("最大旋转速度（弧度）")]
+        public float FaceTargetForward_maxRotate { get => FlockSteeringConfig.Instance.FaceTargetForward_maxRotate; set => FlockSteeringConfig.Instance.FaceTargetForward_maxRotate = value; }
+        [AIParam_Float("到达目标的时间")]
+        public float FaceTargetForward_arrive_time { get => FlockSteeringConfig.Instance.FaceTargetForward_arrive_time; set => FlockSteeringConfig.Instance.FaceTargetForward_arrive_time = value; }//到达目标的时间
+        [AIParam_Float("朝向减缓区间（弧度）")]
+        public float FaceTargetForward_slowRadius { get => FlockSteeringConfig.Instance.FaceTargetForward_slowRadius; set => FlockSteeringConfig.Instance.FaceTargetForward_slowRadius = value; } //减速半径
+        [AIParam_Float("朝向最小近似值（弧度）")]
+        public float FaceTargetForward_targetRadius { get => FlockSteeringConfig.Instance.FaceTargetForward_targetRadius; set => FlockSteeringConfig.Instance.FaceTargetForward_targetRadius = value; }
+
+        [AIParam_Float("----寻找目标权重----")]
+        public float Seek_Weight { get => FlockSteeringConfig.Instance.Seek_Weight; set => FlockSteeringConfig.Instance.Seek_Weight = value; }
+        [AIParam_Float("最大加速度")]
+        public float Seek_maxAcceleration { get => FlockSteeringConfig.Instance.Seek_maxAcceleration; set => FlockSteeringConfig.Instance.Seek_maxAcceleration = value; }
+        [AIParam_Float("最大速度")]
+        public float Seek_maxSpeed { get => FlockSteeringConfig.Instance.Seek_maxSpeed; set => FlockSteeringConfig.Instance.Seek_maxSpeed = value; }
+
+        [AIParam_Float("----聚集权重----")]
+        public float Arrive_Weight { get => FlockSteeringConfig.Instance.Arrive_Weight; set => FlockSteeringConfig.Instance.Arrive_Weight = value; }
+        [AIParam_Float("最大加速度")]
+        public float Arrive_maxAcceleration { get => FlockSteeringConfig.Instance.Arrive_maxAcceleration; set => FlockSteeringConfig.Instance.Arrive_maxAcceleration = value; }
+        [AIParam_Float("最大速度")]
+        public float Arrive_maxSpeed { get => FlockSteeringConfig.Instance.Arrive_maxSpeed; set => FlockSteeringConfig.Instance.Arrive_maxSpeed = value; }
+        [AIParam_Float("到达目标的时间")]
+        public float Arrive_arrive_time { get => FlockSteeringConfig.Instance.Arrive_arrive_time; set => FlockSteeringConfig.Instance.Arrive_arrive_time = value; }//到达目标的时间
+        [AIParam_Float("目标半径范围")]
+        public float Arrive_targetRadius { get => FlockSteeringConfig.Instance.Arrive_targetRadius; set => FlockSteeringConfig.Instance.Arrive_targetRadius = value; }//目标半径范围
+        [AIParam_Float("减速半径")]
+        public float Arrive_slowRadius { get => FlockSteeringConfig.Instance.Arrive_slowRadius; set => FlockSteeringConfig.Instance.Arrive_slowRadius = value; } //减速半径
+        #endregion 参数配置
+
+        protected override void OnFixedUpdate()
+        {
+            //计算中心实体位置
+            Vector3 centerPosition = Vector3.zero;
+            Vector3 velocity = Vector3.zero;
+            for (int i = 0; i < birdEntitys.Count; i++)
+            {
+                birdEntitys[i].UpdateConfig();
+
+                centerPosition += birdEntitys[i].Entity.GetStaticStae().Position;
+                velocity += birdEntitys[i].Entity.Velocity;
+            }
+
+            velocity /= birdEntitys.Count;
+            centerPosition /= birdEntitys.Count;
+            centerEntity.SetPosition(centerPosition);
+            float centerDirection = UtilsTool.ComputeOrientation(velocity); //计算平均方向
+            centerEntity.SetOrientation(centerDirection);
+            centerEntity.Velocity = velocity;
+
+            // 更新群实体
+            for (int i = 0; i < birdEntitys.Count; i++)
+            {
+                SteeringOutput res = birdEntitys[i].GetSteeringOut();
+                if (res.Linear == Vector3.zero) continue; //如果没有转向，则不更新
+
+                birdEntitys[i].Entity.FixedUpdate(res, maxSpeed, FixedDeltaTime);
+            }
+        }
+        protected override void OnStart()
+        {
+            //创建障碍
+            obstacleEntitys = new List<IKinematicEntity>();
+            for (int i = 0; i < 3; i++)
+            {
+                Navigation_Obstacle_Item point_Obstacle = UtilsTool.CreateNavigation_Obstacle() as Navigation_Obstacle_Item;
+                obstacleEntitys.Add(point_Obstacle);
+                point_Obstacle.AllowDrag = true;
+                point_Obstacle.SetPosition(new Vector3(0, 0, i * 5));
+            }
+
+            birdEntitys = new List<FlockSteering_ObstacleAvoidance>();
+            int birdCount = 20; //鸟类实体数量
+            //创建多个目标实体
+            Vector2 range = new Vector2(50, 50);
+            for (int i = 0; i < birdCount; i++)
+            {
+                Navigation_AI_Item item = UtilsTool.CreateNavigation_AI() as Navigation_AI_Item;
+                item.SetStaticStae(UtilsTool.CreateRandomStaticStae(range));
+                item.SetColor(Color.red);
+                item.AllowDrag(true);
+                item.gameObject.name = "FlockEntity_" + i;
+                birdEntitys.Add(new FlockSteering_ObstacleAvoidance());
+                birdEntitys[i].Entity = item;
+                birdEntitys[i].ObstacleEntitys = obstacleEntitys; //设置障碍物实体列表
+            }
+
+            targetEntity = UtilsTool.CreateNavigation_AI();
+            StaticStae stae = new StaticStae();
+            targetEntity.SetStaticStae(stae);
+            targetEntity.SetColor(Color.green);
+            targetEntity.AllowDrag(true);
+
+            centerEntity = UtilsTool.CreateNavigation_Center();
+            //计算中心实体位置
+            Vector3 centerPosition = Vector3.zero;
+            for (int i = 0; i < birdEntitys.Count; i++)
+            {
+                centerPosition += birdEntitys[i].Entity.GetStaticStae().Position;
+            }
+            stae.Position = centerPosition / birdEntitys.Count;
+            centerEntity.SetStaticStae(stae);
+            centerEntity.SetColor(Color.green);
+
+            //群实体的初始化
+            for (int i = 0; i < birdEntitys.Count; i++)
+            {
+
+                birdEntitys[i].TargetEntity = targetEntity;
+                birdEntitys[i].CenterEntity = centerEntity;
+                birdEntitys[i].SimilarFlockerEntitys = new IKinematicEntity[birdEntitys.Count - 1];
+                int index = 0;
+                for (int j = 0; j < birdEntitys.Count; j++)
+                {
+                    if (i == j) continue; //跳过自己
+                    birdEntitys[i].SimilarFlockerEntitys[index] = birdEntitys[j].Entity;
+                    //将其他实体添加到相似实体列表中   
+                    index++;
+                }
+                birdEntitys[i].Start(); //调用每个实体的OnStart方法进行初始化
+            }
+        }
+
+        protected override void OnStop()
+        {
+            if (birdEntitys != null)
+            {
+                foreach (var item in birdEntitys)
+                {
+                    if (item != null) item.Entity?.Destroy();
+                }
+            }
+            if (targetEntity != null) targetEntity?.Destroy();
+            if (centerEntity != null) centerEntity?.Destroy();
+            if (obstacleEntitys != null)
+            {
+                foreach (var item in obstacleEntitys)
+                {
+                    if (item != null) item?.Destroy();
+                }
+            }
         }
     }
 }

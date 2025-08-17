@@ -140,7 +140,7 @@ namespace TestAI.Move.Kinematic
             var properties = type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             foreach (var prop in properties)
             {
-                if (Attribute.IsDefined(prop, typeof(AIParam_Float)) && prop.CanRead)
+                if (Attribute.IsDefined(prop, typeof(AIParam_Float)))
                 {
                     GameObject obj = GameObject.Instantiate(AIParam_Float_prefab);
                     obj.transform.SetParent(parentTrans);

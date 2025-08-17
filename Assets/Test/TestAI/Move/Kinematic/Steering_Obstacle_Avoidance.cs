@@ -4,7 +4,7 @@ using UnityEngine;
 namespace TestAI.Move.Kinematic
 {
     [AILogicType("Steering_避开障碍物")]
-    public class ObstacleAvoidance : Steering_Seek
+    public class Steering_ObstacleAvoidance : Steering_Seek
     {
         [AIParam_Float("检查碰撞的最小距离")]
         public float avoidDistance = 10f;
@@ -12,7 +12,7 @@ namespace TestAI.Move.Kinematic
         [AIParam_Float("基于障碍物表面的距离")]
         public float lookAhead = 10f;
 
-        private List<Navigation_Obstacle_Item> m_obstacleList = new List<Navigation_Obstacle_Item>();
+        public List<IKinematicEntity> obstacleEntitys = new List<IKinematicEntity>();
 
         public override Vector3 GetTargetPos()
         {
@@ -32,17 +32,17 @@ namespace TestAI.Move.Kinematic
         {
 
             Navigation_Obstacle_Item point_Obstacle = UtilsTool.CreateNavigation_Obstacle() as Navigation_Obstacle_Item;
-            m_obstacleList.Add(point_Obstacle);
+            obstacleEntitys.Add(point_Obstacle);
         }
         protected override void OnStop()
         {
             base.OnStop();
 
-            for (int i = 0; i < m_obstacleList.Count; i++)
+            for (int i = 0; i < obstacleEntitys.Count; i++)
             {
-                GameObject.Destroy(m_obstacleList[i].gameObject);
+                obstacleEntitys[i].Destroy();
             }
-            m_obstacleList.Clear();
+            obstacleEntitys.Clear();
         }
     }
 }

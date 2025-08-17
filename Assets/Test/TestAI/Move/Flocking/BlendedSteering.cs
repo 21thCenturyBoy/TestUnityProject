@@ -4,18 +4,6 @@ using TestAI.Move.Kinematic;
 
 namespace TestAI.Move.Flocking
 {
-    public class BehaviorAndWeight
-    {
-        public SteeringLogic Behavior;
-        public float Weight;
-
-        public BehaviorAndWeight(SteeringLogic behavior, float weight)
-        {
-            Behavior = behavior;
-            Weight = weight;
-        }
-    }
-
     public class BlendedSteering : SteeringLogic
     {
         //总体最大加速度和旋转
@@ -24,13 +12,13 @@ namespace TestAI.Move.Flocking
         [AIParam_Float("最大角加速度")]
         public float maxRotation = 10f;
 
-        public List<BehaviorAndWeight> Behaviors;
+        public List<BehaviorAndWeight> behaviors;
         public override SteeringOutput GetSteeringOut()
         {
             var res = new SteeringOutput();
 
             //累加所有行为的结果
-            foreach (var behaviorAndWeight in Behaviors)
+            foreach (var behaviorAndWeight in behaviors)
             {
                 res += behaviorAndWeight.Behavior.GetSteeringOut() * behaviorAndWeight.Weight;
             }
