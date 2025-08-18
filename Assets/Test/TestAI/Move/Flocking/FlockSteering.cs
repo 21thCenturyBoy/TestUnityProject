@@ -27,6 +27,12 @@ namespace TestAI.Move.Flocking
         [AIParam_Float("加速度阈值")]
         public float epsilon = 0.1f;
 
+        [AIParam_Float("检查碰撞的最小距离")]
+        public float avoidDistance = 10f;
+
+        [AIParam_Float("基于障碍物表面的距离")]
+        public float lookAhead = 10f;
+
         [AIParam_Float("----分离权重----")]
         public float Separation_Weight = 0.8f;
         [AIParam_Float("分离最大加速度(可负)")]
@@ -68,6 +74,8 @@ namespace TestAI.Move.Flocking
         public float Arrive_targetRadius = 5f;//目标半径范围
         [AIParam_Float("减速半径")]
         public float Arrive_slowRadius = 20f; //减速半径
+
+
     }
 
     public class FlockSteering : BlendedSteering
@@ -146,15 +154,14 @@ namespace TestAI.Move.Flocking
         }
     }
 
-    public class Steering_ArriveObstacleAvoidance : Steering_Arrive
+
+    public class Steering_ObstacleAvoidance_new : Steering_Arrive
     {
         [AIParam_Float("检查碰撞的最小距离")]
         public float avoidDistance = 10f;
 
         [AIParam_Float("基于障碍物表面的距离")]
-        public float lookAhead = 20f;
-
-        public List<IKinematicEntity> obstacleEntitys = new List<IKinematicEntity>();
+        public float lookAhead = 10f;
 
         public override Vector3 GetTargetPos()
         {
@@ -191,36 +198,95 @@ namespace TestAI.Move.Flocking
 
             flockSteering.Start(); //调用每个实体的OnStart方法进行初始化
 
-            // 设置避障行为
-            Steering_ArriveObstacleAvoidance avoid = new Steering_ArriveObstacleAvoidance();
+            //  避免碰撞组
+            //  避开障碍物&墙体、躲避其他角色的行为(非族群内部)
+
+            Steering_ObstacleAvoidance_new avoid = new Steering_ObstacleAvoidance_new();
             avoid.currentEntity = Entity;
             avoid.targetEntity = CenterEntity;
-            avoid.obstacleEntitys = ObstacleEntitys;
             BlendedSteering highPrioritySteering = new BlendedSteering();
             highPrioritySteering.behaviors = new List<BehaviorAndWeight>
             {
                 new BehaviorAndWeight(avoid, 1)
             };
 
+            //  分离组
+            //  躲避过于靠近的其他实体(族群内部)
+            Steering_Separation separate = new Steering_Separation();
+            separate.currentEntity = Entity;
+            separate.targetEntitys = new IKinematicEntity[SimilarFlockerEntitys.Length];
+
+            Steering_Arrive cohere = new Steering_Arrive();
+            cohere.currentEntity = Entity;
+            cohere.targetEntity = CenterEntity;
+
+            BlendedSteering normalPrioritySteering = new BlendedSteering();
+            normalPrioritySteering.behaviors = new List<BehaviorAndWeight>
+            {
+                new BehaviorAndWeight(separate, 1),
+                new BehaviorAndWeight(cohere, 1),
+            };
+
+
+            //  追逐组
+            //  寻找目标实体(族群内部)，归位目标的追逐
+            //Steering_Arrive seek = new Steering_Arrive();
+            //seek.targetEntity = TargetEntity;
+            //seek.currentEntity = Entity;
+
+            BlendedSteering lowPrioritySteering = new BlendedSteering();
+            lowPrioritySteering.behaviors = new List<BehaviorAndWeight>
+            {
+                new BehaviorAndWeight(flockSteering, 1),
+            };
+
+
             groups = new List<BlendedSteering>
             {
-                highPrioritySteering, // 高优先级避障行为
-                flockSteering        // 低优先级群体行为
+                highPrioritySteering,
+                normalPrioritySteering,
+                lowPrioritySteering,
             };
         }
 
         public void UpdateConfig()
         {
+
+            //FlockSteering flockSteering = groups[0] as FlockSteering;
+            //flockSteering.UpdateConfig();
+
             BlendedSteering highPrioritySteering = groups[0] as BlendedSteering;
-            Steering_ArriveObstacleAvoidance avoidBehavior = highPrioritySteering.behaviors[0].Behavior as Steering_ArriveObstacleAvoidance;
+            Steering_ObstacleAvoidance_new avoidBehavior = highPrioritySteering.behaviors[0].Behavior as Steering_ObstacleAvoidance_new;
             avoidBehavior.maxAcceleration = FlockSteeringConfig.Instance.Arrive_maxAcceleration;
             avoidBehavior.maxSpeed = FlockSteeringConfig.Instance.Arrive_maxSpeed;
+            avoidBehavior.avoidDistance = FlockSteeringConfig.Instance.avoidDistance; //检查碰撞的最小距离
+            avoidBehavior.lookAhead = FlockSteeringConfig.Instance.lookAhead; //基于障碍物表面的距离
             avoidBehavior.arrive_time = FlockSteeringConfig.Instance.Arrive_arrive_time; //到达目标的时间
             avoidBehavior.targetRadius = FlockSteeringConfig.Instance.Arrive_targetRadius; //目标半径范围
             avoidBehavior.slowRadius = FlockSteeringConfig.Instance.Arrive_slowRadius; //减速半径
+            highPrioritySteering.behaviors[0].Weight = 1;
 
-            FlockSteering flockSteering = groups[1] as FlockSteering;
+
+            BlendedSteering normalPrioritySteering = groups[1] as BlendedSteering;
+            Steering_Separation separateBehavior = normalPrioritySteering.behaviors[0].Behavior as Steering_Separation;
+            separateBehavior.maxAcceleration = FlockSteeringConfig.Instance.Separation_maxAcceleration;
+            separateBehavior.threshold = FlockSteeringConfig.Instance.Separation_threshold;
+            separateBehavior.decayCoefficient = FlockSteeringConfig.Instance.Separation_decayCoefficient;
+            normalPrioritySteering.behaviors[0].Weight = FlockSteeringConfig.Instance.Separation_Weight;
+
+            Steering_Arrive arriveBehavior = normalPrioritySteering.behaviors[1].Behavior as Steering_Arrive;
+            arriveBehavior.maxAcceleration = FlockSteeringConfig.Instance.Arrive_maxAcceleration;
+            arriveBehavior.maxSpeed = FlockSteeringConfig.Instance.Arrive_maxSpeed;
+            arriveBehavior.arrive_time = FlockSteeringConfig.Instance.Arrive_arrive_time; //到达目标的时间
+            arriveBehavior.targetRadius = FlockSteeringConfig.Instance.Arrive_targetRadius; //目标半径范围
+            arriveBehavior.slowRadius = FlockSteeringConfig.Instance.Arrive_slowRadius; //减速半径
+            normalPrioritySteering.behaviors[1].Weight = FlockSteeringConfig.Instance.Arrive_Weight;
+
+
+            BlendedSteering lowPrioritySteering = groups[2] as BlendedSteering;
+            FlockSteering flockSteering = lowPrioritySteering.behaviors[0].Behavior as FlockSteering;
             flockSteering.UpdateConfig();
+            lowPrioritySteering.behaviors[0].Weight = 1;
 
             epsilon = FlockSteeringConfig.Instance.epsilon;
         }
@@ -396,6 +462,12 @@ namespace TestAI.Move.Flocking
 
         [AIParam_Float("加速度阈值")]
         public float epsilon { get => FlockSteeringConfig.Instance.epsilon; set => FlockSteeringConfig.Instance.epsilon = value; }
+
+        [AIParam_Float("检查碰撞的最小距离")]
+        public float avoidDistance { get => FlockSteeringConfig.Instance.avoidDistance; set => FlockSteeringConfig.Instance.avoidDistance = value; }
+
+        [AIParam_Float("基于障碍物表面的距离")]
+        public float lookAhead { get => FlockSteeringConfig.Instance.lookAhead; set => FlockSteeringConfig.Instance.lookAhead = value; }
 
         [AIParam_Float("----分离权重----")]
         public float Separation_Weight { get => FlockSteeringConfig.Instance.Separation_Weight; set => FlockSteeringConfig.Instance.Separation_Weight = value; }
