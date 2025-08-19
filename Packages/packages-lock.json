@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.coplaydev.unity-mcp": {
+      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/UnityMcpBridge",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      },
+      "hash": "14a6cbaeb4aaeb111697934188552cdf158d8a3b"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
