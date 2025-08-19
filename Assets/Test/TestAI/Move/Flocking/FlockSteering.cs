@@ -163,12 +163,27 @@ namespace TestAI.Move.Flocking
         [AIParam_Float("基于障碍物表面的距离")]
         public float lookAhead = 10f;
 
+        public List<IKinematicEntity> ObstacleEntitys;
+
         public override Vector3 GetTargetPos()
         {
-            RaycastHit hit;
-            if (UtilsTool.PhysicsRaycast(currentEntity.Position, currentEntity.Velocity, lookAhead, out hit))
+            //TODO : 预测障碍物位置，计算避开位置(这里是否应该使用寻路？)
+            RaycastHit[] hits;
+            if (UtilsTool.PhysicsRaycastAll(currentEntity.Position, currentEntity.Velocity, lookAhead, out hits))
             {
-                return hit.point + (hit.normal * avoidDistance);
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    RaycastHit hit = hits[i];
+                    if (hit.collider == null || hit.collider.gameObject == null) continue; //跳过无效的碰撞体
+                    //检查是否是障碍物实体
+                    IKinematicEntity obstacleEntity = hit.collider.GetComponent<IKinematicEntity>();
+                    if (obstacleEntity != null && ObstacleEntitys.Contains(obstacleEntity))
+                    {
+                        //如果是障碍物实体，则返回避开位置
+                        return hit.point + (hit.normal * avoidDistance);
+                    }
+                }
+                return base.GetTargetPos();
             }
             else
             {
@@ -204,6 +219,7 @@ namespace TestAI.Move.Flocking
             Steering_ObstacleAvoidance_new avoid = new Steering_ObstacleAvoidance_new();
             avoid.currentEntity = Entity;
             avoid.targetEntity = CenterEntity;
+            avoid.ObstacleEntitys = ObstacleEntitys;
             BlendedSteering highPrioritySteering = new BlendedSteering();
             highPrioritySteering.behaviors = new List<BehaviorAndWeight>
             {

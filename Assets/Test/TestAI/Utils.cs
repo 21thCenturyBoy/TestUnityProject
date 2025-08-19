@@ -346,6 +346,17 @@ namespace TestAI
             return Physics.Raycast(origin, direction, out hitinfo, maxDistance);
 
         }
+        public static bool PhysicsRaycastAll(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit[] hitinfos)
+        {
+            // 获取射线路径上的所有碰撞
+            hitinfos = Physics.RaycastAll(origin, direction, maxDistance);
+
+            // 按距离对结果进行排序
+            System.Array.Sort(hitinfos, (a, b) => a.distance.CompareTo(b.distance));
+
+            return hitinfos.Length != 0;
+
+        }
 
         public static void Destroy(this IKinematicEntity entity)
         {
