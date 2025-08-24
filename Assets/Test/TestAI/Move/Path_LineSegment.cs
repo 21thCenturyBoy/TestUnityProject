@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TestAI.Move
@@ -5,6 +7,17 @@ namespace TestAI.Move
     public class Path_LineSegment : MonoBehaviour, IPath
     {
         public IPoint[] Points;
+
+        public virtual IEnumerator<IPoint> GetEnumerator()
+        {
+            if (Points != null)
+            {
+                for (int i = 0; i < Points.Length; i++)
+                {
+                    yield return Points[i];
+                }
+            }
+        }
 
         /// <summary>
         /// 计算路径最近点的参数。
@@ -167,5 +180,7 @@ namespace TestAI.Move
                 Debug.DrawLine(start, end, UnityEngine.Color.yellow, duration);
             }
         }
+
+
     }
 }

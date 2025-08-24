@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -73,6 +74,8 @@ namespace TestAI
 
     public interface IPath
     {
+        public IEnumerator<IPoint> GetEnumerator();
+
         public float GetParam(Vector3 position, float lastParam);
 
         public Vector3 GetPosition(float param);

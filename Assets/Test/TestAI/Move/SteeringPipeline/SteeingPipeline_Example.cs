@@ -8,10 +8,10 @@ namespace TestAI.Move.SteeringPipeline
     public struct Pipeline_Goal : IPipeline_Goal
     {
         //通道数据
-        public bool isPosition;
-        public bool isOrientation;
-        public bool isVelocity;
-        public bool isRotation;
+        public bool hasPositionData;
+        public bool hasOrientationData;
+        public bool hasVelocityData;
+        public bool hasRotationData;
 
         public float orientation;
         public float rotation;
@@ -20,13 +20,13 @@ namespace TestAI.Move.SteeringPipeline
 
         public void UpdateChannels(Pipeline_Goal o)
         {
-            if (o.isOrientation)
+            if (o.hasOrientationData)
                 orientation = o.orientation;
-            if (o.isRotation)
+            if (o.hasRotationData)
                 rotation = o.rotation;
-            if (o.isPosition)
+            if (o.hasPositionData)
                 position = o.position;
-            if (o.isVelocity)
+            if (o.hasVelocityData)
                 velocity = o.velocity;
         }
     }
@@ -68,7 +68,7 @@ namespace TestAI.Move.SteeringPipeline
         }
     }
 
-    public class SimpleSteeingPipeline : MonoBehaviour
+    public class SteeingPipeline_Example : MonoBehaviour
     {
         public int constraintSteps = 3;
         Targeter[] targeters;
@@ -88,10 +88,8 @@ namespace TestAI.Move.SteeringPipeline
 
         protected virtual void Init()
         {
-            targeters = GetComponents<Targeter>();
-            decomposers = GetComponents<Decomposer>();
-            constraints = GetComponents<Constraint>();
-            actuator = GetComponent<Actuator>();
+            // TODO : 这里可以根据需要初始化实体和死锁行为
+
         }
 
         private void FixedUpdate()
