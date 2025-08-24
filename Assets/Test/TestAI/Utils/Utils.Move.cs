@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.IO;
+using UnityEngine;
 
 namespace TestAI
 {
@@ -97,6 +99,36 @@ namespace TestAI
         void SetPosition(Vector3 pos);
     }
 
+    /// <summary> 目标接口 </summary>
+    public interface IPipeline_Goal { }
+    /// <summary> 目标生成器接口 </summary>
+    public interface IPipeline_Targeter
+    {
+        public IPipeline_Goal GetSumGoal(IKinematicEntity entity);
+    }
+    /// <summary> 目标分解器接口 </summary>
+    public interface IPipeline_Decomposer
+    {
+        public IPipeline_Goal Decompose(IKinematicEntity entity, IPipeline_Goal sumGoal);
+    }
+    /// <summary> 约束接口 </summary>
+    public interface IPipeline_Constraint
+    {
+        //判断路径是否会违反约束
+        public bool IsViolated(IPath path);
+
+        //根据路径建议一个目标
+        public IPipeline_Goal Suggest(IKinematicEntity entity, IPipeline_Goal goal,IPath path);
+    }
+    /// <summary> 执行器接口 </summary>
+    public interface IPipeline_Actuator 
+    {
+        //最终路径
+        public IPath GetPath(IKinematicEntity entity, IPipeline_Goal goal);
+
+        //根据路径和目标计算输出加速度
+        public SteeringOutput GetOutput(IKinematicEntity entity, IPipeline_Goal goal, IPath pathl);
+    }
 
     public static class Utils_Move
     {
