@@ -28,7 +28,7 @@ namespace TestAI.Move
         void Start()
         {
 
-            var typeList = UtilsTool.GetKinematicLogicTypeCache().Keys.ToList();
+            var typeList = Utils_Attr.GetKinematicLogicTypeCache().Keys.ToList();
             m_sceneTypeDropdown.ClearOptions();
             m_sceneTypeDropdown.AddOptions(typeList);
             m_sceneTypeDropdown.value = 0;
@@ -49,7 +49,7 @@ namespace TestAI.Move
             {
                 m_currentLogic.Stop();
             }
-            m_currentLogic = UtilsTool.CreateKinematicLogic(m_sceneTypeDropdown.options[m_sceneTypeDropdown.value].text);
+            m_currentLogic = Utils_Attr.CreateKinematicLogic(m_sceneTypeDropdown.options[m_sceneTypeDropdown.value].text);
             m_currentLogic.CreatAIPramUI(m_AIParm_Parent);
             m_currentLogic.Start();
         }
