@@ -74,6 +74,8 @@ namespace TestAI
 
     public interface IPath
     {
+        public IPoint this[int index] { get; }
+        public int Count { get; }
         public IEnumerator<IPoint> GetEnumerator();
 
         public float GetParam(Vector3 position, float lastParam);
@@ -121,10 +123,10 @@ namespace TestAI
         public bool IsViolated(IPath path);
 
         //根据路径建议一个目标
-        public IPipeline_Goal Suggest(IKinematicEntity entity, IPipeline_Goal goal,IPath path);
+        public IPipeline_Goal Suggest(IKinematicEntity entity, IPipeline_Goal goal, IPath path);
     }
     /// <summary> 执行器接口 </summary>
-    public interface IPipeline_Actuator 
+    public interface IPipeline_Actuator
     {
         //最终路径
         public IPath GetPath(IKinematicEntity entity, IPipeline_Goal goal);

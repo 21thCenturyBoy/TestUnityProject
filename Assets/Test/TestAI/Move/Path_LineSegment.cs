@@ -8,6 +8,9 @@ namespace TestAI.Move
     {
         public IPoint[] Points;
 
+        public IPoint this[int index] => Points[index];
+        public int Count => Points != null ? Points.Length : 0;
+
         public virtual IEnumerator<IPoint> GetEnumerator()
         {
             if (Points != null)
